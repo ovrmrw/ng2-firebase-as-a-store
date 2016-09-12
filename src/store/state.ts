@@ -10,4 +10,6 @@ export class State {
   ) { }
 
   get incrementState$() { return this.store.appState$.map(state => state.increment); }
+
+  get historyState$() { return this.store.appState$.map(state => state.history); }
 }

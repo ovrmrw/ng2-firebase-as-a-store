@@ -8,28 +8,19 @@ import { State } from '../../store';
 @Component({
   selector: 'my-page1',
   template: `
-    <p>Page1Component</p>
+    <h4>Counter</h4>
     <p>{{counter | async}}</p>
-    <button (click)="increment()">+</button>
-    <button (click)="decrement()">-</button>
+    <button (click)="increment()" class="btn btn-primary">+</button>
+    <button (click)="decrement()" class="btn btn-primary">-</button>
+    <button (click)="reset()" class="btn btn-warning">RESET</button>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class Page1Component extends ParentComponent implements OnInit, OnDestroy {
+export class Page1Component {
   constructor(
     private service: Page1Service,
     private state: State,
-  ) {
-    super();
-  }
-
-  ngOnInit() {
-
-  }
-
-  ngOnDestroy() {
-
-  }
+  ) { }
 
   increment() {
     this.service.increment();
@@ -37,6 +28,10 @@ export class Page1Component extends ParentComponent implements OnInit, OnDestroy
 
   decrement() {
     this.service.decrement();
+  }
+
+  reset() {
+    this.service.reset();
   }
 
   get counter() { return this.state.incrementState$.map(state => state.counter); }
