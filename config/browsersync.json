@@ -1,0 +1,10 @@
+{
+  "files": [
+    "./.dest/**/*.{html,htm,css,js}"
+  ],
+  "server": {
+    "baseDir": "./.dest"
+  },
+  "port": 5000,
+  "ui": false
+}
