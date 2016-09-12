@@ -61,7 +61,7 @@ export class Store {
 
     this.fc.connectFromCloud<AppState>('appState/ovrmrw')
       .subscribe(appState => {
-        if (appState && appState.timestamp > this.currentState.timestamp + 1000) { // +1000がないと複数ブラウザで開いたときに永久ループが始まる。
+        if (appState && appState.timestamp > this.currentState.timestamp + 100) { // +100がないと複数ブラウザで開いたときに永久ループが始まる。
           if (appState.history) { // Validation
             console.log('REPLACE');
             this.dispatcher$.next(new ReplaceAction(appState));
