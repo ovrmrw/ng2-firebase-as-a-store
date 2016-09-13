@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 
-import { State } from '../../store';
+import { State } from '../store';
 
 
 @Component({
