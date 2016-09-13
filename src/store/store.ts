@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
+import lodash from 'lodash';
 
 import { Action, IncrementAction, DecrementAction, PushHistoryAction, ReplaceAction, ResetAction } from './actions';
 import { FirebaseController } from './firebase';
@@ -23,7 +24,7 @@ export interface AppState {
   timestamp: number
 }
 
-const appState: AppState = {
+const initialState: AppState = {
   increment: {
     counter: 0
   },
@@ -32,7 +33,8 @@ const appState: AppState = {
   },
   replace: false,
   timestamp: 0
-};
+}
+const resetState: AppState = lodash.cloneDeep(initialState);
 
 
 @Injectable()
@@ -44,14 +46,14 @@ export class Store {
     private dispatcher$: Dispatcher<Action>,
     private fc: FirebaseController,
   ) {
-    this.currentState = appState;
-    this.stateSubject$ = new BehaviorSubject<AppState>(appState);
+    this.currentState = initialState;
+    this.stateSubject$ = new BehaviorSubject<AppState>(initialState);
 
     Observable
       .zip<AppState>(
-      incrementReducer(appState.increment, dispatcher$),
-      historyReducer(appState.history, dispatcher$),
-      replaceReducer(appState.replace, dispatcher$),
+      incrementReducer(initialState.increment, dispatcher$),
+      historyReducer(initialState.history, dispatcher$),
+      replaceReducer(initialState.replace, dispatcher$),
       (increment, history, replace) => {
         return { increment, history, replace, timestamp: new Date().valueOf() } as AppState
       })
@@ -89,7 +91,7 @@ function incrementReducer(initState: IncrementState, dispatcher$: Dispatcher<Act
     if (action instanceof ReplaceAction) { // ReplaceActionのときは強制的に値を置き換える。
       state = action.replacer.increment;
     } else if (action instanceof ResetAction) { // ResetActionのときは強制的にリセットする。
-      state = Object.assign({}, appState.increment);
+      state = lodash.cloneDeep(resetState.increment);
     }
     return state;
   }, initState);
@@ -103,7 +105,7 @@ function historyReducer(initState: HistoryState, dispatcher$: Dispatcher<Action>
     if (action instanceof ReplaceAction) { // ReplaceActionのときは強制的に値を置き換える。
       state = action.replacer.history;
     } else if (action instanceof ResetAction) { // ResetActionのときは強制的にリセットする。
-      state = Object.assign({}, appState.history);
+      state = lodash.cloneDeep(resetState.history);
     }
     return state;
   }, initState);
