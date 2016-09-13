@@ -19,6 +19,7 @@ interface HistoryState {
 export interface AppState {
   increment: IncrementState
   history: HistoryState
+  replace: boolean
   timestamp: number
 }
 
@@ -29,6 +30,7 @@ const appState: AppState = {
   history: {
     actions: []
   },
+  replace: false,
   timestamp: 0
 };
 
@@ -49,14 +51,17 @@ export class Store {
       .zip<AppState>(
       incrementReducer(appState.increment, dispatcher$),
       historyReducer(appState.history, dispatcher$),
-      (increment, history) => {
-        return { increment, history, timestamp: new Date().valueOf() } as AppState
+      replaceReducer(appState.replace, dispatcher$),
+      (increment, history, replace) => {
+        return { increment, history, replace, timestamp: new Date().valueOf() } as AppState
       })
       .subscribe(newState => {
         console.log(newState);
         this.currentState = newState;
         this.stateSubject$.next(newState);
-        this.fc.upload('appState/ovrmrw', newState);
+        if (!newState.replace) { // Only not ReplaceAction, write to Firebase.
+          this.fc.upload('appState/ovrmrw', newState);
+        }
       });
 
     this.fc.connect$<AppState>('appState/ovrmrw')
@@ -99,6 +104,17 @@ function historyReducer(initState: HistoryState, dispatcher$: Dispatcher<Action>
       state = action.replacer.history;
     } else if (action instanceof ResetAction) { // ResetActionのときは強制的にリセットする。
       state = Object.assign({}, appState.history);
+    }
+    return state;
+  }, initState);
+}
+
+function replaceReducer(initState: boolean, dispatcher$: Dispatcher<Action>): Observable<boolean> {
+  return dispatcher$.scan<typeof initState>((state, action) => {
+    if (action instanceof ReplaceAction) {
+      state = true;
+    } else {
+      state = false;
     }
     return state;
   }, initState);
