@@ -22,7 +22,7 @@ export interface AppState {
   timestamp: number
 }
 
-const initialState: AppState = {
+const appState: AppState = {
   increment: {
     counter: 0
   },
@@ -42,29 +42,29 @@ export class Store {
     private dispatcher$: Dispatcher<Action>,
     private fc: FirebaseController,
   ) {
-    this.stateSubject$ = new BehaviorSubject<AppState>(initialState);
-    this.currentState = initialState;
+    this.currentState = appState;
+    this.stateSubject$ = new BehaviorSubject<AppState>(appState);
 
     Observable
       .zip<AppState>(
-      incrementReducer(initialState.increment, dispatcher$),
-      historyReducer(initialState.history, dispatcher$),
+      incrementReducer(appState.increment, dispatcher$),
+      historyReducer(appState.history, dispatcher$),
       (increment, history) => {
         return { increment, history, timestamp: new Date().valueOf() } as AppState
       })
       .subscribe(newState => {
         console.log(newState);
-        this.stateSubject$.next(newState);
         this.currentState = newState;
-        this.fc.uploadToCloud('appState/ovrmrw', newState);
+        this.stateSubject$.next(newState);
+        this.fc.upload('appState/ovrmrw', newState);
       });
 
-    this.fc.connectFromCloud<AppState>('appState/ovrmrw')
-      .subscribe(appState => {
-        if (appState && appState.timestamp > this.currentState.timestamp + 100) { // +100がないと複数ブラウザで開いたときに永久ループが始まる。
-          if (appState.history) { // Validation
+    this.fc.connect$<AppState>('appState/ovrmrw')
+      .subscribe(cloudState => {
+        if (cloudState && cloudState.timestamp > this.currentState.timestamp + 100) { // +100がないと複数ブラウザで開いたときに永久ループが始まる。
+          if (cloudState.history) { // Validation
             console.log('REPLACE');
-            this.dispatcher$.next(new ReplaceAction(appState));
+            this.dispatcher$.next(new ReplaceAction(cloudState));
           }
         }
       });
@@ -77,14 +77,14 @@ export class Store {
 function incrementReducer(initState: IncrementState, dispatcher$: Dispatcher<Action>): Observable<IncrementState> {
   return dispatcher$.scan<typeof initState>((state, action) => {
     if (action instanceof IncrementAction) {
-      state.counter++;
+      state.counter = state.counter + 1;
     } else if (action instanceof DecrementAction) {
-      state.counter--;
+      state.counter = state.counter - 1;
     }
     if (action instanceof ReplaceAction) { // ReplaceActionのときは強制的に値を置き換える。
       state = action.replacer.increment;
     } else if (action instanceof ResetAction) { // ResetActionのときは強制的にリセットする。
-      state = { counter: 0 };
+      state = Object.assign({}, appState.increment);
     }
     return state;
   }, initState);
@@ -98,7 +98,7 @@ function historyReducer(initState: HistoryState, dispatcher$: Dispatcher<Action>
     if (action instanceof ReplaceAction) { // ReplaceActionのときは強制的に値を置き換える。
       state = action.replacer.history;
     } else if (action instanceof ResetAction) { // ResetActionのときは強制的にリセットする。
-      state = { actions: [] };
+      state = Object.assign({}, appState.history);
     }
     return state;
   }, initState);

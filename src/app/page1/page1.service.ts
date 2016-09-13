@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { Store, Dispatcher, Action, IncrementAction, DecrementAction, PushHistoryAction, ResetAction } from '../../store';
 
+
 @Injectable()
 export class Page1Service {
   constructor(

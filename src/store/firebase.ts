@@ -17,16 +17,19 @@ export class FirebaseController {
     firebase.initializeApp(config);
   }
 
-  uploadToCloud(path: string, obj: {}) {
-    firebase.database().ref(path).update(obj, err => {
+  upload(refPath: string, obj: {}): void {
+    const timeStr = '(' + new Date().valueOf() + ') Firebase Write Response';
+    console.time(timeStr);
+    firebase.database().ref(refPath).update(obj, err => {
       if (err) { console.error(err); }
+      console.timeEnd(timeStr); // Watching passed time to write data to Firebase.
     });
   }
 
-  connectFromCloud<T>(path: string): Subject<T> {
-    const subject = new Subject<T>();
-    firebase.database().ref(path).on('value', snapshot => {
-      if (snapshot) {
+  connect$<T>(refPath: string): Subject<T> {
+    const subject = new Subject<T>();    
+    firebase.database().ref(refPath).on('value', snapshot => {      
+      if (snapshot) {        
         const val = snapshot.val();
         subject.next(val);
       }

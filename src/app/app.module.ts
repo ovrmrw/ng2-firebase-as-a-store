@@ -10,6 +10,7 @@ import { Page1Service } from './page1/page1.service';
 
 import { Store, Dispatcher, State, FirebaseController } from '../store';
 
+
 const appRoutes: Routes = [
   {
     path: '',
@@ -19,6 +20,7 @@ const appRoutes: Routes = [
   { path: 'page1', component: Page1Component },
   { path: 'page2', component: Page2Component }
 ];
+
 
 @NgModule({
   imports: [BrowserModule, RouterModule.forRoot(appRoutes)],
