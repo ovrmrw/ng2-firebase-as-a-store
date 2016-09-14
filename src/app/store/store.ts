@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, OpaqueToken } from '@angular/core';
 // import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
@@ -10,7 +10,9 @@ import { IncrementState, AppState, ResolvedAppState } from './types';
 import { FirebaseController } from './firebase';
 
 
-const initialState: AppState = {
+export const InitialState = new OpaqueToken('InitialState');
+
+const defaultAppState: AppState = {
   increment: Promise.resolve({
     counter: 0
   }),
@@ -30,16 +32,17 @@ export class Store {
   private currentState: AppState;
 
   constructor(
-    private dispatcher$: Dispatcher<Action>,
-    private fc: FirebaseController,
-  ) {
-    this.currentState = initialState;
-    this.stateSubject$ = new BehaviorSubject<AppState>(initialState);
+    @Inject(Dispatcher) private dispatcher$: Dispatcher<Action>,
+    @Inject(InitialState) private initialState: AppState | null, // initialStateをセットしなければデフォルト値がセットされる。   
+    @Inject(FirebaseController) private fc: FirebaseController | null, // テストのときはnullにする。
+  ) {    
+    this.currentState = initialState || defaultAppState;
+    this.stateSubject$ = new BehaviorSubject<AppState>(this.currentState);
 
     Observable
       .zip<AppState>(
-      incrementReducer(initialState.increment, dispatcher$),
-      replaceReducer(initialState.replace, dispatcher$),
+      incrementReducer(this.currentState.increment, dispatcher$),
+      replaceReducer(this.currentState.replace, dispatcher$),
       (increment, replace) => {
         return { increment, replace, timestamp: new Date().valueOf() } as AppState
       })
@@ -47,17 +50,19 @@ export class Store {
         console.log(newState);
         this.currentState = newState;
         this.stateSubject$.next(newState);
-        if (!newState.replace) { // Only not ReplaceAction, write to Firebase.
+        if (this.fc && !newState.replace) { // Only not ReplaceAction, write to Firebase.
           this.fc.uploadAfterResolve('firebase/ref/path', newState);
         }
       });
 
-    this.fc.connect$<ResolvedAppState>('firebase/ref/path')
-      .subscribe(cloudState => {
-        if (cloudState && cloudState.timestamp > this.currentState.timestamp + 100) { // +100がないと複数ブラウザで開いたときに永久ループが始まる。          
-          this.dispatcher$.next(new ReplaceAction(cloudState));
-        }
-      });
+    if (this.fc) {
+      this.fc.connect$<ResolvedAppState>('firebase/ref/path')
+        .subscribe(cloudState => {
+          if (cloudState && cloudState.timestamp > this.currentState.timestamp + 100) { // +100がないと複数ブラウザで開いたときに永久ループが始まる。          
+            this.dispatcher$.next(new ReplaceAction(cloudState));
+          }
+        });
+    }
   }
 
   get appState$() { return this.stateSubject$.asObservable(); }
@@ -82,7 +87,7 @@ function incrementReducer(initState: Promise<IncrementState>, dispatcher$: Dispa
       const _action = action as ReplaceAction; // tscの識別エラー対応
       return Promise.resolve(_action.stateFromOutside.increment);
     } else if (action instanceof ResetAction) {
-      return lodash.cloneDeep(initialState.increment);
+      return lodash.cloneDeep(defaultAppState.increment);
     } else {
       return state;
     }

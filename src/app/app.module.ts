@@ -7,7 +7,7 @@ import { Page1Component } from './page1/page1.component';
 
 import { Page1Service } from './page1/page1.service';
 
-import { Store, Dispatcher, State, FirebaseController } from './store';
+import { Store, Dispatcher, State, FirebaseController, InitialState } from './store';
 
 
 const appRoutes: Routes = [
@@ -23,7 +23,12 @@ const appRoutes: Routes = [
 @NgModule({
   imports: [BrowserModule, RouterModule.forRoot(appRoutes)],
   declarations: [AppComponent, Page1Component],
-  providers: [Dispatcher, FirebaseController, Store, State, Page1Service],
+  providers: [
+    Dispatcher, Store, State, Page1Service,
+    { provide: InitialState, useValue: null },
+    FirebaseController,
+    // { provide: FirebaseController, useValue: null },
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
