@@ -7,7 +7,7 @@ import { Page1Component } from './page1/page1.component';
 
 import { Page1Service } from './page1/page1.service';
 
-import { Store, Dispatcher, State, FirebaseController, InitialState } from './store';
+import { Store, Dispatcher, State, FirebaseMiddleware } from './store';
 
 
 const appRoutes: Routes = [
@@ -25,9 +25,7 @@ const appRoutes: Routes = [
   declarations: [AppComponent, Page1Component],
   providers: [
     Dispatcher, Store, State, Page1Service,
-    { provide: InitialState, useValue: null },
-    FirebaseController,
-    // { provide: FirebaseController, useValue: null },
+    FirebaseMiddleware,
   ],
   bootstrap: [AppComponent]
 })

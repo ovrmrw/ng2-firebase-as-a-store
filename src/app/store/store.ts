@@ -1,13 +1,14 @@
-import { Injectable, Inject, OpaqueToken } from '@angular/core';
+import { Injectable, Inject, Optional, OptionalDecorator, OpaqueToken } from '@angular/core';
 // import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import lodash from 'lodash';
+import uuid from 'node-uuid';
 
 import { Action, IncrementAction, DecrementAction, ReplaceAction, ResetAction } from './actions';
 import { IncrementState, AppState, ResolvedAppState } from './types';
-import { FirebaseController } from './firebase';
+import { FirebaseMiddleware } from './firebase';
 
 
 export const InitialState = new OpaqueToken('InitialState');
@@ -17,7 +18,7 @@ const defaultAppState: AppState = {
     counter: 0
   }),
   replace: false,
-  timestamp: 0
+  uuid: uuid.v4(),
 }
 
 
@@ -29,36 +30,44 @@ export class Dispatcher<T> extends Subject<T> {
 @Injectable()
 export class Store {
   private stateSubject$: Subject<AppState>;
-  private currentState: AppState;
 
   constructor(
-    @Inject(Dispatcher) private dispatcher$: Dispatcher<Action>,
-    @Inject(InitialState) private initialState: AppState | null, // initialStateをセットしなければデフォルト値がセットされる。   
-    @Inject(FirebaseController) private fc: FirebaseController | null, // テストのときはnullにする。
-  ) {    
-    this.currentState = initialState || defaultAppState;
-    this.stateSubject$ = new BehaviorSubject<AppState>(this.currentState);
+    private dispatcher$: Dispatcher<Action>,
+    @Inject(InitialState) @Optional()
+    private initialState: AppState | null, // DIできない場合はnullになる。
+    @Inject(FirebaseMiddleware) @Optional()
+    private firebase: FirebaseMiddleware | null, // DIできない場合はnullになる。テスト時はnullにする。
+  ) {
+    const _initialState: AppState = initialState || defaultAppState; // initialStateがnullならデフォルト値がセットされる。
+    this.stateSubject$ = new BehaviorSubject<AppState>(_initialState);
 
+    this.registerReducers(_initialState);
+    this.registerFirebaseConnect(_initialState);
+  }
+
+  registerReducers(initialState: AppState) {
     Observable
-      .zip<AppState>(
-      incrementReducer(this.currentState.increment, dispatcher$),
-      replaceReducer(this.currentState.replace, dispatcher$),
-      (increment, replace) => {
-        return { increment, replace, timestamp: new Date().valueOf() } as AppState
-      })
+      .zip<AppState>(...[ // わざわざ配列にした上でSpreadしているのは、VSCodeのオートインデントが有効になるから。
+        incrementReducer(initialState.increment, this.dispatcher$),
+        replaceReducer(initialState.replace, this.dispatcher$),
+        (increment, replace) => {
+          return { increment, replace, uuid: initialState.uuid } as AppState
+        }
+      ])
       .subscribe(newState => {
-        console.log(newState);
-        this.currentState = newState;
+        console.log('newState:', newState);
         this.stateSubject$.next(newState);
-        if (this.fc && !newState.replace) { // Only not ReplaceAction, write to Firebase.
-          this.fc.uploadAfterResolve('firebase/ref/path', newState);
+        if (this.firebase && !newState.replace) { // ReplaceActionではない場合のみFirebaseに書き込みする。
+          this.firebase.uploadAfterResolve('firebase/ref/path', newState);
         }
       });
+  }
 
-    if (this.fc) {
-      this.fc.connect$<ResolvedAppState>('firebase/ref/path')
+  registerFirebaseConnect(initialState: AppState) {
+    if (this.firebase) {
+      this.firebase.connect$<ResolvedAppState>('firebase/ref/path')
         .subscribe(cloudState => {
-          if (cloudState && cloudState.timestamp > this.currentState.timestamp + 100) { // +100がないと複数ブラウザで開いたときに永久ループが始まる。          
+          if (cloudState && cloudState.uuid !== initialState.uuid) { // +100がないと複数ブラウザで開いたときに永久ループが始まる。          
             this.dispatcher$.next(new ReplaceAction(cloudState));
           }
         });
@@ -83,11 +92,11 @@ function incrementReducer(initState: Promise<IncrementState>, dispatcher$: Dispa
           state.then(s => resolve({ counter: --s.counter }));
         }, 500);
       });
-    } else if (action instanceof ReplaceAction) { // ReplaceActionのときは強制的に値を置き換える。
-      const _action = action as ReplaceAction; // tscの識別エラー対応
+    } else if (action instanceof ReplaceAction) {
+      const _action = action as ReplaceAction; // tscの型判定不具合対応
       return Promise.resolve(_action.stateFromOutside.increment);
     } else if (action instanceof ResetAction) {
-      return lodash.cloneDeep(defaultAppState.increment);
+      return lodash.cloneDeep(initState);
     } else {
       return state;
     }

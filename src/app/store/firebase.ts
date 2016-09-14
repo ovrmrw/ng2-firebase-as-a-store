@@ -16,7 +16,7 @@ const config = {
 
 
 @Injectable()
-export class FirebaseController {
+export class FirebaseMiddleware {
   constructor() {
     firebase.initializeApp(config);
   }
