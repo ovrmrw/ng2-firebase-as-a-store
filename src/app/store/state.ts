@@ -14,6 +14,6 @@ export class State {
   get incrementState$(): Observable<IncrementState> {
     return this.store.appState$
       .map(state => state.increment)
-      .switchMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise));
+      .mergeMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise));
   }
 }
