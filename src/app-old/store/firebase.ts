@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-// import { Subject } from 'rxjs/Rx';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs/Rx';
 import firebase from 'firebase';
 
 
@@ -19,16 +18,19 @@ export class FirebaseController {
   }
 
   upload(refPath: string, obj: {}): void {
+    const timeStr = '(' + new Date().valueOf() + ') Firebase Write Response';
+    console.time(timeStr);
     firebase.database().ref(refPath).update(obj, err => {
       if (err) { console.error(err); }
+      console.timeEnd(timeStr); // Watching passed time to write data to Firebase.
     });
   }
 
   connect$<T>(refPath: string): Subject<T> {
-    const subject = new Subject<T>();
-    firebase.database().ref(refPath).on('value', snapshot => {
-      if (snapshot) {
-        const val = snapshot.val() as T;
+    const subject = new Subject<T>();    
+    firebase.database().ref(refPath).on('value', snapshot => {      
+      if (snapshot) {        
+        const val = snapshot.val();
         subject.next(val);
       }
     });

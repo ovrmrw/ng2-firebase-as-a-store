@@ -1,4 +1,4 @@
-import { AppState } from './store';
+import { ResolvedAppState } from './types';
 
 
 export class IncrementAction {
@@ -9,12 +9,8 @@ export class DecrementAction {
   constructor() { }
 }
 
-export class PushHistoryAction {
-  constructor(public description: string) { }
-}
-
 export class ReplaceAction {
-  constructor(public replacer: AppState) { }
+  constructor(public stateFromOutside: ResolvedAppState) { }
 }
 
 export class ResetAction {
@@ -22,4 +18,4 @@ export class ResetAction {
 }
 
 
-export type Action = IncrementAction | DecrementAction | PushHistoryAction | ReplaceAction | ResetAction;
+export type Action = IncrementAction | DecrementAction | ReplaceAction | ResetAction;

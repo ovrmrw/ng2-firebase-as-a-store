@@ -1,40 +1,27 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
+// import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import lodash from 'lodash';
 
-import { Action, IncrementAction, DecrementAction, PushHistoryAction, ReplaceAction, ResetAction } from './actions';
+import { Action, IncrementAction, DecrementAction, ReplaceAction, ResetAction } from './actions';
+import { IncrementState, AppState, ResolvedAppState } from './types';
 import { FirebaseController } from './firebase';
+
+
+const initialState: AppState = {
+  increment: Promise.resolve({
+    counter: 0
+  }),
+  replace: false,
+  timestamp: 0
+}
 
 
 export class Dispatcher<T> extends Subject<T> {
   constructor() { super(); }
 }
-
-
-interface IncrementState {
-  counter: number
-}
-interface HistoryState {
-  actions: string[]
-}
-export interface AppState {
-  increment: IncrementState
-  history: HistoryState
-  replace: boolean
-  timestamp: number
-}
-
-const initialState: AppState = {
-  increment: {
-    counter: 0
-  },
-  history: {
-    actions: []
-  },
-  replace: false,
-  timestamp: 0
-}
-const resetState: AppState = lodash.cloneDeep(initialState);
 
 
 @Injectable()
@@ -52,27 +39,23 @@ export class Store {
     Observable
       .zip<AppState>(
       incrementReducer(initialState.increment, dispatcher$),
-      historyReducer(initialState.history, dispatcher$),
       replaceReducer(initialState.replace, dispatcher$),
-      (increment, history, replace) => {
-        return { increment, history, replace, timestamp: new Date().valueOf() } as AppState
+      (increment, replace) => {
+        return { increment, replace, timestamp: new Date().valueOf() } as AppState
       })
       .subscribe(newState => {
         console.log(newState);
         this.currentState = newState;
         this.stateSubject$.next(newState);
         if (!newState.replace) { // Only not ReplaceAction, write to Firebase.
-          this.fc.upload('appState/ovrmrw', newState);
+          this.fc.uploadAfterResolve('firebase/ref/path', newState);
         }
       });
 
-    this.fc.connect$<AppState>('appState/ovrmrw')
+    this.fc.connect$<ResolvedAppState>('firebase/ref/path')
       .subscribe(cloudState => {
-        if (cloudState && cloudState.timestamp > this.currentState.timestamp + 100) { // +100がないと複数ブラウザで開いたときに永久ループが始まる。
-          if (cloudState.history) { // Validation
-            console.log('REPLACE');
-            this.dispatcher$.next(new ReplaceAction(cloudState));
-          }
+        if (cloudState && cloudState.timestamp > this.currentState.timestamp + 100) { // +100がないと複数ブラウザで開いたときに永久ループが始まる。          
+          this.dispatcher$.next(new ReplaceAction(cloudState));
         }
       });
   }
@@ -81,43 +64,37 @@ export class Store {
 }
 
 
-function incrementReducer(initState: IncrementState, dispatcher$: Dispatcher<Action>): Observable<IncrementState> {
+function incrementReducer(initState: Promise<IncrementState>, dispatcher$: Dispatcher<Action>): Observable<Promise<IncrementState>> {
   return dispatcher$.scan<typeof initState>((state, action) => {
-    if (action instanceof IncrementAction) {
-      state.counter = state.counter + 1;
+    /****/ if (action instanceof IncrementAction) {
+      return new Promise<IncrementState>(resolve => {
+        setTimeout(() => {
+          state.then(s => resolve({ counter: ++s.counter }));
+        }, 500);
+      });
     } else if (action instanceof DecrementAction) {
-      state.counter = state.counter - 1;
+      return new Promise<IncrementState>(resolve => {
+        setTimeout(() => {
+          state.then(s => resolve({ counter: --s.counter }));
+        }, 500);
+      });
+    } else if (action instanceof ReplaceAction) { // ReplaceActionのときは強制的に値を置き換える。
+      const _action = action as ReplaceAction; // tscの識別エラー対応
+      return Promise.resolve(_action.stateFromOutside.increment);
+    } else if (action instanceof ResetAction) {
+      return lodash.cloneDeep(initialState.increment);
+    } else {
+      return state;
     }
-    if (action instanceof ReplaceAction) { // ReplaceActionのときは強制的に値を置き換える。
-      state = action.replacer.increment;
-    } else if (action instanceof ResetAction) { // ResetActionのときは強制的にリセットする。
-      state = lodash.cloneDeep(resetState.increment);
-    }
-    return state;
-  }, initState);
-}
-
-function historyReducer(initState: HistoryState, dispatcher$: Dispatcher<Action>): Observable<HistoryState> {
-  return dispatcher$.scan<typeof initState>((state, action) => {
-    if (action instanceof PushHistoryAction) {
-      state.actions.push(action.description);
-    }
-    if (action instanceof ReplaceAction) { // ReplaceActionのときは強制的に値を置き換える。
-      state = action.replacer.history;
-    } else if (action instanceof ResetAction) { // ResetActionのときは強制的にリセットする。
-      state = lodash.cloneDeep(resetState.history);
-    }
-    return state;
   }, initState);
 }
 
 function replaceReducer(initState: boolean, dispatcher$: Dispatcher<Action>): Observable<boolean> {
   return dispatcher$.scan<typeof initState>((state, action) => {
     if (action instanceof ReplaceAction) {
-      state = true;
+      return true;
     } else {
-      state = false;
+      return false;
     }
-    return state;
   }, initState);
 }

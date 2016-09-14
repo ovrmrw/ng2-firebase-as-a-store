@@ -8,7 +8,7 @@ export abstract class ParentComponent {
     this.subs.push(subscription);
   }
 
-  protected disposeSubscriptions(): void {
+  protected disposeSubscriptions() {
     this.subs.forEach(sub => sub.unsubscribe());
   }
 }

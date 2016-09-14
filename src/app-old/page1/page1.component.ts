@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 
+import { ParentComponent } from '../shared/parent.component';
 import { Page1Service } from './page1.service';
 import { State } from '../store';
 
@@ -11,6 +12,7 @@ import { State } from '../store';
     <p>{{counter | async}}</p>
     <button (click)="increment()" class="btn btn-primary">+</button>
     <button (click)="decrement()" class="btn btn-primary">-</button>
+    <button (click)="reset()" class="btn btn-warning">RESET</button>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -26,6 +28,10 @@ export class Page1Component {
 
   decrement() {
     this.service.decrement();
+  }
+
+  reset() {
+    this.service.reset();
   }
 
   get counter() { return this.state.incrementState$.map(state => state.counter); }

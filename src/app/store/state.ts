@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 
 import { Store } from './store';
+import { IncrementState } from './types';
 
 
 @Injectable()
@@ -9,7 +11,9 @@ export class State {
     private store: Store
   ) { }
 
-  get incrementState$() { return this.store.appState$.map(state => state.increment); }
-
-  get historyState$() { return this.store.appState$.map(state => state.history); }
+  get incrementState$(): Observable<IncrementState> {
+    return this.store.appState$
+      .map(state => state.increment)
+      .switchMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise));
+  }
 }

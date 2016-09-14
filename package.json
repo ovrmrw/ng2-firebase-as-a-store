@@ -50,6 +50,7 @@
     "@angular/platform-browser-dynamic": "^2.0.0-rc.7",
     "@angular/router": "^3.0.0-rc.2",
     "babel-polyfill": "^6.9.1",
+    "bluebird": "^3.4.6",
     "firebase": "^3.3.2",
     "lodash": "^4.14.0",
     "reflect-metadata": "^0.1.8",
@@ -57,6 +58,7 @@
     "zone.js": "^0.6.21"
   },
   "devDependencies": {
+    "@types/bluebird": "^3.0.32",
     "@types/empower": "0.0.28",
     "@types/fs-extra": "0.0.28",
     "@types/jasmine": "^2.2.33",
