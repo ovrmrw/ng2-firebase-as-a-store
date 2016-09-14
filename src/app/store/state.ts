@@ -10,6 +10,7 @@ export class State {
   constructor(
     private store: Store
   ) { }
+  
 
   get incrementState$(): Observable<IncrementState> {
     return this.store.appState$

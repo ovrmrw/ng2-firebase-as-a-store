@@ -8,6 +8,7 @@ export class Page1Service {
   constructor(
     private dispatcher$: Dispatcher<Action>
   ) { }
+  
 
   increment(): void {
     this.dispatcher$.next(new IncrementAction());

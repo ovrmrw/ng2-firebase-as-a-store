@@ -11,6 +11,8 @@ import { IncrementState, AppState, ResolvedAppState } from './types';
 import { FirebaseMiddleware } from './firebase';
 
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// State
 export const InitialState = new OpaqueToken('InitialState');
 
 const defaultAppState: AppState = {
@@ -22,11 +24,15 @@ const defaultAppState: AppState = {
 }
 
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// Dispatcher
 export class Dispatcher<T> extends Subject<T> {
   constructor() { super(); }
 }
 
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// Store
 @Injectable()
 export class Store {
   private stateSubject$: Subject<AppState>;
@@ -44,6 +50,7 @@ export class Store {
     this.registerReducers(_initialState);
     this.registerFirebaseConnect(_initialState);
   }
+  
 
   registerReducers(initialState: AppState) {
     Observable
@@ -78,6 +85,8 @@ export class Store {
 }
 
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// Reducers
 function incrementReducer(initState: Promise<IncrementState>, dispatcher$: Dispatcher<Action>): Observable<Promise<IncrementState>> {
   return dispatcher$.scan<typeof initState>((state, action) => {
     /****/ if (action instanceof IncrementAction) {

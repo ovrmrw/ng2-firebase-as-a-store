@@ -20,6 +20,7 @@ export class FirebaseMiddleware {
   constructor() {
     firebase.initializeApp(config);
   }
+  
 
   uploadAfterResolve(refPath: string, appState: AppState): void {
     bluebird.props(appState) // オブジェクト中のPromiseを全てresolveした後のオブジェクトを返す。
