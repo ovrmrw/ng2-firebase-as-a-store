@@ -14,4 +14,4 @@ fs.copy('./src', './.dest/src', { filter: /^(?!.*\.ts(x|)$)/ }); // systemjs用
 // fs.copy('./node_modules/core-js/client/shim.min.js', './.dest/shim.min.js');
 fs.copy('./node_modules/babel-polyfill/dist/polyfill.min.js', './.dest/polyfill.min.js');
 
-fs.copy('./node_modules/firebase/firebase.js', './.dest/firebase.js');
+// fs.copy('./node_modules/firebase/firebase.js', './.dest/firebase.js');

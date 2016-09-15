@@ -66,7 +66,7 @@ module.exports = {
       }
     ]
   },
-  externals: {
-    'firebase': 'firebase'
-  }
+  // externals: {
+  //   'firebase': 'firebase'
+  // }
 };
