@@ -1,15 +1,15 @@
 export interface IncrementState {
-  counter: number
+  counter: number;
 }
 
 export interface AppState {
-  increment: Promise<IncrementState>
-  replace: boolean
-  uuid: string
+  increment: Promise<IncrementState>;
+  replace: boolean;
+  uuid: string;
 }
 
 export interface ResolvedAppState {
-  increment: IncrementState
-  replace: boolean
-  uuid: string
+  increment: IncrementState;
+  replace: boolean;
+  uuid: string;
 }

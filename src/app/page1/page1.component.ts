@@ -36,7 +36,7 @@ export class Page1Component extends ParentComponent implements OnInit, OnDestroy
   ngOnDestroy() {
     this.disposeSubscriptions();
   }
-  
+
 
   increment(): void {
     this.service.increment();
