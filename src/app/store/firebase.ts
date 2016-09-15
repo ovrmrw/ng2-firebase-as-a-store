@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
-// import { Subject } from 'rxjs/Rx';
+import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import firebase from 'firebase';
 import bluebird from 'bluebird';
@@ -22,8 +22,8 @@ export class FirebaseMiddleware {
   }
   
 
-  uploadAfterResolve(refPath: string, appState: AppState): void {
-    bluebird.props(appState) // オブジェクト中のPromiseを全てresolveした後のオブジェクトを返す。
+  uploadAfterResolve<T>(refPath: string, stateNeedsResolve: T): void {
+    bluebird.props(stateNeedsResolve) // オブジェクト中のPromiseを全てresolveした後のオブジェクトを返す。
       .then(resolvedState => {
         const timeStr = '(' + new Date().valueOf() + ') Firebase Write Response';
         console.time(timeStr);
@@ -36,7 +36,7 @@ export class FirebaseMiddleware {
       .catch(err => console.error(err));
   }
 
-  connect$<T>(refPath: string): Subject<T> {
+  connect$<T>(refPath: string): Observable<T> {
     const subject = new Subject<T>();
     firebase.database().ref(refPath).on('value', snapshot => {
       if (snapshot) {
@@ -44,6 +44,6 @@ export class FirebaseMiddleware {
         subject.next(val);
       }
     });
-    return subject;
+    return subject.asObservable();
   }
 }

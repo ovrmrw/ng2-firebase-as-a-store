@@ -1,5 +1,4 @@
 import { Injectable, Inject, Optional, OptionalDecorator, OpaqueToken } from '@angular/core';
-// import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -45,14 +44,14 @@ export class Store {
     private firebase: FirebaseMiddleware | null, // DIできない場合はnullになる。テスト時はnullにする。
   ) {
     const _initialState: AppState = initialState || defaultAppState; // initialStateがnullならデフォルト値がセットされる。
+
     this.stateSubject$ = new BehaviorSubject<AppState>(_initialState);
-
     this.registerReducers(_initialState);
-    this.registerFirebaseConnect(_initialState);
+    this.registerMiddlewares(_initialState);
   }
-  
 
-  registerReducers(initialState: AppState) {
+
+  registerReducers(initialState: AppState): void {
     Observable
       .zip<AppState>(...[ // わざわざ配列にした上でSpreadしているのは、VSCodeのオートインデントが有効になるから。
         incrementReducer(initialState.increment, this.dispatcher$),
@@ -70,7 +69,7 @@ export class Store {
       });
   }
 
-  registerFirebaseConnect(initialState: AppState) {
+  registerMiddlewares(initialState: AppState): void {
     if (this.firebase) {
       this.firebase.connect$<ResolvedAppState>('firebase/ref/path')
         .subscribe(cloudState => {
@@ -81,7 +80,9 @@ export class Store {
     }
   }
 
-  get appState$() { return this.stateSubject$.asObservable(); }
+  get appState$(): Observable<AppState> {
+    return this.stateSubject$.asObservable();
+  }
 }
 
 

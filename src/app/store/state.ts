@@ -10,11 +10,12 @@ export class State {
   constructor(
     private store: Store
   ) { }
-  
+
 
   get incrementState$(): Observable<IncrementState> {
     return this.store.appState$
-      .map(state => state.increment)
+      .map<Promise<IncrementState>>(state => state.increment)
       .mergeMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise));
+      // .switchMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise)); // switchMapは次のストリームが流れてくると前のストリームをキャンセルする。
   }
 }
