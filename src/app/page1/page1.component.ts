@@ -9,7 +9,7 @@ import { State } from '../store';
   selector: 'my-page1',
   template: `
     <h4>Counter</h4>
-    <p>{{_$counter}}</p>
+    <p id="counter">{{_$counter}}</p>
     <button (click)="increment()" class="btn btn-primary">+</button>
     <button (click)="decrement()" class="btn btn-primary">-</button>
     <button (click)="reset()" class="btn btn-warning">RESET</button>

@@ -106,7 +106,7 @@ function incrementReducer(initState: Promise<IncrementState>, dispatcher$: Dispa
     } else {
       return state;
     }
-  }, initState);
+  }, lodash.cloneDeep(initState));
 }
 
 function replaceReducer(initState: boolean, dispatcher$: Dispatcher<Action>): Observable<boolean> {
@@ -116,5 +116,5 @@ function replaceReducer(initState: boolean, dispatcher$: Dispatcher<Action>): Ob
     } else {
       return false;
     }
-  }, initState);
+  }, lodash.cloneDeep(initState));
 }
