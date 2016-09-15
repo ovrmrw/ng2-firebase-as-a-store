@@ -110,6 +110,18 @@ describe('TEST: (Page1 Component -> Service -> Dispatcher -> Store -> State -> C
     tick();
     assert(component._$counter === 0);
     fixture.detectChanges();
+    assert(elementText(el, '#counter') === '0');    
+    for (let i = 0; i < 100; i++) { // 0 -> 100
+      incrementButton.click();
+    }
+    tick(500);
+    assert(component._$counter === 100);
+    fixture.detectChanges();
+    assert(elementText(el, '#counter') === '100');
+    resetButton.click(); // 100 -> 0
+    tick();
+    assert(component._$counter === 0);
+    fixture.detectChanges();
     assert(elementText(el, '#counter') === '0');
   }));
 

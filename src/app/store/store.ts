@@ -89,24 +89,23 @@ function incrementReducer(initState: Promise<IncrementState>, dispatcher$: Dispa
     /****/ if (action instanceof IncrementAction) {
       return new Promise<IncrementState>(resolve => {
         setTimeout(() => {
-          state.then(s => resolve({ counter: ++s.counter }));
+          state.then(s => resolve({ counter: s.counter + 1 }));
         }, 500);
       });
     } else if (action instanceof DecrementAction) {
       return new Promise<IncrementState>(resolve => {
         setTimeout(() => {
-          state.then(s => resolve({ counter: --s.counter }));
+          state.then(s => resolve({ counter: s.counter - 1 }));
         }, 500);
       });
     } else if (action instanceof ReplaceAction) {
-      const _action = action as ReplaceAction; // tscの型判定不具合対応
-      return Promise.resolve(_action.stateFromOutside.increment);
+      return Promise.resolve(action.stateFromOutside.increment);
     } else if (action instanceof ResetAction) {
-      return lodash.cloneDeep(initState);
+      return initState;
     } else {
       return state;
     }
-  }, lodash.cloneDeep(initState));
+  }, initState);
 }
 
 function replaceReducer(initState: boolean, dispatcher$: Dispatcher<Action>): Observable<boolean> {
@@ -116,5 +115,5 @@ function replaceReducer(initState: boolean, dispatcher$: Dispatcher<Action>): Ob
     } else {
       return false;
     }
-  }, lodash.cloneDeep(initState));
+  }, initState);
 }

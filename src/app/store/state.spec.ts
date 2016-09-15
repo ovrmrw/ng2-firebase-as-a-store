@@ -76,6 +76,14 @@ describe('TEST: (Dispatcher -> Store -> State) Half Integration Test', () => {
     dispatcher$.next(new ResetAction()); // 2 -> 0
     tick();
     assert.deepEqual(incrementState, { counter: 0 });
+    for (let i = 0; i < 100; i++) { // 0 -> 100
+      dispatcher$.next(new IncrementAction());
+    }
+    tick(500);
+    assert.deepEqual(incrementState, { counter: 100 });
+    dispatcher$.next(new ResetAction()); // 100 -> 0
+    tick();
+    assert.deepEqual(incrementState, { counter: 0 });
   })));
 
 });
