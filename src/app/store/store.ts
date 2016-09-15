@@ -26,6 +26,12 @@ const defaultAppState: AppState = {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Store
+/*
+  ServiceクラスでDispatcherにActionをセットしてnextすると、
+  applyReducers関数内で定義されている各Reducer関数に前以て埋め込まれているDispatcherが発火し、
+  scanオペレーターが走る。そしてzipオペレーターで纏めてsubscribeして、その中で
+  Carrierをnextして最終的にComponentクラスにStateが届く。
+*/
 @Injectable()
 export class Store {
   readonly carrier$: Carrier<AppState>;
@@ -56,7 +62,7 @@ export class Store {
       ])
       .subscribe(newState => {
         console.log('newState:', newState);
-        this.carrier$.next(newState);
+        this.carrier$.next(newState); // CarrierをnextしてStateクラスにストリームを流す。
         if (this.firebase && !newState.replace) { // ReplaceActionではない場合のみFirebaseに書き込みする。
           this.firebase.uploadAfterResolve('firebase/ref/path', newState);
         }
@@ -67,7 +73,7 @@ export class Store {
     if (this.firebase) {
       this.firebase.connect$<ResolvedAppState>('firebase/ref/path')
         .subscribe(cloudState => {
-          if (cloudState && cloudState.uuid !== initialState.uuid) { // +100がないと複数ブラウザで開いたときに永久ループが始まる。          
+          if (cloudState && cloudState.uuid !== initialState.uuid) { // 自分以外の誰かがFirebaseを更新した場合は、その値をDispatcherにnextする。
             this.dispatcher$.next(new ReplaceAction(cloudState));
           }
         });
@@ -79,7 +85,7 @@ export class Store {
 /////////////////////////////////////////////////////////////////////////////////////////
 // Reducers
 function incrementReducer(initState: Promise<IncrementState>, dispatcher$: Dispatcher<Action>): Observable<Promise<IncrementState>> {
-  return dispatcher$.scan<typeof initState>((state, action) => {
+  return dispatcher$.scan<typeof initState>((state, action) => { // Dispatcherをnextする度にここが発火する。
     /****/ if (action instanceof IncrementAction) {
       return new Promise<IncrementState>(resolve => {
         setTimeout(() => {
@@ -104,7 +110,7 @@ function incrementReducer(initState: Promise<IncrementState>, dispatcher$: Dispa
 }
 
 function replaceReducer(initState: boolean, dispatcher$: Dispatcher<Action>): Observable<boolean> {
-  return dispatcher$.scan<typeof initState>((state, action) => {
+  return dispatcher$.scan<typeof initState>((state, action) => { // Dispatcherをnextする度にここが発火する。
     if (action instanceof ReplaceAction) {
       return true;
     } else {

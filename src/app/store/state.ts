@@ -5,6 +5,9 @@ import { Store } from './store';
 import { IncrementState } from './types';
 
 
+/*
+  Stateクラスから流れるストリームはComponentクラスでsubscribeしてViewを更新する。
+*/
 @Injectable()
 export class State {
   constructor(
