@@ -18,15 +18,16 @@ import { Observable } from 'rxjs/Rx';
 
 ////////////////////////////////////////////////////////////////////////
 // mocks
+class Mock { }
 
 
 ////////////////////////////////////////////////////////////////////////
 // tests
-describe('TEST: State Class', () => {
+describe('TEST: State Class Isolated Test', () => {
   /* >>> boilerplate */
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [State, Store, Dispatcher]
+      providers: [State, { provide: Store, useClass: Mock }]
     });
   });
   /* <<< boilerplate */
@@ -36,13 +37,25 @@ describe('TEST: State Class', () => {
     assert(!!state);
   })));
 
+});
+
+
+describe('TEST: (Dispatcher -> Store -> State) Half Integration Test', () => {
+  /* >>> boilerplate */
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [State, Store, Dispatcher]
+    });
+  });
+  /* <<< boilerplate */
+
 
   it('can increment and decrement', fakeAsync(inject([State, Dispatcher], (state: State, dispatcher$: Dispatcher<Action>) => {
     let incrementState: IncrementState | undefined;
     state.incrementState$
       .subscribe(s => {
         incrementState = s;
-        console.log('counter:', s.counter);
+        // console.log('counter:', s.counter);
       });
 
     assert.deepEqual(incrementState, undefined);

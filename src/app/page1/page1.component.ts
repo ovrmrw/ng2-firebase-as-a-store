@@ -10,9 +10,9 @@ import { State } from '../store';
   template: `
     <h4>Counter</h4>
     <p id="counter">{{_$counter}}</p>
-    <button (click)="increment()" class="btn btn-primary">+</button>
-    <button (click)="decrement()" class="btn btn-primary">-</button>
-    <button (click)="reset()" class="btn btn-warning">RESET</button>
+    <button (click)="increment()" class="btn btn-primary" id="increment-btn">+</button>
+    <button (click)="decrement()" class="btn btn-primary" id="decrement-btn">-</button>
+    <button (click)="reset()" class="btn btn-warning" id="reset-btn">RESET</button>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
