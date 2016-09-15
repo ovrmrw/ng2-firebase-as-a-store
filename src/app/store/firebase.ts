@@ -8,10 +8,10 @@ import { AppState } from './types';
 
 
 const config = {
-  apiKey: "AIzaSyDxLTkVE8aBriHxWARPbzszGE0uAVFYOPo",
-  authDomain: "fir-as-a-store.firebaseapp.com",
-  databaseURL: "https://fir-as-a-store.firebaseio.com",
-  storageBucket: "fir-as-a-store.appspot.com",
+  apiKey: 'AIzaSyDxLTkVE8aBriHxWARPbzszGE0uAVFYOPo',
+  authDomain: 'fir-as-a-store.firebaseapp.com',
+  databaseURL: 'https://fir-as-a-store.firebaseio.com',
+  storageBucket: 'fir-as-a-store.appspot.com',
 };
 
 
@@ -20,7 +20,7 @@ export class FirebaseMiddleware {
   constructor() {
     firebase.initializeApp(config);
   }
-  
+
 
   uploadAfterResolve<T>(refPath: string, stateNeedsResolve: T): void {
     bluebird.props(stateNeedsResolve) // オブジェクト中のPromiseを全てresolveした後のオブジェクトを返す。

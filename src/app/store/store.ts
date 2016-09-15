@@ -21,7 +21,7 @@ const defaultAppState: AppState = {
   }),
   replace: false,
   uuid: uuid.v4(),
-}
+};
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ export class Store {
         incrementReducer(initialState.increment, this.dispatcher$),
         replaceReducer(initialState.replace, this.dispatcher$),
         (increment, replace) => {
-          return { increment, replace, uuid: initialState.uuid } as AppState
+          return { increment, replace, uuid: initialState.uuid } as AppState;
         }
       ])
       .subscribe(newState => {

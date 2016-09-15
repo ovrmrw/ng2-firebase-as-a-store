@@ -56,7 +56,7 @@ describe('TEST: Page1 Component', () => {
     tick();
     const fixture = TestBed.createComponent(Page1Component);
     const el = fixture.debugElement.nativeElement as HTMLElement;
-    const component = fixture.componentRef.instance;    
+    const component = fixture.componentRef.instance;
     assert(elementText(el, '#counter') === '');
     assert(component._$counter === undefined);
     fixture.detectChanges();
