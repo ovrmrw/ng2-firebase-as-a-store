@@ -7,6 +7,6 @@ export class Dispatcher<T> extends Subject<T> {
 }
 
 // Storeクラス内のReducers処理後に新しい状態をnextし、ComponentクラスのViewを更新するために用いられる。
-export class Courier<T> extends Subject<T> {
+export class Carrier<T> extends Subject<T> {
   constructor() { super(); }
 }

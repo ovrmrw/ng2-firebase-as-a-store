@@ -5,7 +5,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import lodash from 'lodash';
 import uuid from 'node-uuid';
 
-import { Dispatcher, Courier } from './common';
+import { Dispatcher, Carrier } from './common';
 import { Action, IncrementAction, DecrementAction, ReplaceAction, ResetAction } from './actions';
 import { IncrementState, AppState, ResolvedAppState } from './types';
 import { FirebaseMiddleware } from './firebase';
@@ -28,7 +28,7 @@ const defaultAppState: AppState = {
 // Store
 @Injectable()
 export class Store {
-  readonly courier$: Courier<AppState>;
+  readonly carrier$: Carrier<AppState>;
 
   constructor(
     private dispatcher$: Dispatcher<Action>,
@@ -39,7 +39,7 @@ export class Store {
   ) {
     const _initialState: AppState = initialState || defaultAppState; // initialStateがnullならデフォルト値がセットされる。
 
-    this.courier$ = new BehaviorSubject<AppState>(_initialState);
+    this.carrier$ = new BehaviorSubject<AppState>(_initialState);
     this.applyReducers(_initialState);
     this.applyMiddlewares(_initialState);
   }
@@ -56,7 +56,7 @@ export class Store {
       ])
       .subscribe(newState => {
         console.log('newState:', newState);
-        this.courier$.next(newState);
+        this.carrier$.next(newState);
         if (this.firebase && !newState.replace) { // ReplaceActionではない場合のみFirebaseに書き込みする。
           this.firebase.uploadAfterResolve('firebase/ref/path', newState);
         }
