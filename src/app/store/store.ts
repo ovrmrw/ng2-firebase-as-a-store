@@ -5,6 +5,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import lodash from 'lodash';
 import uuid from 'node-uuid';
 
+import { Dispatcher, Courier } from './common';
 import { Action, IncrementAction, DecrementAction, ReplaceAction, ResetAction } from './actions';
 import { IncrementState, AppState, ResolvedAppState } from './types';
 import { FirebaseMiddleware } from './firebase';
@@ -24,17 +25,10 @@ const defaultAppState: AppState = {
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
-// Dispatcher
-export class Dispatcher<T> extends Subject<T> {
-  constructor() { super(); }
-}
-
-
-/////////////////////////////////////////////////////////////////////////////////////////
 // Store
 @Injectable()
 export class Store {
-  private stateSubject$: Subject<AppState>;
+  readonly courier$: Courier<AppState>;
 
   constructor(
     private dispatcher$: Dispatcher<Action>,
@@ -45,13 +39,13 @@ export class Store {
   ) {
     const _initialState: AppState = initialState || defaultAppState; // initialStateがnullならデフォルト値がセットされる。
 
-    this.stateSubject$ = new BehaviorSubject<AppState>(_initialState);
-    this.registerReducers(_initialState);
-    this.registerMiddlewares(_initialState);
+    this.courier$ = new BehaviorSubject<AppState>(_initialState);
+    this.applyReducers(_initialState);
+    this.applyMiddlewares(_initialState);
   }
 
 
-  registerReducers(initialState: AppState): void {
+  applyReducers(initialState: AppState): void {
     Observable
       .zip<AppState>(...[ // わざわざ配列にした上でSpreadしているのは、VSCodeのオートインデントが有効になるから。
         incrementReducer(initialState.increment, this.dispatcher$),
@@ -62,14 +56,14 @@ export class Store {
       ])
       .subscribe(newState => {
         console.log('newState:', newState);
-        this.stateSubject$.next(newState);
+        this.courier$.next(newState);
         if (this.firebase && !newState.replace) { // ReplaceActionではない場合のみFirebaseに書き込みする。
           this.firebase.uploadAfterResolve('firebase/ref/path', newState);
         }
       });
   }
 
-  registerMiddlewares(initialState: AppState): void {
+  applyMiddlewares(initialState: AppState): void {
     if (this.firebase) {
       this.firebase.connect$<ResolvedAppState>('firebase/ref/path')
         .subscribe(cloudState => {
@@ -78,10 +72,6 @@ export class Store {
           }
         });
     }
-  }
-
-  get appState$(): Observable<AppState> {
-    return this.stateSubject$.asObservable();
   }
 }
 

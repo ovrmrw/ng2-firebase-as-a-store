@@ -13,7 +13,7 @@ export class State {
 
 
   get incrementState$(): Observable<IncrementState> {
-    return this.store.appState$
+    return this.store.courier$
       .map<Promise<IncrementState>>(state => state.increment)
       .mergeMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise));
       // .switchMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise)); // switchMapは次のストリームが流れてくると前のストリームをキャンセルする。
