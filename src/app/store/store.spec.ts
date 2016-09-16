@@ -32,8 +32,10 @@ describe('TEST: Store Class Isolated Test', () => {
   /* <<< boilerplate */
 
 
-  it('can create', fakeAsync(inject([Store], (store: Store) => {
+  it('can create', inject([Store], (store: Store) => {
     assert(!!store);
-  })));
+    assert(1+1===2);
+    
+  }));
 
 });

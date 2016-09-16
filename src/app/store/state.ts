@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { Store } from './store';
-import { IncrementState } from './types';
+import { IncrementState, AppState } from './types';
 
 
 /*
@@ -17,8 +17,8 @@ export class State {
 
   get incrementState$(): Observable<IncrementState> {
     return this.store.carrier$
-      .map<Promise<IncrementState>>(state => state.increment)
-      .mergeMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise));
+      .map<Promise<IncrementState>>((appState: AppState) => appState.increment) // 本来は型指定不要
+      .mergeMap<IncrementState>((stateAsPromise: Promise<IncrementState>) => Observable.fromPromise(stateAsPromise)); // 本来は型指定不要
       // .switchMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise)); // switchMapは次のストリームが流れてくると前のストリームをキャンセルする。
   }
 }

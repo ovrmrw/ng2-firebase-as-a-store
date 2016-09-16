@@ -33,9 +33,9 @@ describe('TEST: State Class Isolated Test', () => {
   /* <<< boilerplate */
 
 
-  it('can create', fakeAsync(inject([State], (state: State) => {
+  it('can create', inject([State], (state: State) => {
     assert(!!state);
-  })));
+  }));
 
 });
 

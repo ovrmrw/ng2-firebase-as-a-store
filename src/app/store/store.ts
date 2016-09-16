@@ -54,13 +54,13 @@ export class Store {
   applyReducers(initialState: AppState): void {
     Observable
       .zip<AppState>(...[ // わざわざ配列にした上でSpreadしているのは、VSCodeのオートインデントが有効になるから。
-        incrementReducer(initialState.increment, this.dispatcher$),
-        replaceReducer(initialState.replace, this.dispatcher$),
-        (increment, replace) => {
-          return { increment, replace, uuid: initialState.uuid } as AppState;
-        }
+        incrementReducer(initialState.increment, this.dispatcher$), // as Observable<Promise<IncrementState>>
+        replaceReducer(initialState.replace, this.dispatcher$), // as Observable<boolean>
+        (increment, replace): AppState => ({ // {}を()で囲むことでオブジェクトをreturnできる。
+          increment, replace, uuid: initialState.uuid
+        })
       ])
-      .subscribe(newState => {
+      .subscribe((newState: AppState) => { // 本来は型指定不要
         console.log('newState:', newState);
         this.carrier$.next(newState); // CarrierをnextしてStateクラスにストリームを流す。
         if (this.firebase && !newState.replace) { // ReplaceActionではない場合のみFirebaseに書き込みする。
@@ -72,7 +72,7 @@ export class Store {
   applyMiddlewares(initialState: AppState): void {
     if (this.firebase) {
       this.firebase.connect$<ResolvedAppState>('firebase/ref/path')
-        .subscribe(cloudState => {
+        .subscribe((cloudState: ResolvedAppState) => { // 本来は型指定不要
           if (cloudState && cloudState.uuid !== initialState.uuid) { // 自分以外の誰かがFirebaseを更新した場合は、その値をDispatcherにnextする。
             this.dispatcher$.next(new ReplaceAction(cloudState));
           }
@@ -99,7 +99,7 @@ function incrementReducer(initState: Promise<IncrementState>, dispatcher$: Dispa
         }, 500);
       });
     } else if (action instanceof ReplaceAction) {
-      return Promise.resolve(action.stateFromOutside.increment);
+      return Promise.resolve(action.stateFromOutworld.increment);
     } else if (action instanceof ResetAction) {
       return initState;
     } else {

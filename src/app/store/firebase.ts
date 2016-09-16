@@ -22,13 +22,13 @@ export class FirebaseMiddleware {
   }
 
 
-  uploadAfterResolve<T>(refPath: string, stateNeedsResolve: T): void {
-    bluebird.props(stateNeedsResolve) // オブジェクト中のPromiseを全てresolveした後のオブジェクトを返す。
-      .then(resolvedState => {
+  uploadAfterResolve<T>(refPath: string, stateWillHavePromises: T): void {
+    bluebird.props(stateWillHavePromises) // オブジェクト中のPromiseを全てresolveした後のオブジェクトを返す。
+      .then(stateHasResolvedPromises => {
         const timeStr = '(' + new Date().valueOf() + ') Firebase Write Response';
         console.time(timeStr);
         // console.log('after bluebird.props()', resolvedState);
-        firebase.database().ref(refPath).update(resolvedState, err => {
+        firebase.database().ref(refPath).update(stateHasResolvedPromises, err => {
           if (err) { console.error(err); }
           console.timeEnd(timeStr); // Watching passed time to write data to Firebase.
         });

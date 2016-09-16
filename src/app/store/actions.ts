@@ -10,7 +10,7 @@ export class DecrementAction {
 }
 
 export class ReplaceAction {
-  constructor(public stateFromOutside: ResolvedAppState) { }
+  constructor(public stateFromOutworld: ResolvedAppState) { }
 }
 
 export class ResetAction {

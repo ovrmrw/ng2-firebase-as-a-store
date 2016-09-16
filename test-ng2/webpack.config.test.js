@@ -4,8 +4,9 @@ const webpack = require('webpack');
 
 
 module.exports = {
-  entry: {
-    vendor: './config/vendor.testing.ts',
+  entry: {    
+    // vendor: './config/vendor.testing.ts',
+    vendor: './config/vendor.ts',    
     main: './test-ng2/main.ts',
   },
   output: {

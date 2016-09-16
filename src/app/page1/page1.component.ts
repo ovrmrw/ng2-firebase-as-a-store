@@ -9,7 +9,8 @@ import { State } from '../store';
   selector: 'my-page1',
   template: `
     <h4>Counter</h4>
-    <p id="counter">{{_$counter}}</p>
+    <!-- <p id="counter">{{counter | async}}</p> これはなぜかブラウザがフリーズする -->
+    <p id="counter">{{_$counter}}</p>    
     <button (click)="increment()" class="btn btn-primary" id="increment-btn">+</button>
     <button (click)="decrement()" class="btn btn-primary" id="decrement-btn">-</button>
     <button (click)="reset()" class="btn btn-warning" id="reset-btn">RESET</button>
@@ -51,4 +52,7 @@ export class Page1Component extends ParentComponent implements OnInit, OnDestroy
   }
 
   _$counter: number;
+
+
+  get counter() { return this.state.incrementState$.map(state => state.counter); }
 }
