@@ -5,8 +5,8 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import lodash from 'lodash';
 import uuid from 'node-uuid';
 
-import { Dispatcher, Carrier } from './common';
-import { Action, IncrementAction, DecrementAction, ReplaceAction, ResetAction } from './actions';
+import { Dispatcher, Provider } from './common';
+import { Action, IncrementAction, DecrementAction, RestoreAction, ResetAction } from './actions';
 import { IncrementState, AppState, ResolvedAppState } from './types';
 import { FirebaseMiddleware } from './firebase';
 
@@ -19,8 +19,9 @@ const defaultAppState: AppState = {
   increment: Promise.resolve({
     counter: 0
   }),
-  replace: false,
+  restore: false,
   uuid: uuid.v4(),
+  isWriteToFirebase: () => !this.restore // Stateに関数を含められる。
 };
 
 
@@ -30,11 +31,11 @@ const defaultAppState: AppState = {
   ServiceクラスでDispatcherにActionをセットしてnextすると、
   applyReducers関数内で定義されている各Reducer関数に前以て埋め込まれているDispatcherが発火し、
   scanオペレーターが走る。そしてzipオペレーターで纏めてsubscribeして、その中で
-  Carrierをnextして最終的にComponentクラスにStateが届く。
+  Providerをnextして最終的にComponentクラスにStateが届く。
 */
 @Injectable()
 export class Store {
-  readonly carrier$: Carrier<AppState>;
+  readonly provider$: Provider<AppState>;
 
   constructor(
     private dispatcher$: Dispatcher<Action>,
@@ -45,9 +46,11 @@ export class Store {
   ) {
     const _initialState: AppState = initialState || defaultAppState; // initialStateがnullならデフォルト値がセットされる。
 
-    this.carrier$ = new BehaviorSubject<AppState>(_initialState);
+    /* >>> createStore */
+    this.provider$ = new BehaviorSubject(_initialState);
     this.applyReducers(_initialState);
     this.applyMiddlewares(_initialState);
+    /* <<< createStore */
   }
 
 
@@ -55,15 +58,15 @@ export class Store {
     Observable
       .zip<AppState>(...[ // わざわざ配列にした上でSpreadしているのは、VSCodeのオートインデントが有効になるから。
         incrementReducer(initialState.increment, this.dispatcher$), // as Observable<Promise<IncrementState>>
-        replaceReducer(initialState.replace, this.dispatcher$), // as Observable<boolean>
-        (increment, replace): AppState => ({ // {}を()で囲むことでオブジェクトをreturnできる。
-          increment, replace, uuid: initialState.uuid
-        })
+        restoreReducer(initialState.restore, this.dispatcher$), // as Observable<boolean>
+        (increment, restore): AppState => {
+          return Object.assign(initialState, { increment, restore }); // 型を曖昧にしているのでテストでカバーする。
+        }
       ])
       .subscribe((newState: AppState) => { // 本来は型指定不要
         console.log('newState:', newState);
-        this.carrier$.next(newState); // CarrierをnextしてStateクラスにストリームを流す。
-        if (this.firebase && !newState.replace) { // ReplaceActionではない場合のみFirebaseに書き込みする。
+        this.provider$.next(newState); // ProviderをnextしてStateクラスにストリームを流す。
+        if (this.firebase && newState.isWriteToFirebase()) { // RestoreActionではない場合のみFirebaseに書き込みする。
           this.firebase.uploadAfterResolve('firebase/ref/path', newState);
         }
       });
@@ -74,7 +77,7 @@ export class Store {
       this.firebase.connect$<ResolvedAppState>('firebase/ref/path')
         .subscribe((cloudState: ResolvedAppState) => { // 本来は型指定不要
           if (cloudState && cloudState.uuid !== initialState.uuid) { // 自分以外の誰かがFirebaseを更新した場合は、その値をDispatcherにnextする。
-            this.dispatcher$.next(new ReplaceAction(cloudState));
+            this.dispatcher$.next(new RestoreAction(cloudState));
           }
         });
     }
@@ -98,7 +101,7 @@ function incrementReducer(initState: Promise<IncrementState>, dispatcher$: Dispa
           state.then(s => resolve({ counter: s.counter - 1 }));
         }, 500);
       });
-    } else if (action instanceof ReplaceAction) {
+    } else if (action instanceof RestoreAction) {
       return Promise.resolve(action.stateFromOutworld.increment);
     } else if (action instanceof ResetAction) {
       return initState;
@@ -108,9 +111,9 @@ function incrementReducer(initState: Promise<IncrementState>, dispatcher$: Dispa
   }, initState);
 }
 
-function replaceReducer(initState: boolean, dispatcher$: Dispatcher<Action>): Observable<boolean> {
+function restoreReducer(initState: boolean, dispatcher$: Dispatcher<Action>): Observable<boolean> {
   return dispatcher$.scan<typeof initState>((state, action) => { // Dispatcherをnextする度にここが発火する。
-    if (action instanceof ReplaceAction) {
+    if (action instanceof RestoreAction) {
       return true;
     } else {
       return false;

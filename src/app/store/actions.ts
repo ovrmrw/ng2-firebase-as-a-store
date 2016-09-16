@@ -9,7 +9,7 @@ export class DecrementAction {
   constructor() { }
 }
 
-export class ReplaceAction {
+export class RestoreAction {
   constructor(public stateFromOutworld: ResolvedAppState) { }
 }
 
@@ -18,4 +18,4 @@ export class ResetAction {
 }
 
 
-export type Action = IncrementAction | DecrementAction | ReplaceAction | ResetAction;
+export type Action = IncrementAction | DecrementAction | RestoreAction | ResetAction;
