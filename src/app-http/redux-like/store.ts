@@ -8,7 +8,7 @@ import uuid from 'node-uuid';
 import bluebird from 'bluebird';
 
 import { Dispatcher, Provider, InitialState, BaseStore, promisify } from './common';
-import { Action, IncrementAction, DecrementAction, RestoreAction, ResetAction, TimeAction } from './actions';
+import { Action, IncrementAction, DecrementAction, RestoreAction, ResetAction, TimeUpdateAction } from './actions';
 import { IncrementState, TimeState, AppState } from './types';
 import { FirebaseMiddleware } from './firebase';
 
@@ -65,7 +65,7 @@ export class Store extends BaseStore {
       .zip<AppState>(...[ // わざわざ配列にした上でSpreadしているのは、VSCodeのオートインデントが有効になるから。
         incrementReducer(initialState.increment, this.dispatcher$), // as Observable<Promise<IncrementState>>
         restoreReducer(initialState.restore, this.dispatcher$), // as Observable<boolean>
-        timeReducer(initialState.time, this.dispatcher$, this.http$),
+        timeUpdateReducer(initialState.time, this.dispatcher$, this.http$),
         (increment, restore, time): AppState => {
           return Object.assign(initialState, { increment, restore, time }); // 型を曖昧にしているのでテストでカバーする。
         }
@@ -135,10 +135,11 @@ function restoreReducer(initState: boolean, dispatcher$: Dispatcher<Action>): Ob
   }, initState);
 }
 
-function timeReducer(initState: Promise<TimeState> | TimeState, dispatcher$: Dispatcher<Action>, http$: Http): Observable<Promise<TimeState>> {
+function timeUpdateReducer(initState: Promise<TimeState> | TimeState, dispatcher$: Dispatcher<Action>, http$: Http): Observable<Promise<TimeState>> {
   return dispatcher$.scan<Promise<TimeState>>((state, action) => {
-    /*  */ if (action instanceof TimeAction) {
+    /*  */ if (action instanceof TimeUpdateAction) {
       return http$.get('https://ntp-a1.nict.go.jp/cgi-bin/json')
+        .delay(500) // わざと500ms余計に遅らせる。
         .map(res => res.json())
         .map(data => ({ serial: +data.st * 1000 } as TimeState))
         .toPromise();

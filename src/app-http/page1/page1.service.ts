@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { Dispatcher, Action, IncrementAction, DecrementAction, ResetAction, TimeAction } from '../redux-like';
+import { Dispatcher, Action, IncrementAction, DecrementAction, ResetAction, TimeUpdateAction } from '../redux-like';
 
 
 @Injectable()
@@ -22,7 +22,7 @@ export class Page1Service {
     this.dispatcher$.next(new ResetAction());
   }
 
-  time(): void {
-    this.dispatcher$.next(new TimeAction());
+  timeUpdate(): void {
+    this.dispatcher$.next(new TimeUpdateAction());
   }
 }

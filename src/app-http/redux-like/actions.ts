@@ -17,9 +17,9 @@ export class ResetAction {
   constructor() { }
 }
 
-export class TimeAction {
+export class TimeUpdateAction {
   constructor() { }
 }
 
 
-export type Action = IncrementAction | DecrementAction | RestoreAction | ResetAction | TimeAction;
+export type Action = IncrementAction | DecrementAction | RestoreAction | ResetAction | TimeUpdateAction;

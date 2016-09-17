@@ -1,4 +1,4 @@
-export { Action, IncrementAction, DecrementAction, ResetAction, TimeAction } from './actions';
+export { Action, IncrementAction, DecrementAction, ResetAction, TimeUpdateAction } from './actions';
 export { Store } from './store';
 export { State } from './state';
 export { Dispatcher, InitialState } from './common';

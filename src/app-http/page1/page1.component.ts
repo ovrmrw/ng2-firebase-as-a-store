@@ -11,8 +11,8 @@ import { State } from '../redux-like';
     <h4>Counter (mergeMap)</h4>
     <p id="counter">{{_$counter}}</p>    
     <div>    
-      <button (click)="increment()" class="btn btn-primary" id="increment-btn">+</button>
-      <button (click)="decrement()" class="btn btn-primary" id="decrement-btn">-</button>
+      <button (click)="increment()" class="btn btn-primary" id="increment-btn">INCREMENT</button>
+      <button (click)="decrement()" class="btn btn-primary" id="decrement-btn">DECREMENT</button>
       <button (click)="reset()" class="btn btn-warning" id="reset-btn">RESET</button>
     </div>
     <hr />
@@ -64,8 +64,8 @@ export class Page1Component extends ParentComponent implements OnInit, OnDestroy
     this.service.reset();
   }
 
-  time(): void {
-    this.service.time();
+  timeUpdate(): void {
+    this.service.timeUpdate();
   }
 
   _$counter: number;

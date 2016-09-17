@@ -15,8 +15,11 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRe
     <hr />
     <router-outlet></router-outlet>
     <hr />
-    <p>Push '+' or '-' button several times, then reload your browser. The values will be retrieved from Firebase backend.</p>
-    <p>Increment or Decrement have 500ms delay to fulfill orders for simulating real-world async responses.</p>
+    <p>"INCREMENT"ボタンを押すとカウントアップします。"DECREMENT"ボタンを押すとカウントダウンします。</p>
+    <p>"INCREMENT"と"DECREMENT"はわざと500msの遅延が発生するようにしています。</p>
+    <p>ブラウザーをリロードしてみてください。直近の状態をFirebaseから取得して復元します。</p>
+    <p>"TIME UPDATE"ボタンを押すとntp.nict.jpから現在の時刻を取得します。これもわざと追加で500ms遅延するようにしています。</p>
+    <p>mergeMapとswitchMapは、mergeMapが全てのイベントが実行されるのに対し、switchMapはイベントが発生すると前のイベントをキャンセルするという違いがあります。ちなみにObservableの話です。</p>
     <p><a href="https://github.com/ovrmrw/ng2-firebase-as-a-store">GitHub</a></p> 
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
