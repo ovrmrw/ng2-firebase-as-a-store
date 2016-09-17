@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
 
-import { Dispatcher, Action, IncrementAction, DecrementAction, ResetAction, timea } from '../redux-like';
+import { Dispatcher, Action, IncrementAction, DecrementAction, ResetAction } from '../redux-like';
 
 
+/*
+  ComponentクラスにDispatcherとかActionとかを露出させたくないのでServiceクラスに切り出す。
+*/
 @Injectable()
 export class Page1Service {
   constructor(

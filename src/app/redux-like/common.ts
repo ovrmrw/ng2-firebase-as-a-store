@@ -29,3 +29,12 @@ export abstract class BaseStore {
 export function promisify<T>(state: T | Promise<T>): Promise<T> {
   return state instanceof Promise ? state : Promise.resolve(state);
 }
+
+// PromiseかどうかはっきりしないStateの型をPromiseではないと断定する。
+export function notPromise<T>(state: T | Promise<T>): T {
+  if (state instanceof Promise) {
+    throw '"state" should be not Promise is instanceof Promise!';
+  } else {
+    return state;
+  }
+}

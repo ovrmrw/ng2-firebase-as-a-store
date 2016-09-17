@@ -20,7 +20,7 @@ export class Provider<T> extends Subject<T> {
 // StoreクラスはBaseStoreクラスを継承して作る。
 export abstract class BaseStore {
   abstract readonly provider$: Provider<{}>;
-  abstract applyReducers(state: {}): void;  
+  abstract applyReducers(state: {}): void;
   abstract applyMiddlewares(state: {}): void;
   abstract effectAfterReduced(state: {}): void;
 }
@@ -28,4 +28,13 @@ export abstract class BaseStore {
 // PromiseかどうかはっきりしないStateを強制的にPromiseにする。
 export function promisify<T>(state: T | Promise<T>): Promise<T> {
   return state instanceof Promise ? state : Promise.resolve(state);
+}
+
+// PromiseかどうかはっきりしないStateの型をPromiseではないと断定する。
+export function notPromise<T>(state: T | Promise<T>): T {
+  if (state instanceof Promise) {
+    throw '"state" should be not Promise is instanceof Promise!';
+  } else {
+    return state;
+  }
 }

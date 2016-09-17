@@ -3,6 +3,9 @@ import { Injectable } from '@angular/core';
 import { Dispatcher, Action, IncrementAction, DecrementAction, ResetAction, TimeUpdateAction } from '../redux-like';
 
 
+/*
+  ComponentクラスにDispatcherとかActionとかを露出させたくないのでServiceクラスに切り出す。
+*/
 @Injectable()
 export class Page1Service {
   constructor(

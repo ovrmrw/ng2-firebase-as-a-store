@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRe
 
 import { ParentComponent } from '../shared/parent.component';
 import { Page1Service } from './page1.service';
-import { State } from '../redux-like';
+import { State, notPromise } from '../redux-like';
 
 
 @Component({
@@ -19,7 +19,7 @@ import { State } from '../redux-like';
     <h4>Time (switchMap)</h4>
     <p>{{_$timeSerial | date:'medium'}}</p>
     <div>
-      <button (click)="time()" class="btn btn-primary" id="time-btn">TIME UPDATE</button>
+      <button (click)="timeUpdate()" class="btn btn-primary" id="time-btn">TIME UPDATE</button>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -45,6 +45,13 @@ export class Page1Component extends ParentComponent implements OnInit, OnDestroy
         this._$timeSerial = state.serial;
         this.cd.markForCheck();
       });
+
+    // this.disposable = this.state.appState$
+    //   .subscribe(state => {
+    //     this._$counter = notPromise(state.increment).counter;
+    //     this._$timeSerial = notPromise(state.time).serial;
+    //     this.cd.markForCheck();
+    //   });
   }
 
   ngOnDestroy() {

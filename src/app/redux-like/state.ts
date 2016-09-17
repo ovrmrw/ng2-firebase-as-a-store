@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+import bluebird from 'bluebird';
 
 import { Store } from './store';
 import { IncrementState, AppState } from './types';
@@ -8,6 +9,7 @@ import { promisify } from './common';
 
 /*
   Stateクラスから流れるストリームはComponentクラスでsubscribeしてViewを更新する。
+  Componentクラスを綺麗に保つために余計なmap処理はここで済ませる。
 */
 @Injectable()
 export class State {
@@ -15,6 +17,12 @@ export class State {
     private store: Store
   ) { }
 
+
+  get appState$(): Observable<AppState> {
+    return this.store.provider$
+      .map<Promise<AppState>>((appState: AppState) => promisify(bluebird.props(appState))) // bluebird.props()で一旦オブジェクト内のPromiseを全て解決してから再度Promise化しているのがポイント。
+      .mergeMap<AppState>((stateAsPromise: Promise<AppState>) => Observable.fromPromise(stateAsPromise)); // 本来はコールバック引数の型指定不要
+  }
 
   get incrementState$(): Observable<IncrementState> {
     return this.store.provider$
