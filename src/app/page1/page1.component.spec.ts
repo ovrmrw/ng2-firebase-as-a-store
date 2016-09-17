@@ -10,7 +10,7 @@ import { setTimeoutPromise, elements, elementText, elementValue } from '../../..
 // modules
 import { Page1Component } from './page1.component';
 import { Page1Service } from './page1.service';
-import { State, IncrementState, Store, Dispatcher, Action, IncrementAction, DecrementAction } from '../store';
+import { State, IncrementState, Store, Dispatcher, Action, IncrementAction, DecrementAction } from '../redux-like';
 import { Observable } from 'rxjs/Rx';
 
 

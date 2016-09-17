@@ -1,28 +1,28 @@
-import { Injectable, Inject, Optional, OptionalDecorator, OpaqueToken } from '@angular/core';
+import { Injectable, Inject, Optional } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import lodash from 'lodash';
 import uuid from 'node-uuid';
+import bluebird from 'bluebird';
 
-import { Dispatcher, Provider } from './common';
+import { Dispatcher, Provider, InitialState, BaseStore, promisify } from './common';
 import { Action, IncrementAction, DecrementAction, RestoreAction, ResetAction } from './actions';
-import { IncrementState, AppState, ResolvedAppState } from './types';
+import { IncrementState, AppState } from './types';
 import { FirebaseMiddleware } from './firebase';
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // State
-export const InitialState = new OpaqueToken('InitialState');
-
-const defaultAppState: AppState = {
-  increment: Promise.resolve({
+class DefaultAppState implements AppState {
+  increment = Promise.resolve({
     counter: 0
-  }),
-  restore: false,
-  uuid: uuid.v4(),
-  isWriteToFirebase: () => !this.restore // Stateに関数を含められる。
-};
+  });
+  restore = false;
+  uuid = uuid.v4();
+  canSaveToFirebase = () => !this.restore; // Stateに関数を含めることもできる。
+}
+const defaultAppState: AppState = new DefaultAppState();
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ const defaultAppState: AppState = {
   Providerをnextして最終的にComponentクラスにStateが届く。
 */
 @Injectable()
-export class Store {
+export class Store extends BaseStore {
   readonly provider$: Provider<AppState>;
 
   constructor(
@@ -44,6 +44,7 @@ export class Store {
     @Inject(FirebaseMiddleware) @Optional()
     private firebase: FirebaseMiddleware | null, // DIできない場合はnullになる。テスト時はnullにする。
   ) {
+    super();
     const _initialState: AppState = initialState || defaultAppState; // initialStateがnullならデフォルト値がセットされる。
 
     /* >>> createStore */
@@ -66,29 +67,36 @@ export class Store {
       .subscribe((newState: AppState) => { // 本来は型指定不要
         console.log('newState:', newState);
         this.provider$.next(newState); // ProviderをnextしてStateクラスにストリームを流す。
-        if (this.firebase && newState.isWriteToFirebase()) { // RestoreActionではない場合のみFirebaseに書き込みする。
-          this.firebase.uploadAfterResolve('firebase/ref/path', newState);
-        }
+        this.effectAfterReduced(newState);
       });
   }
 
   applyMiddlewares(initialState: AppState): void {
     if (this.firebase) {
-      this.firebase.connect$<ResolvedAppState>('firebase/ref/path')
-        .subscribe((cloudState: ResolvedAppState) => { // 本来は型指定不要
+      this.firebase.connect$<AppState>('firebase/ref/path')
+        .subscribe((cloudState: AppState) => { // 本来はコールバックの型指定不要
           if (cloudState && cloudState.uuid !== initialState.uuid) { // 自分以外の誰かがFirebaseを更新した場合は、その値をDispatcherにnextする。
             this.dispatcher$.next(new RestoreAction(cloudState));
           }
         });
     }
   }
+
+  effectAfterReduced(newState: AppState): void {
+    bluebird.props(newState)
+      .then((resolvedState: AppState) => { // このとき全てのPromiseは解決している。
+        if (this.firebase && resolvedState.canSaveToFirebase()) { // RestoreActionではない場合のみFirebaseに書き込みする。
+          this.firebase.saveCurrentState('firebase/ref/path', resolvedState);
+        }
+      });
+  }
 }
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Reducers
-function incrementReducer(initState: Promise<IncrementState>, dispatcher$: Dispatcher<Action>): Observable<Promise<IncrementState>> {
-  return dispatcher$.scan<typeof initState>((state, action) => { // Dispatcherをnextする度にここが発火する。
+function incrementReducer(initState: Promise<IncrementState> | IncrementState, dispatcher$: Dispatcher<Action>): Observable<Promise<IncrementState>> {
+  return dispatcher$.scan<Promise<IncrementState>>((state, action) => { // Dispatcherをnextする度にここが発火する。
     /****/ if (action instanceof IncrementAction) {
       return new Promise<IncrementState>(resolve => {
         setTimeout(() => {
@@ -102,13 +110,13 @@ function incrementReducer(initState: Promise<IncrementState>, dispatcher$: Dispa
         }, 500);
       });
     } else if (action instanceof RestoreAction) {
-      return Promise.resolve(action.stateFromOutworld.increment);
+      return promisify(action.stateFromOuterworld.increment);
     } else if (action instanceof ResetAction) {
-      return initState;
+      return promisify(initState);
     } else {
       return state;
     }
-  }, initState);
+  }, promisify(initState));
 }
 
 function restoreReducer(initState: boolean, dispatcher$: Dispatcher<Action>): Observable<boolean> {

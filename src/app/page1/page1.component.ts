@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRe
 
 import { ParentComponent } from '../shared/parent.component';
 import { Page1Service } from './page1.service';
-import { State } from '../store';
+import { State } from '../redux-like';
 
 
 @Component({

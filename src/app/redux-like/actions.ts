@@ -1,4 +1,4 @@
-import { ResolvedAppState } from './types';
+import { AppState } from './types';
 
 
 export class IncrementAction {
@@ -10,7 +10,7 @@ export class DecrementAction {
 }
 
 export class RestoreAction {
-  constructor(public stateFromOutworld: ResolvedAppState) { }
+  constructor(public stateFromOuterworld: AppState) { }
 }
 
 export class ResetAction {

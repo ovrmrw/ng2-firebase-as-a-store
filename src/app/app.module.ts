@@ -7,7 +7,7 @@ import { Page1Component } from './page1/page1.component';
 
 import { Page1Service } from './page1/page1.service';
 
-import { Store, Dispatcher, State, FirebaseMiddleware } from './store';
+import { Store, Dispatcher, State, FirebaseMiddleware } from './redux-like';
 
 
 const appRoutes: Routes = [

@@ -34,8 +34,7 @@ describe('TEST: Store Class Isolated Test', () => {
 
   it('can create', inject([Store], (store: Store) => {
     assert(!!store);
-    assert(1+1===2);
-    
+    assert(1 + 1 === 2);
   }));
 
 });

@@ -1,5 +1,9 @@
 const fs = require('fs-extra');
 
+
+// デバッグログファイルを削除する。
+fs.remove('./npm-debug.log*');
+
 // 一時フォルダを削除する。
 fs.removeSync('./.dest');
 // fs.removeSync('./.awcache');
