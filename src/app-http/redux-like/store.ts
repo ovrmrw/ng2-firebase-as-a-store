@@ -63,7 +63,7 @@ export class Store extends BaseStore {
       .zip<AppState>(...[ // わざわざ配列にした上でSpreadしているのは、VSCodeのオートインデントが有効になるから。
         incrementReducer(initialState.increment, this.dispatcher$), // as Observable<Promise<IncrementState>>
         restoreReducer(initialState.restore, this.dispatcher$), // as Observable<boolean>
-        timeUpdateReducer(initialState.time, this.dispatcher$, this.http$),
+        timeUpdateReducer(initialState.time, this.dispatcher$, this.http$), // as Observable<Promise<TimeState>>
         (increment, restore, time): AppState => {
           return Object.assign(initialState, { increment, restore, time }); // 型を曖昧にしているのでテストでカバーする。
         }
@@ -105,7 +105,7 @@ function incrementReducer(initState: Promise<IncrementState> | IncrementState, d
       return new Promise<IncrementState>(resolve => {
         setTimeout(() => {
           state.then(s => resolve({ counter: s.counter + 1 }));
-        }, 500);
+        }, 10);
       });
     } else if (action instanceof DecrementAction) {
       return new Promise<IncrementState>(resolve => {

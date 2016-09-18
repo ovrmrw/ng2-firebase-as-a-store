@@ -3,7 +3,7 @@ import { Observable } from 'rxjs/Observable';
 
 import { Store } from './store';
 import { IncrementState, AppState } from './types';
-import { getObservableByMergeMap, getObservableBySwitchMap } from './common';
+import { resolvedObservableByMergeMap, resolvedObservableBySwitchMap } from './common';
 
 
 /*
@@ -17,16 +17,17 @@ export class State {
   ) { }
 
 
+  // Observable<AppState>(オブジェクト内にPromiseを含む) -> Observable<AppState>(オブジェクト内のPromiseは全て解決済み)
   get appState$(): Observable<AppState> {
-    return getObservableByMergeMap(this.store.provider$.asObservable(), true);
+    return resolvedObservableByMergeMap(this.store.provider$.asObservable(), true);
   }
 
+  // Observable<Promise<IncrementState>> -> Observable<IncrementState>
   get incrementState$(): Observable<IncrementState> {
-    return getObservableByMergeMap(this.store.provider$.map(s => s.increment));
+    return resolvedObservableByMergeMap(this.store.provider$.map(s => s.increment));
   }
 
   get restoreState$(): Observable<boolean> {
-    // return getObservableByMergeMap(this.store.provider$.map(s => s.restore));
     return this.store.provider$.map(s => s.restore);
   }
 }

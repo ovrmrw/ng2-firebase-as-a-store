@@ -1,4 +1,4 @@
-import { OpaqueToken, Pipe, PipeTransform, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Injectable, OpaqueToken, Pipe, PipeTransform, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Observable, Subject, Subscription } from 'rxjs/Rx';
 import bluebird from 'bluebird';
 
@@ -9,6 +9,7 @@ export const InitialState = new OpaqueToken('InitialState');
 
 // 主にServiceクラスからActionをnextし、Storeクラス内のReducersを発火させるために用いられる。
 // 簡潔に言うと往路のSubject。
+@Injectable()
 export class Dispatcher<T> extends Subject<T> {
   constructor() { super(); }
 }

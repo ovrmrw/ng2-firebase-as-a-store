@@ -17,14 +17,17 @@ export class State {
   ) { }
 
 
+  // Observable<AppState>(オブジェクト内にPromiseを含む) -> Observable<AppState>(オブジェクト内のPromiseは全て解決済み)
   get appState$(): Observable<AppState> {
     return resolvedObservableByMergeMap(this.store.provider$.asObservable(), true);
   }
 
+  // Observable<Promise<IncrementState>> -> Observable<IncrementState>
   get incrementState$(): Observable<IncrementState> {
     return resolvedObservableByMergeMap(this.store.provider$.map(s => s.increment));
   }
 
+  // Observable<Promise<TimeState>> -> Observable<TimeState>
   get timeState$(): Observable<TimeState> {
     return resolvedObservableBySwitchMap(this.store.provider$.map(s => s.time));
   }
