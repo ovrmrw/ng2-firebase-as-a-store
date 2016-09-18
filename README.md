@@ -1,9 +1,11 @@
 # ng2-firebase-as-a-store
-Firebase as a Store. (experimental)
+[Demo on Firebase Hosting](https://fir-as-a-store.firebaseapp.com/)
 
 ---
 
-[Demo on Firebase Hosting](https://fir-as-a-store.firebaseapp.com/)
+Firebase as a Store. (experimental)
+
+Writing Redux-like store from zero-square using Angular's DI & RxJS with Firebase backend.
 
 ||My Environments|
 |:--|:--|

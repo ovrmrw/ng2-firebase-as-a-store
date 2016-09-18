@@ -51,4 +51,7 @@ module.exports = {
     ]
   },
   devtool: 'source-map',
+  // externals: {
+  //   'firebase': 'firebase'
+  // }
 };

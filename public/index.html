@@ -24,11 +24,17 @@
     </my-app>
   </div>
   
+  <!-- core-js -->
+  <!--<script src="shim.min.js"></script>-->
+
   <!-- babel-polyfill -->
-  <script src="polyfill.min.js"></script>  
+  <script src="polyfill.min.js"></script>
+
+  <!-- https://github.com/angular/angular/issues/3333#issuecomment-203327903 -->
+  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=Intl.~locale.en"></script>  
 
   <!--Firebase SDK-->
-  <!--<script src="firebase.js"></script>-->
+  <!--<script src="https://www.gstatic.com/firebasejs/3.4.0/firebase.js"></script>-->
     
   <!-- jQuery first, then Bootstrap JS. -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
