@@ -1,5 +1,7 @@
-import { OpaqueToken } from '@angular/core';
+import { OpaqueToken, Pipe, PipeTransform, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
 
 
 export const InitialState = new OpaqueToken('InitialState');
@@ -36,5 +38,37 @@ export function notPromise<T>(state: T | Promise<T>): T {
     throw '"state" should be not Promise is instanceof Promise!';
   } else {
     return state;
+  }
+}
+
+
+// StateをViewに表示するためのPipe。markForCheckをPipeの中で実行するとなぜかブラウザがフリーズするのでwork aroundとして使う。
+@Pipe({
+  name: 'asyncState',
+  pure: false
+})
+export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
+  private subs: Subscription[] = [];
+  set disposable(sub: Subscription) { this.subs.push(sub); }
+  private latestValue: T | null = null;
+
+  ngOnDestroy() {
+    if (this.subs.length) {
+      this.subs.forEach(sub => sub.unsubscribe());
+    }
+  }
+
+  transform(observable: Observable<T> | null): T | null {
+    if (observable) {
+      // 1回目の実行時にここを通る。
+      this.disposable = observable
+        .subscribe(state => {
+          this.latestValue = state;
+          // this.transform(null); // transformをもう一回実行する。
+        }, err => {
+          console.error(err);
+        });
+    }
+    return this.latestValue;
   }
 }

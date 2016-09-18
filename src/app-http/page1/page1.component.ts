@@ -9,7 +9,7 @@ import { State, notPromise } from '../redux-like';
   selector: 'my-page1',
   template: `
     <h4>Counter (mergeMap)</h4>
-    <p id="counter">{{_$counter}}</p>    
+    <p id="counter">{{counter | asyncState}}</p>    
     <div>    
       <button (click)="increment()" class="btn btn-primary" id="increment-btn">INCREMENT</button>
       <button (click)="decrement()" class="btn btn-primary" id="decrement-btn">DECREMENT</button>
@@ -17,10 +17,13 @@ import { State, notPromise } from '../redux-like';
     </div>
     <hr />
     <h4>Time (switchMap)</h4>
-    <p>{{_$timeSerial | date:'medium'}}</p>
+    <p>{{timeSerial | asyncState | date:'medium'}}</p>
     <div>
       <button (click)="timeUpdate()" class="btn btn-primary" id="time-btn">TIME UPDATE</button>
     </div>
+    <hr />
+    <h4>Restore Flag</h4>
+    <p>{{restore | asyncState | json}}</p>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -34,24 +37,19 @@ export class Page1Component extends ParentComponent implements OnInit, OnDestroy
   }
 
   ngOnInit() {
-    this.disposable = this.state.incrementState$
-      .subscribe(state => {
-        this._$counter = state.counter;
-        this.cd.markForCheck();
-      });
-
-    this.disposable = this.state.timeState$
-      .subscribe(state => {
-        this._$timeSerial = state.serial;
-        this.cd.markForCheck();
-      });
-
-    // this.disposable = this.state.appState$
+    // this.disposable = this.state.incrementState$
     //   .subscribe(state => {
-    //     this._$counter = notPromise(state.increment).counter;
-    //     this._$timeSerial = notPromise(state.time).serial;
+    //     this._$counter = state.counter;
     //     this.cd.markForCheck();
     //   });
+
+    // this.disposable = this.state.timeState$
+    //   .subscribe(state => {
+    //     this._$timeSerial = state.serial;
+    //     this.cd.markForCheck();
+    //   });
+
+    this.disposable = this.state.appState$.subscribe(() => this.cd.markForCheck());
   }
 
   ngOnDestroy() {
@@ -75,6 +73,10 @@ export class Page1Component extends ParentComponent implements OnInit, OnDestroy
     this.service.timeUpdate();
   }
 
-  _$counter: number;
-  _$timeSerial: number;
+  get counter() { return this.state.incrementState$.map(s => s.counter); }
+  get timeSerial() { return this.state.timeState$.map(s => s.serial); }
+  get restore() { return this.state.restoreState$; }
+
+  // _$counter: number;
+  // _$timeSerial: number;
 }
