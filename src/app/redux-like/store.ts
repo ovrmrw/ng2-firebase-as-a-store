@@ -6,7 +6,7 @@ import lodash from 'lodash';
 import uuid from 'node-uuid';
 import bluebird from 'bluebird';
 
-import { Dispatcher, Provider, InitialState, BaseStore, promisify } from './common';
+import { Dispatcher, Provider, ReducerContainer, InitialState, BaseStore, promisify } from './common';
 import { Action, IncrementAction, DecrementAction, RestoreAction, ResetAction } from './actions';
 import { IncrementState, AppState } from './types';
 import { FirebaseMiddleware } from './firebase';
@@ -56,7 +56,7 @@ export class Store extends BaseStore {
 
 
   applyReducers(initialState: AppState): void {
-    Observable
+    ReducerContainer
       .zip<AppState>(...[ // わざわざ配列にした上でSpreadしているのは、VSCodeのオートインデントが有効になるから。
         incrementReducer(initialState.increment, this.dispatcher$), // as Observable<Promise<IncrementState>>
         restoreReducer(initialState.restore, this.dispatcher$), // as Observable<boolean>

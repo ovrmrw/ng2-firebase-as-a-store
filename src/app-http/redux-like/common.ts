@@ -21,6 +21,13 @@ export class Provider<T> extends Subject<T> {
 }
 
 
+// Storeクラス内でReducerを束ねて状態を管理し続けるObservable。
+// ただのObservableだけど役割を区別できるよう名前を付けた。
+export class ReducerContainer<T> extends Observable<T> {
+  constructor() { super(); }
+}
+
+
 // StoreクラスはBaseStoreクラスを継承して作る。
 export abstract class BaseStore {
   abstract readonly provider$: Provider<{}>;

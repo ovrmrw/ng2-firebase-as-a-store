@@ -1,10 +1,9 @@
 import { OpaqueToken, Pipe, PipeTransform, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
+import { Observable, Subject, Subscription } from 'rxjs/Rx';
 import bluebird from 'bluebird';
 
 
+// Storeの初期Stateをデフォルト値以外で作りたいときはこのTokenを使ってDIする。
 export const InitialState = new OpaqueToken('InitialState');
 
 
@@ -18,6 +17,13 @@ export class Dispatcher<T> extends Subject<T> {
 // Storeクラス内のReducers処理後に新しい状態をnextし、ComponentクラスのViewを更新するために用いられる。
 // 簡潔に言うと復路のSubject。
 export class Provider<T> extends Subject<T> {
+  constructor() { super(); }
+}
+
+
+// Storeクラス内でReducerを束ねて状態を管理し続けるObservable。
+// ただのObservableだけど役割を区別できるよう名前を付けた。
+export class ReducerContainer<T> extends Observable<T> {
   constructor() { super(); }
 }
 
@@ -87,7 +93,7 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
 
 
 // Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
-export function getObservableByMergeMap<T>(observable: Observable<Promise<T> | T>, withResolve: boolean = false): Observable<T> {
+export function resolvedObservableByMergeMap<T>(observable: Observable<Promise<T> | T>, withResolve: boolean = false): Observable<T> {
   return observable
     .map<Promise<T>>((state: Promise<T> | T) => withResolve ? promisify(bluebird.props(state)) : promisify(state))
     .mergeMap<T>((stateAsPromise: Promise<T>) => Observable.fromPromise(stateAsPromise));
@@ -95,7 +101,7 @@ export function getObservableByMergeMap<T>(observable: Observable<Promise<T> | T
 
 
 // Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
-export function getObservableBySwitchMap<T>(observable: Observable<Promise<T> | T>, withResolve: boolean = false): Observable<T> {
+export function resolvedObservableBySwitchMap<T>(observable: Observable<Promise<T> | T>, withResolve: boolean = false): Observable<T> {
   return observable
     .map<Promise<T>>((state: Promise<T> | T) => withResolve ? promisify(bluebird.props(state)) : promisify(state))
     .switchMap<T>((stateAsPromise: Promise<T>) => Observable.fromPromise(stateAsPromise));
