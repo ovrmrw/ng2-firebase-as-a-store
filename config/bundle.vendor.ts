@@ -9,8 +9,9 @@ import '@angular/compiler';
 import '@angular/http';
 import '@angular/router';
 import '@angular/forms';
-// import 'angular2-in-memory-web-api';
 
 import 'rxjs/Rx';
 
 import 'lodash';
+import 'bluebird';
+import 'firebase';

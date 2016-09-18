@@ -8,7 +8,7 @@ const ENV = process.env.NODE_ENV = process.env.ENV = 'production';
 
 module.exports = {
   entry: {
-    vendor: './config/vendor.ts',
+    vendor: './config/bundle.vendor.ts',
     main: './src/main.ts',
   },
   output: {

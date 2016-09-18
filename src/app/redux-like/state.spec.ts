@@ -24,13 +24,11 @@ class Mock { }
 ////////////////////////////////////////////////////////////////////////
 // tests
 describe('TEST: State Class Isolated Test', () => {
-  /* >>> boilerplate */
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [State, { provide: Store, useClass: Mock }]
     });
   });
-  /* <<< boilerplate */
 
 
   it('can create', inject([State], (state: State) => {
@@ -41,13 +39,11 @@ describe('TEST: State Class Isolated Test', () => {
 
 
 describe('TEST: (Dispatcher -> Store -> State) Half Integration Test', () => {
-  /* >>> boilerplate */
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [State, Store, Dispatcher]
     });
   });
-  /* <<< boilerplate */
 
 
   it('can increment and decrement', fakeAsync(inject([State, Dispatcher], (state: State, dispatcher$: Dispatcher<Action>) => {

@@ -28,7 +28,6 @@ class MockState {
 ////////////////////////////////////////////////////////////////////////
 // tests
 describe('TEST: Page1 Component Isolated Test', () => {
-  /* >>> boilerplate */
   beforeEach(fakeAsync(() => {
     TestBed.configureTestingModule({
       declarations: [Page1Component],
@@ -40,7 +39,6 @@ describe('TEST: Page1 Component Isolated Test', () => {
     TestBed.compileComponents();
     tick();
   }));
-  /* <<< boilerplate */
 
 
   it('can create', fakeAsync(() => {
@@ -64,7 +62,6 @@ describe('TEST: Page1 Component Isolated Test', () => {
 
 
 describe('TEST: (Page1 Component -> Service -> Dispatcher -> Store -> State -> Component) Full Integration Test', () => {
-  /* >>> boilerplate */
   beforeEach(fakeAsync(() => {
     TestBed.configureTestingModule({
       declarations: [Page1Component],
@@ -75,8 +72,7 @@ describe('TEST: (Page1 Component -> Service -> Dispatcher -> Store -> State -> C
     TestBed.compileComponents();
     tick();
   }));
-  /* <<< boilerplate */
-
+  
 
   it('should have incremented counter on the view when users click buttons', fakeAsync(() => {
     const fixture = TestBed.createComponent(Page1Component);

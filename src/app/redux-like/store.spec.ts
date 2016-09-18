@@ -23,18 +23,15 @@ import { Observable } from 'rxjs/Rx';
 ////////////////////////////////////////////////////////////////////////
 // tests
 describe('TEST: Store Class Isolated Test', () => {
-  /* >>> boilerplate */
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [Store, Dispatcher]
     });
   });
-  /* <<< boilerplate */
 
 
   it('can create', inject([Store], (store: Store) => {
     assert(!!store);
-    assert(1 + 1 === 2);
   }));
 
 });
