@@ -7,7 +7,7 @@ import { Page1Component } from './page1/page1.component';
 
 import { Page1Service } from './page1/page1.service';
 
-import { Store, Dispatcher, State, FirebaseMiddleware } from './redux-like';
+import { Store, Dispatcher, State, FirebaseMiddleware, AsyncStatePipe } from './redux-like';
 
 
 const appRoutes: Routes = [
@@ -22,7 +22,7 @@ const appRoutes: Routes = [
 
 @NgModule({
   imports: [BrowserModule, RouterModule.forRoot(appRoutes)],
-  declarations: [AppComponent, Page1Component],
+  declarations: [AppComponent, Page1Component, AsyncStatePipe],
   providers: [
     Dispatcher, Store, State, Page1Service,
     FirebaseMiddleware,

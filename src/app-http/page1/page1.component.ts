@@ -1,15 +1,15 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 
-import { ParentComponent } from '../shared/parent.component';
+// import { ParentComponent } from '../shared/parent.component';
 import { Page1Service } from './page1.service';
-import { State, notPromise } from '../redux-like';
+import { State } from '../redux-like';
 
 
 @Component({
   selector: 'my-page1',
   template: `
     <h4>Counter (mergeMap)</h4>
-    <p id="counter">{{counter | asyncState}}</p>    
+    <p id="counter">{{counter | asyncState:true}}</p>    
     <div>    
       <button (click)="increment()" class="btn btn-primary" id="increment-btn">INCREMENT</button>
       <button (click)="decrement()" class="btn btn-primary" id="decrement-btn">DECREMENT</button>
@@ -27,34 +27,12 @@ import { State, notPromise } from '../redux-like';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class Page1Component extends ParentComponent implements OnInit, OnDestroy {
+export class Page1Component {
   constructor(
     private service: Page1Service,
     private state: State,
-    private cd: ChangeDetectorRef,
-  ) {
-    super();
-  }
-
-  ngOnInit() {
-    // this.disposable = this.state.incrementState$
-    //   .subscribe(state => {
-    //     this._$counter = state.counter;
-    //     this.cd.markForCheck();
-    //   });
-
-    // this.disposable = this.state.timeState$
-    //   .subscribe(state => {
-    //     this._$timeSerial = state.serial;
-    //     this.cd.markForCheck();
-    //   });
-
-    this.disposable = this.state.appState$.subscribe(() => this.cd.markForCheck());
-  }
-
-  ngOnDestroy() {
-    this.disposeSubscriptions();
-  }
+    // private cd: ChangeDetectorRef,
+  ) { }
 
 
   increment(): void {
@@ -77,6 +55,16 @@ export class Page1Component extends ParentComponent implements OnInit, OnDestroy
   get timeSerial() { return this.state.timeState$.map(s => s.serial); }
   get restore() { return this.state.restoreState$; }
 
-  // _$counter: number;
-  // _$timeSerial: number;
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  // For Testing
+  _$counter: number;
+  _$timeSerial: number;
+  _$restore: boolean;
+
+  forTesing() { // call this function before unit testing.
+    this.counter.subscribe(v => this._$counter = v);
+    this.timeSerial.subscribe(v => this._$timeSerial = v);
+    this.restore.subscribe(v => this._$restore = v);
+  }
 }

@@ -5,6 +5,7 @@
   "server": {
     "baseDir": "./.dest"
   },
-  "port": 5000,
-  "ui": false
+  "port": 5000,  
+  "ui": false,
+  "ghostMode": false
 }

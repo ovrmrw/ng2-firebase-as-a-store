@@ -18,6 +18,7 @@ import {
   platformBrowserDynamicTesting
 } from '@angular/platform-browser-dynamic/testing';
 
+// TestBed.resetTestEnvironment();
 TestBed.initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
 
 import '../src/specs.ref'; // テストしたいTSファイル

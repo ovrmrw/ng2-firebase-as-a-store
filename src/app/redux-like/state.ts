@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import bluebird from 'bluebird';
 
 import { Store } from './store';
 import { IncrementState, AppState } from './types';
-import { promisify } from './common';
+import { getObservableByMergeMap, getObservableBySwitchMap } from './common';
 
 
 /*
   Stateクラスから流れるストリームはComponentクラスでsubscribeしてViewを更新する。
-  Componentクラスを綺麗に保つために余計なmap処理はここで済ませる。
+  Componentクラスを綺麗に保つため、全てのStateはObservable<T>の形に統一して返すこと。
 */
 @Injectable()
 export class State {
@@ -19,15 +18,15 @@ export class State {
 
 
   get appState$(): Observable<AppState> {
-    return this.store.provider$
-      .map<Promise<AppState>>((appState: AppState) => promisify(bluebird.props(appState))) // bluebird.props()で一旦オブジェクト内のPromiseを全て解決してから再度Promise化しているのがポイント。
-      .mergeMap<AppState>((stateAsPromise: Promise<AppState>) => Observable.fromPromise(stateAsPromise)); // 本来はコールバック引数の型指定不要
+    return getObservableByMergeMap(this.store.provider$.asObservable(), true);
   }
 
   get incrementState$(): Observable<IncrementState> {
-    return this.store.provider$
-      .map<Promise<IncrementState>>((appState: AppState) => promisify(appState.increment)) // 本来はコールバック引数の型指定不要
-      .mergeMap<IncrementState>((stateAsPromise: Promise<IncrementState>) => Observable.fromPromise(stateAsPromise)); // 本来はコールバック引数の型指定不要
-      // .switchMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise)); // switchMapは次のストリームが流れてくると前のストリームをキャンセルする。
+    return getObservableByMergeMap(this.store.provider$.map(s => s.increment));
+  }
+
+  get restoreState$(): Observable<boolean> {
+    // return getObservableByMergeMap(this.store.provider$.map(s => s.restore));
+    return this.store.provider$.map(s => s.restore);
   }
 }

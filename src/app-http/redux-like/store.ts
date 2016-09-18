@@ -1,8 +1,6 @@
 import { Injectable, Inject, Optional } from '@angular/core';
 import { Http } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
 import lodash from 'lodash';
 import uuid from 'node-uuid';
 import bluebird from 'bluebird';
