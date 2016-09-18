@@ -5,7 +5,7 @@
 
 Firebase as a Store. (experimental)
 
-Writing Redux-like store from zero-square using Angular's DI & RxJS with Firebase backend.
+Writing Redux-like store from scratch using Angular's DI & RxJS with Firebase backend.
 
 ||My Environments|
 |:--|:--|
