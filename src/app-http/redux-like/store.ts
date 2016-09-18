@@ -105,7 +105,7 @@ function incrementReducer(initState: Promise<IncrementState> | IncrementState, d
       return new Promise<IncrementState>(resolve => {
         setTimeout(() => {
           state.then(s => resolve({ counter: s.counter + 1 }));
-        }, 10);
+        }, 500);
       });
     } else if (action instanceof DecrementAction) {
       return new Promise<IncrementState>(resolve => {
