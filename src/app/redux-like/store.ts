@@ -13,19 +13,6 @@ import { FirebaseMiddleware } from './firebase';
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
-// State
-class DefaultAppState implements AppState {
-  increment = Promise.resolve({
-    counter: 0
-  });
-  restore = false;
-  uuid = uuid.v4();
-  canSaveToFirebase = () => !this.restore; // Stateに関数を含めることもできる。
-}
-const defaultAppState: AppState = new DefaultAppState();
-
-
-/////////////////////////////////////////////////////////////////////////////////////////
 // Store
 /*
   ServiceクラスでDispatcherにActionをセットしてnextすると、
@@ -39,18 +26,17 @@ export class Store extends BaseStore {
 
   constructor(
     private dispatcher$: Dispatcher<Action>,
-    @Inject(InitialState) @Optional()
-    private initialState: AppState | null, // DIできない場合はnullになる。
+    @Inject(InitialState)
+    private initialState: AppState,
     @Inject(FirebaseMiddleware) @Optional()
     private firebase: FirebaseMiddleware | null, // DIできない場合はnullになる。テスト時はnullにする。
   ) {
     super();
-    const _initialState: AppState = initialState || defaultAppState; // initialStateがnullならデフォルト値がセットされる。
 
     /* >>> createStore */
-    this.provider$ = new BehaviorSubject(_initialState);
-    this.applyReducers(_initialState);
-    this.applyMiddlewares(_initialState);
+    this.provider$ = new BehaviorSubject(initialState);
+    this.applyReducers(initialState);
+    this.applyMiddlewares(initialState);
     /* <<< createStore */
   }
 
@@ -97,10 +83,16 @@ export class Store extends BaseStore {
 // Reducers
 function incrementReducer(initState: Promise<IncrementState> | IncrementState, dispatcher$: Dispatcher<Action>): Observable<Promise<IncrementState>> {
   return dispatcher$.scan<Promise<IncrementState>>((state, action) => { // Dispatcherをnextする度にここが発火する。
-    /****/ if (action instanceof IncrementAction) {
+    /*  */ if (action instanceof IncrementAction) {
       return new Promise<IncrementState>(resolve => {
         setTimeout(() => {
-          state.then(s => resolve({ counter: s.counter + 1 }));
+          state.then(s => {
+            if (action.counter) {
+              resolve({ counter: action.counter });
+            } else {
+              resolve({ counter: s.counter + 1 });
+            }
+          });
         }, 500);
       });
     } else if (action instanceof DecrementAction) {
@@ -110,7 +102,7 @@ function incrementReducer(initState: Promise<IncrementState> | IncrementState, d
         }, 500);
       });
     } else if (action instanceof RestoreAction) {
-      return promisify(action.stateFromOuterworld.increment);
+      return promisify(action.stateFromOuterWorld.increment);
     } else if (action instanceof ResetAction) {
       return promisify(initState);
     } else {

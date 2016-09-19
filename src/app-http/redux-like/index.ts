@@ -1,7 +1,8 @@
-export { Action } from './actions';
-export { IncrementAction, DecrementAction, ResetAction, TimeUpdateAction } from './actions';
+// export { Action } from './actions';
+// export { IncrementAction, DecrementAction, ResetAction, TimeUpdateAction } from './actions';
+export * from './actions';
 export { Store } from './store';
 export { State } from './state';
-export { Dispatcher, InitialState, notPromise, AsyncStatePipe } from './common';
-export { IncrementState } from './types';
-export { FirebaseMiddleware } from './firebase';
+export { Reducer } from './reducer';
+export { IncrementState, AppState } from './types';
+export { DefaultAppState } from './initial-state';

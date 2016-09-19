@@ -10,7 +10,8 @@ import { setTimeoutPromise, elements, elementText, elementValue } from '../../..
 // modules
 import { State } from './state';
 import { Store } from './store';
-import { Dispatcher, Provider } from './common';
+import { Dispatcher, Provider, InitialState } from './common';
+import { DefaultAppState } from './initial-state';
 import { AppState, IncrementState } from './types';
 import { Action, IncrementAction, DecrementAction, ResetAction } from './actions';
 import { Observable } from 'rxjs/Rx';
@@ -41,7 +42,7 @@ describe('TEST: State Class Isolated Test', () => {
 describe('TEST: (Dispatcher -> Store -> State) Half Integration Test', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [State, Store, Dispatcher]
+      providers: [State, Store, Dispatcher, { provide: InitialState, useClass: DefaultAppState }]
     });
   });
 

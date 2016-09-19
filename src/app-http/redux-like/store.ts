@@ -1,30 +1,11 @@
 import { Injectable, Inject, Optional } from '@angular/core';
-import { Http } from '@angular/http';
 import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
-import lodash from 'lodash';
-import uuid from 'node-uuid';
 import bluebird from 'bluebird';
 
-import { Dispatcher, Provider, ReducerContainer, InitialState, BaseStore, promisify } from './common';
-import { Action, IncrementAction, DecrementAction, RestoreAction, ResetAction, TimeUpdateAction } from './actions';
-import { IncrementState, TimeState, AppState } from './types';
-import { FirebaseMiddleware } from './firebase';
-
-
-/////////////////////////////////////////////////////////////////////////////////////////
-// State
-class DefaultAppState implements AppState {
-  increment = Promise.resolve({
-    counter: 0
-  });
-  restore = false;
-  uuid = uuid.v4();
-  canSaveToFirebase = () => !this.restore; // Stateに関数を含めることもできる。
-  time = Promise.resolve({
-    serial: 0
-  });
-}
-const defaultAppState: AppState = new DefaultAppState();
+import { Dispatcher, Provider, InitialState, BaseStore, FirebaseMiddleware } from '../../redux-like-core';
+import { Action, RestoreAction } from './actions';
+import { AppState } from './types';
+import { Reducer } from './reducer';
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -36,44 +17,19 @@ const defaultAppState: AppState = new DefaultAppState();
   Providerをnextして最終的にComponentクラスにStateが届く。
 */
 @Injectable()
-export class Store extends BaseStore {
-  readonly provider$: Provider<AppState>;
-
+export class Store extends BaseStore<AppState> {
   constructor(
-    private http$: Http,
     private dispatcher$: Dispatcher<Action>,
-    @Inject(InitialState) @Optional()
-    private initialState: AppState | null, // DIできない場合はnullになる。
+    private reducer: Reducer,
+    @Inject(InitialState)
+    private initialState: AppState,
     @Inject(FirebaseMiddleware) @Optional()
     private firebase: FirebaseMiddleware | null, // DIできない場合はnullになる。テスト時はnullにする。
   ) {
-    super();
-    const _initialState: AppState = initialState || defaultAppState; // initialStateがnullならデフォルト値がセットされる。
-
-    /* >>> createStore */
-    this.provider$ = new BehaviorSubject(_initialState);
-    this.applyReducers(_initialState);
-    this.applyMiddlewares(_initialState);
-    /* <<< createStore */
+    super(initialState, reducer);
+    this.applyMiddlewares(initialState);
   }
 
-
-  applyReducers(initialState: AppState): void {
-    ReducerContainer
-      .zip<AppState>(...[ // わざわざ配列にした上でSpreadしているのは、VSCodeのオートインデントが有効になるから。
-        incrementReducer(initialState.increment, this.dispatcher$), // as Observable<Promise<IncrementState>>
-        restoreReducer(initialState.restore, this.dispatcher$), // as Observable<boolean>
-        timeUpdateReducer(initialState.time, this.dispatcher$, this.http$), // as Observable<Promise<TimeState>>
-        (increment, restore, time): AppState => {
-          return Object.assign(initialState, { increment, restore, time }); // 型を曖昧にしているのでテストでカバーする。
-        }
-      ])
-      .subscribe((newState: AppState) => { // 本来は型指定不要
-        console.log('newState:', newState);
-        this.provider$.next(newState); // ProviderをnextしてStateクラスにストリームを流す。
-        this.effectAfterReduced(newState);
-      });
-  }
 
   applyMiddlewares(initialState: AppState): void {
     if (this.firebase) {
@@ -94,57 +50,4 @@ export class Store extends BaseStore {
         }
       });
   }
-}
-
-
-/////////////////////////////////////////////////////////////////////////////////////////
-// Reducers
-function incrementReducer(initState: Promise<IncrementState> | IncrementState, dispatcher$: Dispatcher<Action>): Observable<Promise<IncrementState>> {
-  return dispatcher$.scan<Promise<IncrementState>>((state, action) => { // Dispatcherをnextする度にここが発火する。
-    /*  */ if (action instanceof IncrementAction) {
-      return new Promise<IncrementState>(resolve => {
-        setTimeout(() => {
-          state.then(s => resolve({ counter: s.counter + 1 }));
-        }, 500);
-      });
-    } else if (action instanceof DecrementAction) {
-      return new Promise<IncrementState>(resolve => {
-        setTimeout(() => {
-          state.then(s => resolve({ counter: s.counter - 1 }));
-        }, 500);
-      });
-    } else if (action instanceof RestoreAction) {
-      return promisify(action.stateFromOuterworld.increment);
-    } else if (action instanceof ResetAction) {
-      return promisify(initState);
-    } else {
-      return state;
-    }
-  }, promisify(initState));
-}
-
-function restoreReducer(initState: boolean, dispatcher$: Dispatcher<Action>): Observable<boolean> {
-  return dispatcher$.scan<typeof initState>((state, action) => { // Dispatcherをnextする度にここが発火する。
-    if (action instanceof RestoreAction) {
-      return true;
-    } else {
-      return false;
-    }
-  }, initState);
-}
-
-function timeUpdateReducer(initState: Promise<TimeState> | TimeState, dispatcher$: Dispatcher<Action>, http$: Http): Observable<Promise<TimeState>> {
-  return dispatcher$.scan<Promise<TimeState>>((state, action) => {
-    /*  */ if (action instanceof TimeUpdateAction) {
-      return http$.get('https://ntp-a1.nict.go.jp/cgi-bin/json')
-        .delay(500) // わざと500ms余計に遅らせる。
-        .map(res => res.json())
-        .map(data => ({ serial: +data.st * 1000 } as TimeState))
-        .toPromise();
-    } else if (action instanceof RestoreAction) {
-      return promisify(action.stateFromOuterworld.time);
-    } else {
-      return state;
-    }
-  }, promisify(initState));
 }

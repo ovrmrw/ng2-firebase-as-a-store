@@ -1,6 +1,7 @@
 import { Injectable, OpaqueToken, Pipe, PipeTransform, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Observable, Subject, Subscription } from 'rxjs/Rx';
 import bluebird from 'bluebird';
+import lodash from 'lodash';
 
 
 // Storeの初期Stateをデフォルト値以外で作りたいときはこのTokenを使ってDIする。
@@ -39,8 +40,9 @@ export abstract class BaseStore {
 
 
 // PromiseかどうかはっきりしないStateを強制的にPromiseにする。
-export function promisify<T>(state: T | Promise<T>): Promise<T> {
-  return state instanceof Promise ? state : Promise.resolve(state);
+export function promisify<T>(state: T | Promise<T>, withInnerResolve: boolean = false): Promise<T> {
+  const _state = withInnerResolve ? bluebird.props(state) : state;
+  return _state instanceof Promise ? _state : Promise.resolve<T>(_state);
 }
 
 
@@ -79,9 +81,11 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
       // 1回目の実行時にここを通る。      
       this.disposable = observable
         .subscribe(state => {
-          this.latestValue = state;
-          this.cd.markForCheck();
-          if (debugMode) { console.log('AsyncStatePipe: markForCheck() is called.'); }
+          if (!lodash.isEqual(this.latestValue, state)) {
+            this.latestValue = state;
+            this.cd.markForCheck();
+            if (debugMode) { console.log('AsyncStatePipe: markForCheck() is called.'); }
+          }
         }, err => {
           console.error(err);
         });
@@ -94,16 +98,20 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
 
 
 // Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
-export function resolvedObservableByMergeMap<T>(observable: Observable<Promise<T> | T>, withResolve: boolean = false): Observable<T> {
+export function resolvedObservableByMergeMap<T>(observable: Observable<Promise<T> | T>, withInnerResolve: boolean = false): Observable<T> {
   return observable
-    .map<Promise<T>>((state: Promise<T> | T) => withResolve ? promisify(bluebird.props(state)) : promisify(state))
-    .mergeMap<T>((stateAsPromise: Promise<T>) => Observable.fromPromise(stateAsPromise));
+    // .map<Promise<T>>((state: Promise<T> | T) => withInnerResolve ? promisify(bluebird.props(state)) : promisify(state))
+    .map<Promise<T>>((state: Promise<T> | T) => promisify(state, withInnerResolve))
+    .mergeMap<T>((stateAsPromise: Promise<T>) => Observable.fromPromise(stateAsPromise))
+    // .map<T>(state => lodash.cloneDeep(state));
 }
 
 
 // Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
-export function resolvedObservableBySwitchMap<T>(observable: Observable<Promise<T> | T>, withResolve: boolean = false): Observable<T> {
+export function resolvedObservableBySwitchMap<T>(observable: Observable<Promise<T> | T>, withInnerResolve: boolean = false): Observable<T> {
   return observable
-    .map<Promise<T>>((state: Promise<T> | T) => withResolve ? promisify(bluebird.props(state)) : promisify(state))
-    .switchMap<T>((stateAsPromise: Promise<T>) => Observable.fromPromise(stateAsPromise));
+    // .map<Promise<T>>((state: Promise<T> | T) => withInnerResolve ? promisify(bluebird.props(state)) : promisify(state))
+    .map<Promise<T>>((state: Promise<T> | T) => promisify(state, withInnerResolve))
+    .switchMap<T>((stateAsPromise: Promise<T>) => Observable.fromPromise(stateAsPromise))
+    // .map<T>(state => lodash.cloneDeep(state));
 }

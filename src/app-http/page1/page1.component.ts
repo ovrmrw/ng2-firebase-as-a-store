@@ -9,7 +9,7 @@ import { State } from '../redux-like';
   selector: 'my-page1',
   template: `
     <h4>Counter (mergeMap)</h4>
-    <p id="counter">{{counter | asyncState:true}}</p>    
+    <p id="counter">{{counter | asyncState:false}}</p>    
     <div>    
       <button (click)="increment()" class="btn btn-primary" id="increment-btn">INCREMENT</button>
       <button (click)="decrement()" class="btn btn-primary" id="decrement-btn">DECREMENT</button>

@@ -2,7 +2,7 @@ import { AppState } from './types';
 
 
 export class IncrementAction {
-  constructor() { }
+  constructor(public counter?: number) { }
 }
 
 export class DecrementAction {
@@ -10,7 +10,7 @@ export class DecrementAction {
 }
 
 export class RestoreAction {
-  constructor(public stateFromOuterworld: AppState) { }
+  constructor(public stateFromOuterWorld: AppState) { }
 }
 
 export class ResetAction {

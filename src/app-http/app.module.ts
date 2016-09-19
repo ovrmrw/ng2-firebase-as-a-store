@@ -8,7 +8,8 @@ import { Page1Component } from './page1/page1.component';
 
 import { Page1Service } from './page1/page1.service';
 
-import { Store, Dispatcher, State, FirebaseMiddleware, AsyncStatePipe } from './redux-like';
+import { Dispatcher, InitialState, FirebaseMiddleware, AsyncStatePipe } from '../redux-like-core';
+import { Store, State, Reducer, DefaultAppState } from './redux-like';
 
 
 const appRoutes: Routes = [
@@ -25,8 +26,9 @@ const appRoutes: Routes = [
   imports: [BrowserModule, HttpModule, RouterModule.forRoot(appRoutes)],
   declarations: [AppComponent, Page1Component, AsyncStatePipe],
   providers: [
-    Dispatcher, Store, State, Page1Service,
+    Dispatcher, Store, State, Page1Service, Reducer,
     FirebaseMiddleware,
+    { provide: InitialState, useClass: DefaultAppState }
   ],
   bootstrap: [AppComponent]
 })

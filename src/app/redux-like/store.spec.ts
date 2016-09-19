@@ -10,7 +10,8 @@ import { setTimeoutPromise, elements, elementText, elementValue } from '../../..
 // modules
 import { State } from './state';
 import { Store } from './store';
-import { Dispatcher, Provider } from './common';
+import { Dispatcher, Provider, InitialState } from './common';
+import { DefaultAppState } from './initial-state';
 import { AppState, IncrementState } from './types';
 import { Action, IncrementAction, DecrementAction, ResetAction } from './actions';
 import { Observable } from 'rxjs/Rx';
@@ -25,7 +26,7 @@ import { Observable } from 'rxjs/Rx';
 describe('TEST: Store Class Isolated Test', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [Store, Dispatcher]
+      providers: [Store, Dispatcher, { provide: InitialState, useClass: DefaultAppState }]
     });
   });
 

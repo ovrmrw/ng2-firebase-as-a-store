@@ -13,8 +13,8 @@ export class Page1Service {
   ) { }
 
 
-  increment(): void {
-    this.dispatcher$.next(new IncrementAction());
+  increment(counter?: number): void {
+    this.dispatcher$.next(new IncrementAction(counter));
   }
 
   decrement(): void {

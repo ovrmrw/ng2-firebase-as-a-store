@@ -10,8 +10,9 @@ import { setTimeoutPromise, elements, elementText, elementValue } from '../../..
 // modules
 import { Page1Component } from './page1.component';
 import { Page1Service } from './page1.service';
-import { State, IncrementState, Store, Dispatcher, Action, IncrementAction, DecrementAction, AsyncStatePipe } from '../redux-like';
+import { State, IncrementState, Store, Dispatcher, Action, IncrementAction, DecrementAction, AsyncStatePipe, InitialState, DefaultAppState } from '../redux-like';
 import { Observable } from 'rxjs/Rx';
+import { FormsModule } from '@angular/forms';
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -30,6 +31,7 @@ class MockState {
 describe('TEST: Page1 Component Isolated Test', () => {
   beforeEach(fakeAsync(() => {
     TestBed.configureTestingModule({
+      imports: [FormsModule],
       declarations: [Page1Component, AsyncStatePipe],
       providers: [
         { provide: Page1Service, useClass: Mock },
@@ -63,9 +65,11 @@ describe('TEST: Page1 Component Isolated Test', () => {
 describe('TEST: (Page1 Component -> Service -> Dispatcher -> Store -> State -> Component) Full Integration Test', () => {
   beforeEach(fakeAsync(() => {
     TestBed.configureTestingModule({
+      imports: [FormsModule],
       declarations: [Page1Component, AsyncStatePipe],
       providers: [
         Page1Service, Store, State, Dispatcher,
+        { provide: InitialState, useClass: DefaultAppState },
       ]
     });
     TestBed.compileComponents();

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
-import { Dispatcher, Action, IncrementAction, DecrementAction, ResetAction, TimeUpdateAction } from '../redux-like';
+import { Dispatcher } from '../../redux-like-core';
+import { Action, IncrementAction, DecrementAction, ResetAction, TimeUpdateAction } from '../redux-like';
 
 
 /*
@@ -9,7 +10,7 @@ import { Dispatcher, Action, IncrementAction, DecrementAction, ResetAction, Time
 @Injectable()
 export class Page1Service {
   constructor(
-    private dispatcher$: Dispatcher<Action>
+    private dispatcher$: Dispatcher<Action>,    
   ) { }
 
 
@@ -29,3 +30,4 @@ export class Page1Service {
     this.dispatcher$.next(new TimeUpdateAction());
   }
 }
+
