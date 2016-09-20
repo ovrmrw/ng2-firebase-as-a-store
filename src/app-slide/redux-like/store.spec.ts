@@ -26,7 +26,10 @@ import { Observable } from 'rxjs/Rx';
 describe('TEST: Store Class Isolated Test', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [Store, Dispatcher, { provide: InitialState, useValue: defaultAppState }]
+      providers: [
+        Store, Dispatcher,
+        { provide: InitialState, useValue: defaultAppState }
+      ]
     });
   });
 

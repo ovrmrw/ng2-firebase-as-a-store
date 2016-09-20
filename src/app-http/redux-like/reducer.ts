@@ -16,11 +16,11 @@ export class Reducer extends BaseReducer<AppState> {
     private initialState: AppState,
   ) {
     super();
-    
+
     this.addReducers();
     this.setNewStateStructure(() => {
       return (increment, restore, time) => {
-        return Object.assign(this.initialState, { increment, restore, time }); // 型を曖昧にしているのでテストでカバーする。
+        return Object.assign({}, this.initialState, { increment, restore, time }); // 型を曖昧にしているのでテストでカバーする。
       }
     });
   }

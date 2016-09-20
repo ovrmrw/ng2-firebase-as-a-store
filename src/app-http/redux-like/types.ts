@@ -8,8 +8,11 @@ export interface TimeState {
 
 export interface AppState {
   increment: Promise<IncrementState> | IncrementState;
-  restore: boolean;  
-  canSaveToFirebase: () => boolean;
+  restore: boolean;
+  // canSaveToFirebase: () => boolean;
   time: Promise<TimeState> | TimeState;
   uuid: string;
+  test?: {
+    nestedPromise: Promise<{}> | {};
+  };
 }

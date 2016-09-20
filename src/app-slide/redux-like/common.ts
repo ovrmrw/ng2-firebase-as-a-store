@@ -100,7 +100,6 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
 // Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
 export function resolvedObservableByMergeMap<T>(observable: Observable<Promise<T> | T>, withInnerResolve: boolean = false): Observable<T> {
   return observable
-    // .map<Promise<T>>((state: Promise<T> | T) => withInnerResolve ? promisify(bluebird.props(state)) : promisify(state))
     .map<Promise<T>>((state: Promise<T> | T) => promisify(state, withInnerResolve))
     .mergeMap<T>((stateAsPromise: Promise<T>) => Observable.fromPromise(stateAsPromise));
 }
@@ -109,7 +108,6 @@ export function resolvedObservableByMergeMap<T>(observable: Observable<Promise<T
 // Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
 export function resolvedObservableBySwitchMap<T>(observable: Observable<Promise<T> | T>, withInnerResolve: boolean = false): Observable<T> {
   return observable
-    // .map<Promise<T>>((state: Promise<T> | T) => withInnerResolve ? promisify(bluebird.props(state)) : promisify(state))
     .map<Promise<T>>((state: Promise<T> | T) => promisify(state, withInnerResolve))
     .switchMap<T>((stateAsPromise: Promise<T>) => Observable.fromPromise(stateAsPromise));
 }

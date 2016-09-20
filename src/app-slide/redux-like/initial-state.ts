@@ -13,12 +13,4 @@ export const defaultAppState: AppState = {
   }),
   restore: false,
   uuid: uuid.v4(),
-
-  // ComponentにStateが届いたとき、第一階層のincrementは解決済みの状態となるが、nestedPromiseはPromiseのままとなる。
-  // これはbluebird.props()の仕様で第一階層のPromiseのみ解決されるため。
-  test: {
-    nestedPromise: Promise.resolve({
-      result: 'Not resolved when Components get this state.'
-    })
-  }
 };

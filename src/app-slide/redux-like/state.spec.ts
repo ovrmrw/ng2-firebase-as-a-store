@@ -52,7 +52,7 @@ describe('TEST: (Dispatcher -> Store -> State) Half Integration Test', () => {
 
   it('can increment and decrement', fakeAsync(inject([State, Dispatcher], (state: State, dispatcher$: Dispatcher<Action>) => {
     let incrementState: IncrementState | undefined;
-    state.incrementState$
+    state.incrementStateByMergeMap$
       .subscribe(s => {
         incrementState = s;
         // console.log('IncrementState:', s);

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 
-// import { ParentComponent } from '../shared/parent.component';
+import { ParentComponent } from '../shared/parent.component';
 import { Page1Service } from './page1.service';
 import { State } from '../redux-like';
 
@@ -9,7 +9,7 @@ import { State } from '../redux-like';
   selector: 'my-page1',
   template: `
     <h4>Counter (mergeMap)</h4>
-    <p id="counter">{{counter | asyncState:false}}</p>    
+    <p id="counter">{{counter | asyncState:true}}</p>    
     <div>    
       <button (click)="increment()" class="btn btn-primary" id="increment-btn">INCREMENT</button>
       <button (click)="decrement()" class="btn btn-primary" id="decrement-btn">DECREMENT</button>
@@ -27,12 +27,24 @@ import { State } from '../redux-like';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class Page1Component {
+export class Page1Component extends ParentComponent implements OnInit, OnDestroy {
   constructor(
     private service: Page1Service,
     private state: State,
-    // private cd: ChangeDetectorRef,
-  ) { }
+    private cd: ChangeDetectorRef,
+  ) {
+    super();
+  }
+
+  ngOnInit() {
+    this.disposable = this.state.appState$
+      .do(s => console.log('resolved appState:', s))
+      .subscribe(() => this.cd.markForCheck());
+  }
+
+  ngOnDestroy() {
+    this.disposeSubscriptions();
+  }
 
 
   increment(): void {

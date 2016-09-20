@@ -45,7 +45,7 @@ export class Store extends BaseStore<AppState> {
   effectAfterReduced(newState: AppState): void {
     bluebird.props(newState)
       .then((resolvedState: AppState) => { // このとき全てのPromiseは解決している。
-        if (this.firebase && resolvedState.canSaveToFirebase()) { // RestoreActionではない場合のみFirebaseに書き込みする。
+        if (this.firebase && !resolvedState.restore) { // RestoreActionではない場合のみFirebaseに書き込みする。
           this.firebase.saveCurrentState('firebase/ref/path', resolvedState);
         }
       });

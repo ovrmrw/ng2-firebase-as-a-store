@@ -21,22 +21,22 @@ import { FirebaseMiddleware } from './firebase';
   Providerをnextして最終的にComponentクラスにStateが届く。
 */
 @Injectable()
-export class Store extends BaseStore {
+export class Store {
   readonly provider$: Provider<AppState>;
 
   constructor(
     private dispatcher$: Dispatcher<Action>,
     @Inject(InitialState)
     private initialState: AppState,
-    @Inject(FirebaseMiddleware) @Optional()
-    private firebase: FirebaseMiddleware | null, // DIできない場合はnullになる。テスト時はnullにする。
+    // @Inject(FirebaseMiddleware) @Optional()
+    // private firebase: FirebaseMiddleware | null, // DIできない場合はnullになる。テスト時はnullにする。
   ) {
-    super();
+    // super();
 
     /* >>> createStore */
     this.provider$ = new BehaviorSubject(initialState);
     this.applyReducers(initialState);
-    this.applyMiddlewares(initialState);
+    // this.applyMiddlewares(initialState);
     /* <<< createStore */
   }
 
@@ -45,37 +45,37 @@ export class Store extends BaseStore {
     ReducerContainer
       .zip<AppState>(...[ // わざわざ配列にした上でSpreadしているのは、VSCodeのオートインデントが有効になるから。
         incrementReducer(initialState.increment, this.dispatcher$), // as Observable<Promise<IncrementState>>
-        restoreReducer(initialState.restore, this.dispatcher$), // as Observable<boolean>
-        (increment, restore): AppState => {
-          return Object.assign({}, initialState, { increment, restore }); // 型を曖昧にしているのでテストでカバーする。
+        // restoreReducer(initialState.restore, this.dispatcher$), // as Observable<boolean>
+        (increment): AppState => {
+          return Object.assign({}, initialState, { increment }); // 型を曖昧にしているのでテストでカバーする。
         }
       ])
       .subscribe((newState: AppState) => { // 本来は型指定不要
         console.log('newState:', newState);
         this.provider$.next(newState); // ProviderをnextしてStateクラスにストリームを流す。
-        this.effectAfterReduced(newState);
+        // this.effectAfterReduced(newState);
       });
   }
 
-  applyMiddlewares(initialState: AppState): void {
-    if (this.firebase) {
-      this.firebase.connect$<AppState>('firebase/ref/path')
-        .subscribe((cloudState: AppState) => { // 本来はコールバックの型指定不要
-          if (cloudState && cloudState.uuid !== initialState.uuid) { // 自分以外の誰かがFirebaseを更新した場合は、その値をDispatcherにnextする。
-            this.dispatcher$.next(new RestoreAction(cloudState));
-          }
-        });
-    }
-  }
+  // applyMiddlewares(initialState: AppState): void {
+  //   if (this.firebase) {
+  //     this.firebase.connect$<AppState>('firebase/ref/path')
+  //       .subscribe((cloudState: AppState) => { // 本来はコールバックの型指定不要
+  //         if (cloudState && cloudState.uuid !== initialState.uuid) { // 自分以外の誰かがFirebaseを更新した場合は、その値をDispatcherにnextする。
+  //           this.dispatcher$.next(new RestoreAction(cloudState));
+  //         }
+  //       });
+  //   }
+  // }
 
-  effectAfterReduced(newState: AppState): void {
-    bluebird.props(newState)
-      .then((resolvedState: AppState) => { // このとき全てのPromiseは解決している。
-        if (this.firebase && !resolvedState.restore) { // RestoreActionではない場合のみFirebaseに書き込みする。
-          this.firebase.saveCurrentState('firebase/ref/path', resolvedState);
-        }
-      });
-  }
+  // effectAfterReduced(newState: AppState): void {
+  //   bluebird.props(newState)
+  //     .then((resolvedState: AppState) => { // このとき全てのPromiseは解決している。
+  //       if (this.firebase && !resolvedState.restore) { // RestoreActionではない場合のみFirebaseに書き込みする。
+  //         this.firebase.saveCurrentState('firebase/ref/path', resolvedState);
+  //       }
+  //     });
+  // }
 }
 
 
@@ -86,13 +86,7 @@ function incrementReducer(initState: Promise<IncrementState> | IncrementState, d
     /*  */ if (action instanceof IncrementAction) {
       return new Promise<IncrementState>(resolve => {
         setTimeout(() => {
-          state.then(s => {
-            if (action.counter) {
-              resolve({ counter: action.counter });
-            } else {
-              resolve({ counter: s.counter + 1 });
-            }
-          });
+          state.then(s => resolve({ counter: s.counter + 1 }));
         }, 500);
       });
     } else if (action instanceof DecrementAction) {
@@ -101,22 +95,22 @@ function incrementReducer(initState: Promise<IncrementState> | IncrementState, d
           state.then(s => resolve({ counter: s.counter - 1 }));
         }, 500);
       });
-    } else if (action instanceof RestoreAction) {
-      return promisify(action.stateFromOuterWorld.increment);
-    } else if (action instanceof ResetAction) {
-      return promisify(initState);
+    // } else if (action instanceof RestoreAction) {
+    //   return promisify(action.stateFromOuterWorld.increment);
+    // } else if (action instanceof ResetAction) {
+    //   return promisify(initState);
     } else {
       return state;
     }
   }, promisify(initState));
 }
 
-function restoreReducer(initState: boolean, dispatcher$: Dispatcher<Action>): Observable<boolean> {
-  return dispatcher$.scan<typeof initState>((state, action) => { // Dispatcherをnextする度にここが発火する。
-    if (action instanceof RestoreAction) {
-      return true;
-    } else {
-      return false;
-    }
-  }, initState);
-}
+// function restoreReducer(initState: boolean, dispatcher$: Dispatcher<Action>): Observable<boolean> {
+//   return dispatcher$.scan<typeof initState>((state, action) => { // Dispatcherをnextする度にここが発火する。
+//     if (action instanceof RestoreAction) {
+//       return true;
+//     } else {
+//       return false;
+//     }
+//   }, initState);
+// }

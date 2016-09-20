@@ -6,8 +6,4 @@ export interface AppState {
   increment: Promise<IncrementState> | IncrementState;
   restore: boolean;
   uuid: string;
-  // canSaveToFirebase: () => boolean;
-  test?: {
-    nestedPromise: Promise<{}> | {}
-  };
 }
