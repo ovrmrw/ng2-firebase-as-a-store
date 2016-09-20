@@ -6,7 +6,7 @@ import { enableProdMode } from '@angular/core';
 
 // import { AppModule } from './app/app.module';
 // import { AppModule } from './app-http/app.module';
-import { AppModule } from './app-slide/app.module';
+import { AppModule } from './app-1/app.module';
 
 
 if (process.env.ENV === 'production') {

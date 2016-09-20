@@ -80,12 +80,11 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
     if (!this.isSubscriptionCreated) {
       // 1回目の実行時にここを通る。      
       this.disposable = observable
+        .distinctUntilChanged()
         .subscribe(state => {
-          if (!lodash.isEqual(this.latestValue, state)) {
-            this.latestValue = state;
-            this.cd.markForCheck();
-            if (debugMode) { console.log('AsyncStatePipe: markForCheck() is called.'); }
-          }
+          this.latestValue = state;
+          this.cd.markForCheck();
+          if (debugMode) { console.log('AsyncStatePipe: markForCheck() is called.'); }
         }, err => {
           console.error(err);
         });

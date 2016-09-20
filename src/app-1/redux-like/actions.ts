@@ -9,13 +9,13 @@ export class DecrementAction {
   constructor() { }
 }
 
-export class RestoreAction {
-  constructor(public stateFromOuterWorld: AppState) { }
-}
-
 export class ResetAction {
   constructor() { }
 }
 
+export class RestoreAction {
+  constructor(public stateFromOuterWorld: AppState) { }
+}
 
-export type Action = IncrementAction | DecrementAction | RestoreAction | ResetAction;
+
+export type Action = IncrementAction | DecrementAction | ResetAction | RestoreAction;

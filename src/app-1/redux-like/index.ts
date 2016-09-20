@@ -1,4 +1,3 @@
-// export { Action, IncrementAction, DecrementAction, ResetAction } from './actions';
 export * from './actions';
 export * from './types';
 export { Store } from './store';
