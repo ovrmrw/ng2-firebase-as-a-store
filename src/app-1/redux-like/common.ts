@@ -1,6 +1,6 @@
 import { Injectable, OpaqueToken, Pipe, PipeTransform, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Observable, Subject, Subscription } from 'rxjs/Rx';
-import lodash from 'lodash';
+import uuid from 'node-uuid';
 
 
 // Storeの初期Stateをデフォルト値以外で作りたいときはこのTokenを使ってDIする。
@@ -29,6 +29,12 @@ export class ReducerContainer<T> extends Observable<T> {
 }
 
 
+// Reducerを作るときに型として使う。
+export interface Reducer<T> {
+  (state: T | Promise<T>, dispatcher: Dispatcher<any>, ...args: any[]): Observable<T | Promise<T>>;
+}
+
+
 // // StoreクラスはBaseStoreクラスを継承して作る。
 // export abstract class BaseStore {
 //   abstract readonly provider$: Provider<{}>;
@@ -41,13 +47,24 @@ export class ReducerContainer<T> extends Observable<T> {
 // オブジェクトが含む全てのPromiseを解決した上でオブジェクトを返す。
 async function resolveAllPromise<T>(obj: T | Promise<T>): Promise<T> {
   let temp: any = obj;
-  if (temp instanceof Object) {
+  if (temp instanceof Promise) {
+    try {
+      temp = await temp;
+    } catch (err) {
+      console.error(err);
+      temp = null;
+      alert('Promise is rejected.');      
+    }
+    temp = await resolveAllPromise(temp);
+  } else if (temp instanceof Object) {
     for (let key in temp) {
       if (temp[key] instanceof Promise) {
         try {
           temp[key] = await temp[key];
         } catch (err) {
-          throw new Error('resolveAllPromise(): an error has occured when resolving Promise. [key = ' + key + ']');
+          console.error(err);
+          temp[key] = null;
+          alert('Promise is rejected.');
         }
       }
       temp[key] = await resolveAllPromise(temp[key]);
@@ -81,23 +98,22 @@ export function notPromise<T>(state: T | Promise<T>): T {
 })
 export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
   private isSubscriptionCreated: boolean;
-  private subs: Subscription[] = [];
-  set disposable(sub: Subscription) { this.subs.push(sub); }
+  private subscription: Subscription;
   private latestValue: T | null = null;
 
   constructor(private cd: ChangeDetectorRef) { }
 
   ngOnDestroy() {
-    if (this.subs.length) {
-      this.subs.forEach(sub => sub.unsubscribe());
+    if (this.subscription) {
+      this.subscription.unsubscribe();
     }
   }
 
   transform(observable: Observable<T>, debugMode: boolean = false): T | null {
     if (debugMode) { console.log('AsyncStatePipe: transform() is called.'); }
-    if (!this.isSubscriptionCreated) {
+    if (!this.subscription) {
       // 1回目の実行時にここを通る。      
-      this.disposable = observable
+      this.subscription = observable
         .distinctUntilChanged()
         .subscribe(state => {
           this.latestValue = state;
@@ -106,7 +122,6 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
         }, err => {
           console.error(err);
         });
-      this.isSubscriptionCreated = true;
       if (debugMode) { console.log('AsyncStatePipe: Subscription is created.', observable); }
     }
     return this.latestValue;
@@ -114,17 +129,23 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
 }
 
 
-// // Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
-// export function resolvedObservableByMergeMap<T>(observable: Observable<Promise<T> | T>, withInnerResolve: boolean = false): Observable<T> {
-//   return observable
-//     .map<Promise<T>>((state: Promise<T> | T) => promisify(state, withInnerResolve))
-//     .mergeMap<T>((stateAsPromise: Promise<T>) => Observable.fromPromise(stateAsPromise));
-// }
+// Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
+export function resolvedObservableByMergeMap<T>(observable: Observable<Promise<T> | T>, withInnerResolve: boolean = false): Observable<T> {
+  return observable
+    .map<Promise<T>>(state => promisify(state, withInnerResolve))
+    .mergeMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise));
+}
 
 
-// // Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
-// export function resolvedObservableBySwitchMap<T>(observable: Observable<Promise<T> | T>, withInnerResolve: boolean = false): Observable<T> {
-//   return observable
-//     .map<Promise<T>>((state: Promise<T> | T) => promisify(state, withInnerResolve))
-//     .switchMap<T>((stateAsPromise: Promise<T>) => Observable.fromPromise(stateAsPromise));
-// }
+// Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
+export function resolvedObservableBySwitchMap<T>(observable: Observable<Promise<T> | T>, withInnerResolve: boolean = false): Observable<T> {
+  return observable
+    .map<Promise<T>>(state => promisify(state, withInnerResolve))
+    .switchMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise));
+}
+
+
+// 主にユーザー固有のIDを生成する目的で使う。
+export function generateUuid(): string {
+  return uuid.v4();
+}

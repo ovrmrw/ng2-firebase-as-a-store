@@ -1,18 +1,16 @@
-import uuid from 'node-uuid';
-
+import { generateUuid } from './common';
 import { AppState } from './types';
 
 
 /*
-  StateはPromiseを持つことができる。ただし第一階層だけにすること。
-  (bluebird.props()の仕様で第二階層以降のPromiseは解決されないままComponentに届くことになる)
+  StateはPromiseを持つことができる。
 */
 export const defaultAppState: AppState = {
   increment: Promise.resolve({
     counter: 0
   }),
   restore: false,
-  uuid: uuid.v4(),
+  uuid: generateUuid(),
   nest: {
     a: {
       b: Promise.resolve({

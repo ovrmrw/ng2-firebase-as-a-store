@@ -2,7 +2,7 @@ import { Injectable, Inject, Optional } from '@angular/core';
 import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
 
 import { Dispatcher, Provider, ReducerContainer, InitialState, promisify } from './common';
-import { Action, IncrementAction, DecrementAction, RestoreAction, ResetAction } from './actions';
+import { Action, RestoreAction } from './actions';
 import { IncrementState, AppState } from './types';
 import { incrementReducer, restoreReducer } from './reducers';
 import { FirebaseMiddleware } from './firebase';
@@ -51,6 +51,17 @@ export class Store {
       });
   }
 
+  effectAfterReduced(newState: AppState): void {
+    promisify(newState, true)
+      .then(resolvedState => { // このとき全てのPromiseは解決している。
+        console.log('resolvedState:', resolvedState);
+        if (this.firebase && !resolvedState.restore) { // RestoreActionではない場合のみFirebaseに書き込みする。
+          this.firebase.saveCurrentState('firebase/ref/path', resolvedState);
+        }
+      });
+  }
+
+
   applyMiddlewares(initialState: AppState): void {
     if (this.firebase) {
       this.firebase.connect$<AppState>('firebase/ref/path')
@@ -62,50 +73,4 @@ export class Store {
     }
   }
 
-  effectAfterReduced(newState: AppState): void {
-    promisify(newState, true)
-      .then(resolvedState => { // このとき全てのPromiseは解決している。
-        console.log('resolvedState:', resolvedState);
-        if (this.firebase && !resolvedState.restore) { // RestoreActionではない場合のみFirebaseに書き込みする。
-          this.firebase.saveCurrentState('firebase/ref/path', resolvedState);
-        }
-      });
-  }
 }
-
-
-// /////////////////////////////////////////////////////////////////////////////////////////
-// // Reducers
-// function incrementReducer(initState: Promise<IncrementState> | IncrementState, dispatcher$: Dispatcher<Action>): Observable<Promise<IncrementState>> {
-//   return dispatcher$.scan<Promise<IncrementState>>((state, action) => { // Dispatcherをnextする度にここが発火する。
-//     /*  */ if (action instanceof IncrementAction) {
-//       return new Promise<IncrementState>(resolve => {
-//         setTimeout(() => {
-//           state.then(s => resolve({ counter: s.counter + 1 }));
-//         }, 500);
-//       });
-//     } else if (action instanceof DecrementAction) {
-//       return new Promise<IncrementState>(resolve => {
-//         setTimeout(() => {
-//           state.then(s => resolve({ counter: s.counter - 1 }));
-//         }, 500);
-//       });
-//     } else if (action instanceof RestoreAction) {
-//       return promisify(action.stateFromOuterWorld.increment);
-//     } else if (action instanceof ResetAction) {
-//       return promisify(initState);
-//     } else {
-//       return state;
-//     }
-//   }, promisify(initState));
-// }
-
-// function restoreReducer(initState: boolean, dispatcher$: Dispatcher<Action>): Observable<boolean> {
-//   return dispatcher$.scan<typeof initState>((state, action) => { // Dispatcherをnextする度にここが発火する。
-//     if (action instanceof RestoreAction) {
-//       return true;
-//     } else {
-//       return false;
-//     }
-//   }, initState);
-// }

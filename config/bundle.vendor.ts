@@ -12,6 +12,5 @@ import '@angular/forms';
 
 import 'rxjs/Rx';
 
-import 'lodash';
-import 'bluebird';
-import 'firebase';
+// import 'lodash';
+// import 'firebase';

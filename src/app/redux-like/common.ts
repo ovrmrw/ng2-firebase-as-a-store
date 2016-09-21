@@ -41,13 +41,24 @@ export abstract class BaseStore {
 // オブジェクトが含む全てのPromiseを解決した上でオブジェクトを返す。
 async function resolveAllPromise<T>(obj: T | Promise<T>): Promise<T> {
   let temp: any = obj;
-  if (temp instanceof Object) {
+  if (temp instanceof Promise) {
+    try {
+      temp = await temp;
+    } catch (err) {
+      console.error(err);
+      temp = null;
+      alert('Promise is rejected.');      
+    }
+    temp = await resolveAllPromise(temp);
+  } else if (temp instanceof Object) {
     for (let key in temp) {
       if (temp[key] instanceof Promise) {
         try {
           temp[key] = await temp[key];
         } catch (err) {
-          throw new Error('resolveAllPromise(): an error has occured when resolving Promise. [key = ' + key + ']');
+          console.error(err);
+          temp[key] = null;
+          alert('Promise is rejected.');
         }
       }
       temp[key] = await resolveAllPromise(temp[key]);
