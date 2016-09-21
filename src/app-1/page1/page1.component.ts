@@ -14,6 +14,7 @@ import { State } from '../redux-like';
     <button (click)="increment()" class="btn btn-primary" id="increment-btn">+</button>
     <button (click)="decrement()" class="btn btn-primary" id="decrement-btn">-</button>
     <button (click)="reset()" class="btn btn-warning" id="reset-btn">RESET</button>
+    <button (click)="invokeError()" class="btn btn-danger" id="error-btn">invoke error</button>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -34,6 +35,10 @@ export class Page1Component {
 
   reset(): void {
     this.service.reset();
+  }
+
+  invokeError(): void {
+    this.service.invokeError();
   }
 
   get counterMergeMap() { return this.state.incrementStateByMergeMap$.map(s => s.counter); }

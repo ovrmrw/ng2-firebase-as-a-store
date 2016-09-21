@@ -12,10 +12,10 @@ export const defaultAppState: AppState = {
   restore: false,
   uuid: generateUuid(),
   nest: {
-    a: {
+    a: Promise.resolve({
       b: Promise.resolve({
         c: true
       })
-    }
+    })
   }
 };

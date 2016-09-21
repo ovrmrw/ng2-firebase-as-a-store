@@ -4,8 +4,8 @@ import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
 import { Dispatcher, Provider, ReducerContainer, InitialState, promisify } from './common';
 import { Action, RestoreAction } from './actions';
 import { IncrementState, AppState } from './types';
-import { incrementReducer, restoreReducer } from './reducers';
-import { FirebaseMiddleware } from './firebase';
+import { incrementReducer, restoreReducer, invokeErrorReducer } from './reducers';
+import { FirebaseEffector } from './firebase';
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -24,13 +24,13 @@ export class Store {
     private dispatcher$: Dispatcher<Action>,
     @Inject(InitialState)
     private initialState: AppState,
-    @Inject(FirebaseMiddleware) @Optional()
-    private firebase: FirebaseMiddleware | null, // DIできない場合はnullになる。テスト時はnullにする。
+    @Inject(FirebaseEffector) @Optional()
+    private firebase: FirebaseEffector | null, // DIできない場合はnullになる。テスト時はnullにする。
   ) {
     /* >>> createStore */
     this.provider$ = new BehaviorSubject(initialState);
     this.applyReducers(initialState);
-    this.applyMiddlewares(initialState);
+    this.applyEffectors(initialState);
     /* <<< createStore */
   }
 
@@ -40,6 +40,7 @@ export class Store {
       .zip<AppState>(...[ // わざわざ配列にした上でSpreadしているのは、VSCodeのオートインデントが有効になるから。
         incrementReducer(initialState.increment, this.dispatcher$), // as Observable<Promise<IncrementState>>
         restoreReducer(initialState.restore, this.dispatcher$), // as Observable<boolean>
+        invokeErrorReducer(null, this.dispatcher$),
         (increment, restore): AppState => {
           return Object.assign({}, initialState, { increment, restore }); // 型を曖昧にしているのでテストでカバーする。
         }
@@ -51,20 +52,20 @@ export class Store {
       });
   }
 
+
   effectAfterReduced(newState: AppState): void {
     promisify(newState, true)
       .then(resolvedState => { // このとき全てのPromiseは解決している。
-        if (resolvedState) {
-          console.log('resolvedState:', resolvedState);
-          if (this.firebase && !resolvedState.restore) { // RestoreActionではない場合のみFirebaseに書き込みする。
-            this.firebase.saveCurrentState('firebase/ref/path', resolvedState);
-          }
+        // console.log('resolvedState:', resolvedState);
+        if (this.firebase && !resolvedState.restore) { // RestoreActionではない場合のみFirebaseに書き込みする。
+          this.firebase.saveCurrentState('firebase/ref/path', resolvedState);
         }
-      });
+      })
+      .catch(err => console.error(err));
   }
 
 
-  applyMiddlewares(initialState: AppState): void {
+  applyEffectors(initialState: AppState): void {
     if (this.firebase) {
       this.firebase.connect$<AppState>('firebase/ref/path')
         .subscribe(cloudState => {

@@ -1,7 +1,7 @@
 import { Subscription } from 'rxjs/Subscription';
 
 
-export abstract class ParentComponent {
+export abstract class Disposer {
   private subs: Subscription[] = [];
 
   protected set disposable(subscription: Subscription) {

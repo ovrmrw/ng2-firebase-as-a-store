@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { Dispatcher, Action, IncrementAction, DecrementAction, ResetAction } from '../redux-like';
+import { Dispatcher, Action, IncrementAction, DecrementAction, ResetAction, ErrorAction } from '../redux-like';
 
 
 /*
@@ -23,5 +23,9 @@ export class Page1Service {
 
   reset(): void {
     this.dispatcher$.next(new ResetAction());
+  }
+
+  invokeError(): void {
+    this.dispatcher$.next(new ErrorAction());
   }
 }

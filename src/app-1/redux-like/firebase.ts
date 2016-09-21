@@ -12,7 +12,7 @@ const config = {
 
 
 @Injectable()
-export class FirebaseMiddleware {
+export class FirebaseEffector {
   constructor() {
     firebase.initializeApp(config);
   }

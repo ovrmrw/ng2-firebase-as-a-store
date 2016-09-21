@@ -10,7 +10,7 @@ import { Page1Service } from './page1/page1.service';
 
 import { Dispatcher, State, AsyncStatePipe, InitialState } from './redux-like';
 import { Store } from './redux-like/store';
-import { FirebaseMiddleware } from './redux-like/firebase';
+import { FirebaseEffector } from './redux-like/firebase';
 import { defaultAppState } from './redux-like/initial-state';
 
 
@@ -29,7 +29,7 @@ const appRoutes: Routes = [
   declarations: [AppComponent, Page1Component, AsyncStatePipe],
   providers: [
     Dispatcher, Store, State, Page1Service,
-    FirebaseMiddleware,
+    FirebaseEffector,
     { provide: InitialState, useValue: defaultAppState },
   ],
   bootstrap: [AppComponent]

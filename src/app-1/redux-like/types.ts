@@ -3,7 +3,7 @@ export interface IncrementState {
 }
 
 export interface AppState {
-  increment: Promise<IncrementState> | IncrementState | null;
+  increment: IncrementState | Promise<IncrementState>;
   restore: boolean;
   uuid: string;
   nest?: {};

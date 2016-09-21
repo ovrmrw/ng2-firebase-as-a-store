@@ -31,29 +31,21 @@ export class ReducerContainer<T> extends Observable<T> {
 
 // Reducerを作るときに型として使う。
 export interface Reducer<T> {
-  (state: T | Promise<T> | null, dispatcher: Dispatcher<any>, ...args: any[]): Observable<T | Promise<T>>;
+  (state: T, dispatcher: Dispatcher<any>, ...args: any[]): Observable<T>;
 }
 
 
-// // StoreクラスはBaseStoreクラスを継承して作る。
-// export abstract class BaseStore {
-//   abstract readonly provider$: Provider<{}>;
-//   abstract applyReducers(state: {}): void;
-//   abstract applyMiddlewares(state: {}): void;
-//   abstract effectAfterReduced(state: {}): void;
-// }
-
-
-// オブジェクトが含む全てのPromiseを解決した上でオブジェクトを返す。
-async function resolveAllPromise<T>(obj: T | Promise<T> | null): Promise<T | null> {
+// オブジェクトが含む全てのPromiseの解決を待った上でオブジェクトを返す。ネストが深くてもOK。
+async function resolveAllPromise<T>(obj: T | Promise<T>): Promise<T> {
   let temp = obj;
+  const rejectMessage = 'Promise is rejected in "resolveAllPromise" function.';
   if (temp instanceof Promise) {
     try {
       temp = await temp;
     } catch (err) {
       console.error(err);
-      temp = null;
-      alert('Promise is rejected.');
+      alert(rejectMessage);
+      throw new Error(rejectMessage);
     }
     temp = await resolveAllPromise(temp);
   } else if (temp instanceof Object) {
@@ -63,19 +55,19 @@ async function resolveAllPromise<T>(obj: T | Promise<T> | null): Promise<T | nul
           temp[key] = await temp[key];
         } catch (err) {
           console.error(err);
-          temp[key] = null;
-          alert('Promise is rejected.');
+          alert(rejectMessage);
+          throw new Error(rejectMessage);
         }
       }
       temp[key] = await resolveAllPromise(temp[key]);
     }
   }
-  return temp;
+  return temp as T;
 }
 
 
 // PromiseかどうかはっきりしないStateを強制的にPromiseにする。
-export function promisify<T>(state: T | Promise<T> | null, withInnerResolve: boolean = false): Promise<T | null> {
+export function promisify<T>(state: T | Promise<T>, withInnerResolve: boolean = false): Promise<T> {
   const _state = withInnerResolve ? resolveAllPromise(state) : state;
   return _state instanceof Promise ? _state : Promise.resolve<T | null>(_state);
 }
@@ -84,7 +76,7 @@ export function promisify<T>(state: T | Promise<T> | null, withInnerResolve: boo
 // PromiseかどうかはっきりしないStateの型をPromiseではないと断定する。
 export function notPromise<T>(state: T | Promise<T>): T {
   if (state instanceof Promise) {
-    throw '"state" should be not Promise is instanceof Promise!';
+    throw new Error('"state" should be not Promise is instanceof Promise!');
   } else {
     return state;
   }
@@ -130,7 +122,7 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
 
 
 // Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
-export function resolvedObservableByMergeMap<T>(observable: Observable<T | Promise<T> | null>, withInnerResolve: boolean = false): Observable<T> {
+export function resolvedObservableByMergeMap<T>(observable: Observable<T | Promise<T>>, withInnerResolve: boolean = false): Observable<T> {
   return observable
     .map<Promise<T>>(state => promisify(state, withInnerResolve))
     .mergeMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise));
@@ -138,7 +130,7 @@ export function resolvedObservableByMergeMap<T>(observable: Observable<T | Promi
 
 
 // Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
-export function resolvedObservableBySwitchMap<T>(observable: Observable<T | Promise<T> | null>, withInnerResolve: boolean = false): Observable<T> {
+export function resolvedObservableBySwitchMap<T>(observable: Observable<T | Promise<T>>, withInnerResolve: boolean = false): Observable<T> {
   return observable
     .map<Promise<T>>(state => promisify(state, withInnerResolve))
     .switchMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise));
