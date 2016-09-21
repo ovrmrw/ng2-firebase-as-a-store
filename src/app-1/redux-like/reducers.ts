@@ -1,12 +1,12 @@
 import { Observable } from 'rxjs/Rx';
 
 import { Dispatcher, Reducer, promisify } from './common';
-import { Action, IncrementAction, DecrementAction, ResetAction, RestoreAction } from './actions';
+import { Action, IncrementAction, DecrementAction, ResetAction, RestoreAction, ErrorAction } from './actions';
 import { IncrementState } from './types';
 
 
-export const incrementReducer: Reducer<Promise<IncrementState> | IncrementState>
-  = (initState: Promise<IncrementState> | IncrementState, dispatcher$: Dispatcher<Action>): Observable<Promise<IncrementState>> => {
+export const incrementReducer: Reducer<Promise<IncrementState> | IncrementState | null>
+  = (initState: Promise<IncrementState> | IncrementState | null, dispatcher$: Dispatcher<Action>): Observable<Promise<IncrementState>> => {
     return dispatcher$.scan<Promise<IncrementState>>((state, action) => { // Dispatcherをnextする度にここが発火する。
       /*  */ if (action instanceof IncrementAction) {
         return new Promise<IncrementState>(resolve => {
@@ -17,8 +17,7 @@ export const incrementReducer: Reducer<Promise<IncrementState> | IncrementState>
       } else if (action instanceof DecrementAction) {
         return new Promise<IncrementState>((resolve, reject) => {
           setTimeout(() => {
-            // state.then(s => resolve({ counter: s.counter - 1 }));
-            reject();
+            state.then(s => resolve({ counter: s.counter - 1 }));
           }, 500);
         });
       } else if (action instanceof RestoreAction) {
@@ -29,6 +28,8 @@ export const incrementReducer: Reducer<Promise<IncrementState> | IncrementState>
         }
       } else if (action instanceof ResetAction) {
         return promisify(initState);
+      } else if (action instanceof ErrorAction) {
+        return Promise.reject('error');
       } else {
         return state;
       }

@@ -54,9 +54,11 @@ export class Store {
   effectAfterReduced(newState: AppState): void {
     promisify(newState, true)
       .then(resolvedState => { // このとき全てのPromiseは解決している。
-        console.log('resolvedState:', resolvedState);
-        if (this.firebase && !resolvedState.restore) { // RestoreActionではない場合のみFirebaseに書き込みする。
-          this.firebase.saveCurrentState('firebase/ref/path', resolvedState);
+        if (resolvedState) {
+          console.log('resolvedState:', resolvedState);
+          if (this.firebase && !resolvedState.restore) { // RestoreActionではない場合のみFirebaseに書き込みする。
+            this.firebase.saveCurrentState('firebase/ref/path', resolvedState);
+          }
         }
       });
   }

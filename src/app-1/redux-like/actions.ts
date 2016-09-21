@@ -17,5 +17,9 @@ export class RestoreAction {
   constructor(public stateFromOuterWorld: AppState) { }
 }
 
+export class ErrorAction {
+  constructor() { }
+}
 
-export type Action = IncrementAction | DecrementAction | ResetAction | RestoreAction;
+
+export type Action = IncrementAction | DecrementAction | ResetAction | RestoreAction | ErrorAction;

@@ -3,7 +3,7 @@ import { Observable } from 'rxjs/Observable';
 
 import { Store } from './store';
 import { IncrementState } from './types';
-import { promisify } from './common';
+import { promisify, resolvedObservableBySwitchMap } from './common';
 
 
 /*
@@ -26,9 +26,10 @@ export class State {
 
   // Observable<Promise<IncrementState>> -> Observable<IncrementState>
   get incrementStateBySwitchMap$(): Observable<IncrementState> {
-    return this.store.provider$
-      .map<Promise<IncrementState>>(appState => promisify(appState.increment))
-      .switchMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise));
+    // return this.store.provider$
+    //   .map<Promise<IncrementState>>(appState => promisify(appState.increment))
+    //   .switchMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise));
+    return resolvedObservableBySwitchMap(this.store.provider$.map(s => s.increment));
   }
   
 }

@@ -31,7 +31,7 @@ export class ReducerContainer<T> extends Observable<T> {
 
 // Reducerを作るときに型として使う。
 export interface Reducer<T> {
-  (state: T | Promise<T>, dispatcher: Dispatcher<any>, ...args: any[]): Observable<T | Promise<T>>;
+  (state: T | Promise<T> | null, dispatcher: Dispatcher<any>, ...args: any[]): Observable<T | Promise<T>>;
 }
 
 
@@ -45,15 +45,15 @@ export interface Reducer<T> {
 
 
 // オブジェクトが含む全てのPromiseを解決した上でオブジェクトを返す。
-async function resolveAllPromise<T>(obj: T | Promise<T>): Promise<T> {
-  let temp: any = obj;
+async function resolveAllPromise<T>(obj: T | Promise<T> | null): Promise<T | null> {
+  let temp = obj;
   if (temp instanceof Promise) {
     try {
       temp = await temp;
     } catch (err) {
       console.error(err);
       temp = null;
-      alert('Promise is rejected.');      
+      alert('Promise is rejected.');
     }
     temp = await resolveAllPromise(temp);
   } else if (temp instanceof Object) {
@@ -75,9 +75,9 @@ async function resolveAllPromise<T>(obj: T | Promise<T>): Promise<T> {
 
 
 // PromiseかどうかはっきりしないStateを強制的にPromiseにする。
-export function promisify<T>(state: T | Promise<T>, withInnerResolve: boolean = false): Promise<T> {
+export function promisify<T>(state: T | Promise<T> | null, withInnerResolve: boolean = false): Promise<T | null> {
   const _state = withInnerResolve ? resolveAllPromise(state) : state;
-  return _state instanceof Promise ? _state : Promise.resolve<T>(_state);
+  return _state instanceof Promise ? _state : Promise.resolve<T | null>(_state);
 }
 
 
@@ -130,7 +130,7 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
 
 
 // Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
-export function resolvedObservableByMergeMap<T>(observable: Observable<Promise<T> | T>, withInnerResolve: boolean = false): Observable<T> {
+export function resolvedObservableByMergeMap<T>(observable: Observable<T | Promise<T> | null>, withInnerResolve: boolean = false): Observable<T> {
   return observable
     .map<Promise<T>>(state => promisify(state, withInnerResolve))
     .mergeMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise));
@@ -138,7 +138,7 @@ export function resolvedObservableByMergeMap<T>(observable: Observable<Promise<T
 
 
 // Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
-export function resolvedObservableBySwitchMap<T>(observable: Observable<Promise<T> | T>, withInnerResolve: boolean = false): Observable<T> {
+export function resolvedObservableBySwitchMap<T>(observable: Observable<T | Promise<T> | null>, withInnerResolve: boolean = false): Observable<T> {
   return observable
     .map<Promise<T>>(state => promisify(state, withInnerResolve))
     .switchMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise));
