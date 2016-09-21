@@ -55,7 +55,7 @@ describe('TEST: (Dispatcher -> Store -> State) Half Integration Test', () => {
     state.incrementState$
       .subscribe(s => {
         incrementState = s;
-        // console.log('IncrementState:', s);
+        console.log('IncrementState:', s);
       });
 
     assert.deepEqual(incrementState, undefined);

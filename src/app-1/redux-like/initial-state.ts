@@ -13,4 +13,11 @@ export const defaultAppState: AppState = {
   }),
   restore: false,
   uuid: uuid.v4(),
+  nest: {
+    a: {
+      b: Promise.resolve({
+        c: true
+      })
+    }
+  }
 };

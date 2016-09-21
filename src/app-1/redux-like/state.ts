@@ -20,16 +20,16 @@ export class State {
   // Observable<Promise<IncrementState>> -> Observable<IncrementState>
   get incrementStateByMergeMap$(): Observable<IncrementState> {
     return this.store.provider$
-      .map<Promise<IncrementState> | IncrementState>(appState => appState.increment)
-      .map<Promise<IncrementState>>(state => promisify(state))
+      // .map<Promise<IncrementState> | IncrementState>(appState => appState.increment)
+      .map<Promise<IncrementState>>(appState => promisify(appState.increment))
       .mergeMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise));
   }
 
   // Observable<Promise<IncrementState>> -> Observable<IncrementState>
   get incrementStateBySwitchMap$(): Observable<IncrementState> {
     return this.store.provider$
-      .map<Promise<IncrementState> | IncrementState>(appState => appState.increment)
-      .map<Promise<IncrementState>>(state => promisify(state))
+      // .map<Promise<IncrementState> | IncrementState>(appState => appState.increment)
+      .map<Promise<IncrementState>>(appState => promisify(appState.increment))
       .switchMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise));
   }
 }

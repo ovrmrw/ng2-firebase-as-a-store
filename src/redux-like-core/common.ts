@@ -1,6 +1,5 @@
 import { Injectable, OpaqueToken, Pipe, PipeTransform, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Observable, Subject, Subscription } from 'rxjs/Rx';
-import bluebird from 'bluebird';
 import lodash from 'lodash';
 
 
@@ -35,12 +34,29 @@ export class ReducerContainer<T> extends Observable<T> {
 }
 
 
-
+// オブジェクトが含む全てのPromiseを解決した上でオブジェクトを返す。
+async function resolveAllPromise<T>(obj: T | Promise<T>): Promise<T> {
+  let temp: any = obj;
+  if (temp instanceof Object) {
+    for (let key in temp) {
+      if (temp[key] instanceof Promise) {
+        try {
+          temp[key] = await temp[key];
+        } catch (err) {
+          throw new Error('resolveAllPromise(): an error has occured when resolving Promise. [key = ' + key + ']');
+        }
+      }
+      temp[key] = await resolveAllPromise(temp[key]);
+    }
+  }
+  return temp;
+}
 
 
 // PromiseかどうかはっきりしないStateを強制的にPromiseにする。
-export function promisify<T>(state: T | Promise<T>): Promise<T> {
-  return state instanceof Promise ? state : Promise.resolve(state);
+export function promisify<T>(state: T | Promise<T>, withInnerResolve: boolean = false): Promise<T> {
+  const _state = withInnerResolve ? resolveAllPromise(state) : state;
+  return _state instanceof Promise ? _state : Promise.resolve<T>(_state);
 }
 
 

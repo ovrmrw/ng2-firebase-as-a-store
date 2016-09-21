@@ -1,6 +1,5 @@
 import { Injectable, Inject, Optional } from '@angular/core';
 import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
-import bluebird from 'bluebird';
 
 import { Dispatcher, Provider, ReducerContainer, InitialState, promisify } from './common';
 import { Action, IncrementAction, DecrementAction, RestoreAction, ResetAction } from './actions';
@@ -64,8 +63,9 @@ export class Store {
   }
 
   effectAfterReduced(newState: AppState): void {
-    bluebird.props(newState)
-      .then((resolvedState: AppState) => { // このとき全てのPromiseは解決している。
+    promisify(newState, true)
+      .then(resolvedState => { // このとき全てのPromiseは解決している。
+        console.log('resolvedState:', resolvedState);
         if (this.firebase && !resolvedState.restore) { // RestoreActionではない場合のみFirebaseに書き込みする。
           this.firebase.saveCurrentState('firebase/ref/path', resolvedState);
         }

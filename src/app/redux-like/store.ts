@@ -4,7 +4,6 @@ import { Subject } from 'rxjs/Subject';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import lodash from 'lodash';
 import uuid from 'node-uuid';
-import bluebird from 'bluebird';
 
 import { Dispatcher, Provider, ReducerContainer, InitialState, BaseStore, promisify } from './common';
 import { Action, IncrementAction, DecrementAction, RestoreAction, ResetAction } from './actions';
@@ -69,8 +68,8 @@ export class Store extends BaseStore {
   }
 
   effectAfterReduced(newState: AppState): void {
-    bluebird.props(newState)
-      .then((resolvedState: AppState) => { // このとき全てのPromiseは解決している。
+    promisify(newState, true)
+      .then(resolvedState => { // このとき全てのPromiseは解決している。
         if (this.firebase && !resolvedState.restore) { // RestoreActionではない場合のみFirebaseに書き込みする。
           this.firebase.saveCurrentState('firebase/ref/path', resolvedState);
         }
