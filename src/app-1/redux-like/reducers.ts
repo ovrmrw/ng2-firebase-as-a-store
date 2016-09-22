@@ -21,7 +21,7 @@ export const incrementReducer: Reducer<IncrementState | Promise<IncrementState>>
           }, 500);
         });
       } else if (action instanceof RestoreAction) {
-        if (action.stateFromOuterWorld.increment) { // OuterWorldからのデータは信用できない。
+        if (action.stateFromOuterWorld && action.stateFromOuterWorld.increment) { // Validation
           return promisify(action.stateFromOuterWorld.increment);
         } else {
           return promisify(initState);
@@ -51,11 +51,9 @@ export const invokeErrorReducer: Reducer<null> =
   (initState: null, dispatcher$: Dispatcher<Action>): Observable<null> => {
     return dispatcher$.scan<null>((state, action) => {
       if (action instanceof ErrorAction) {
-        // const message = 'ErrorAction is dispatched.';
-        // alert(message);
-        // throw new Error(message);
-        dispatcher$.next(new IncrementAction());
-        return null;
+        const message = 'ErrorAction is dispatched.';
+        alert(message);
+        throw new Error(message);
       } else {
         return null;
       }

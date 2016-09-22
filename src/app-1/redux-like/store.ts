@@ -29,20 +29,19 @@ export class Store {
   ) {
     /* >>> createStore */
     this.provider$ = new BehaviorSubject(initialState);
-    this.applyReducers(initialState);
-    this.applyEffectors(initialState);
+    this.applyReducers().applyEffectors();
     /* <<< createStore */
   }
 
 
-  applyReducers(initialState: AppState): void {
+  applyReducers(): this {
     ReducerContainer
       .zip<AppState>(...[ // わざわざ配列にした上でSpreadしているのは、VSCodeのオートインデントが有効になるから。
-        incrementReducer(initialState.increment, this.dispatcher$), // as Observable<Promise<IncrementState>>
-        restoreReducer(initialState.restore, this.dispatcher$), // as Observable<boolean>
+        incrementReducer(this.initialState.increment, this.dispatcher$), // as Observable<Promise<IncrementState>>
+        restoreReducer(this.initialState.restore, this.dispatcher$), // as Observable<boolean>
         invokeErrorReducer(null, this.dispatcher$),
         (increment, restore): AppState => {
-          return Object.assign({}, initialState, { increment, restore }); // 型を曖昧にしているのでテストでカバーする。
+          return Object.assign({}, this.initialState, { increment, restore }); // 型を曖昧にしているのでテストでカバーする。
         }
       ])
       .subscribe(newState => {
@@ -50,6 +49,7 @@ export class Store {
         this.provider$.next(newState); // ProviderをnextしてStateクラスにストリームを流す。
         this.effectAfterReduced(newState);
       });
+    return this;
   }
 
 
@@ -65,15 +65,16 @@ export class Store {
   }
 
 
-  applyEffectors(initialState: AppState): void {
+  applyEffectors(): this {
     if (this.firebase) {
       this.firebase.connect$<AppState>('firebase/ref/path')
         .subscribe(cloudState => {
-          if (cloudState && cloudState.uuid !== initialState.uuid) { // 自分以外の誰かがFirebaseを更新した場合は、その値をDispatcherにnextする。
+          if (cloudState && cloudState.uuid !== this.initialState.uuid) { // 自分以外の誰かがFirebaseを更新した場合は、その値をDispatcherにnextする。
             this.dispatcher$.next(new RestoreAction(cloudState));
           }
         });
     }
+    return this;
   }
 
 }

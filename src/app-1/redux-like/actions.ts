@@ -14,7 +14,7 @@ export class ResetAction {
 }
 
 export class RestoreAction {
-  constructor(public stateFromOuterWorld: AppState) { }
+  constructor(public stateFromOuterWorld: AppState | null) { }
 }
 
 export class ErrorAction {

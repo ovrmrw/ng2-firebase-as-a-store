@@ -28,6 +28,7 @@ export class FirebaseEffector {
     });
   }
 
+
   connect$<T>(refPath: string): Observable<T> {
     const subject = new Subject<T>();
     firebase.database().ref(refPath).on('value', snapshot => {
