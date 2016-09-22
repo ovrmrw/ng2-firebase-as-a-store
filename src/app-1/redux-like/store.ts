@@ -1,10 +1,12 @@
 import { Injectable, Inject, Optional } from '@angular/core';
-import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
+import { Observable, Subject, BehaviorSubject, Subscription } from 'rxjs/Rx';
+import lodash from 'lodash';
 
+import { Disposer } from '../shared/disposer';
 import { Dispatcher, Provider, ReducerContainer, InitialState, promisify } from './common';
 import { Action, RestoreAction } from './actions';
 import { IncrementState, AppState } from './types';
-import { incrementReducer, restoreReducer, invokeErrorReducer } from './reducers';
+import { incrementReducer, restoreReducer, invokeErrorReducer, cancelReducer } from './reducers';
 import { FirebaseEffector } from './firebase';
 
 
@@ -17,8 +19,9 @@ import { FirebaseEffector } from './firebase';
   Providerをnextして最終的にComponentクラスにStateが届く。
 */
 @Injectable()
-export class Store {
+export class Store extends Disposer {
   readonly provider$: Provider<AppState>;
+  private canceler$ = new Subject<undefined>();
 
   constructor(
     private dispatcher$: Dispatcher<Action>,
@@ -27,6 +30,8 @@ export class Store {
     @Inject(FirebaseEffector) @Optional()
     private firebase: FirebaseEffector | null, // DIできない場合はnullになる。テスト時はnullにする。
   ) {
+    super();
+
     /* >>> createStore */
     this.provider$ = new BehaviorSubject(initialState);
     this.applyReducers().applyEffectors();
@@ -35,15 +40,18 @@ export class Store {
 
 
   applyReducers(): this {
-    ReducerContainer
+    this.disposable = ReducerContainer
       .zip<AppState>(...[ // わざわざ配列にした上でSpreadしているのは、VSCodeのオートインデントが有効になるから。
         incrementReducer(this.initialState.increment, this.dispatcher$), // as Observable<Promise<IncrementState>>
         restoreReducer(this.initialState.restore, this.dispatcher$), // as Observable<boolean>
+        cancelReducer(this.dispatcher$), // as Observable<boolean>
         invokeErrorReducer(null, this.dispatcher$),
-        (increment, restore): AppState => {
-          return Object.assign({}, this.initialState, { increment, restore }); // 型を曖昧にしているのでテストでカバーする。
+        (increment, restore, cancel): AppState => {
+          this.cancelReducers(cancel);
+          return Object.assign<{}, AppState, {}>({}, this.initialState, { increment, restore }); // 型を曖昧にしているのでテストでカバーする。
         }
       ])
+      .takeUntil(this.canceler$)
       .subscribe(newState => {
         console.log('newState:', newState);
         this.provider$.next(newState); // ProviderをnextしてStateクラスにストリームを流す。
@@ -67,7 +75,8 @@ export class Store {
 
   applyEffectors(): this {
     if (this.firebase) {
-      this.firebase.connect$<AppState>('firebase/ref/path')
+      this.disposable = this.firebase.connect$<AppState>('firebase/ref/path')
+        .takeUntil(this.canceler$)
         .subscribe(cloudState => {
           if (cloudState && cloudState.uuid !== this.initialState.uuid) { // 自分以外の誰かがFirebaseを更新した場合は、その値をDispatcherにnextする。
             this.dispatcher$.next(new RestoreAction(cloudState));
@@ -75,6 +84,16 @@ export class Store {
         });
     }
     return this;
+  }
+
+
+  cancelReducers(isCancel: boolean): void {
+    if (isCancel && this.subscriptionsCount) {
+      this.canceler$.next();
+      const message = 'CancelAction is dispatched.';
+      console.warn(message);
+      alert(message);
+    }
   }
 
 }

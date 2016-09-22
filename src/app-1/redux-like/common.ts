@@ -1,6 +1,7 @@
 import { Injectable, OpaqueToken, Pipe, PipeTransform, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Observable, Subject, Subscription } from 'rxjs/Rx';
 import uuid from 'node-uuid';
+import lodash from 'lodash';
 
 
 // Storeの初期Stateをデフォルト値以外で作りたいときはこのTokenを使ってDIする。
@@ -30,7 +31,7 @@ export class ReducerContainer<T> extends Observable<T> {
 
 
 // Reducerを作るときに型として使う。
-export interface Reducer<T> {
+export interface StateReducer<T> {
   (state: T, dispatcher: Dispatcher<any>, ...args: any[]): Observable<T>;
 }
 
@@ -106,7 +107,7 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
     if (!this.subscription) {
       // 1回目の実行時にここを通る。      
       this.subscription = observable
-        .distinctUntilChanged()
+        .distinctUntilChanged((oldValue, newValue) => lodash.isEqual(oldValue, newValue))
         .subscribe(state => {
           this.latestValue = state;
           this.cd.markForCheck();

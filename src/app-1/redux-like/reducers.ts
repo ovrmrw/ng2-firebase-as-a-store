@@ -1,13 +1,13 @@
 import { Observable } from 'rxjs/Rx';
 
-import { Dispatcher, Reducer, promisify } from './common';
-import { Action, IncrementAction, DecrementAction, ResetAction, RestoreAction, ErrorAction } from './actions';
+import { Dispatcher, StateReducer, promisify } from './common';
+import { Action, IncrementAction, DecrementAction, ResetAction, RestoreAction, ErrorAction, CancelAction } from './actions';
 import { IncrementState } from './types';
 
 
-export const incrementReducer: Reducer<IncrementState | Promise<IncrementState>> =
-  (initState: IncrementState | Promise<IncrementState>, dispatcher$: Dispatcher<Action>): Observable<Promise<IncrementState>> => {
-    return dispatcher$.scan<Promise<IncrementState>>((state, action) => { // Dispatcherをnextする度にここが発火する。
+export const incrementReducer: StateReducer<IncrementState | Promise<IncrementState>> =
+  (initState: IncrementState | Promise<IncrementState>, dispatcher$: Dispatcher<Action>): Observable<Promise<IncrementState>> =>
+    dispatcher$.scan<Promise<IncrementState>>((state, action) => {
       /*  */ if (action instanceof IncrementAction) {
         return new Promise<IncrementState>(resolve => {
           setTimeout(() => {
@@ -32,24 +32,22 @@ export const incrementReducer: Reducer<IncrementState | Promise<IncrementState>>
         return state;
       }
     }, promisify(initState));
-  };
 
 
-export const restoreReducer: Reducer<boolean> =
-  (initState: boolean, dispatcher$: Dispatcher<Action>): Observable<boolean> => {
-    return dispatcher$.scan<boolean>((state, action) => { // Dispatcherをnextする度にここが発火する。
+export const restoreReducer: StateReducer<boolean> =
+  (initState: boolean, dispatcher$: Dispatcher<Action>): Observable<boolean> =>
+    dispatcher$.scan<boolean>((state, action) => {
       if (action instanceof RestoreAction) {
         return true;
       } else {
         return false;
       }
     }, initState);
-  };
 
 
-export const invokeErrorReducer: Reducer<null> =
-  (initState: null, dispatcher$: Dispatcher<Action>): Observable<null> => {
-    return dispatcher$.scan<null>((state, action) => {
+export const invokeErrorReducer: StateReducer<null> =
+  (initState: null, dispatcher$: Dispatcher<Action>): Observable<null> =>
+    dispatcher$.scan<null>((state, action) => {
       if (action instanceof ErrorAction) {
         const message = 'ErrorAction is dispatched.';
         alert(message);
@@ -58,4 +56,8 @@ export const invokeErrorReducer: Reducer<null> =
         return null;
       }
     }, initState);
-  };
+
+
+export const cancelReducer =
+  (dispatcher$: Dispatcher<Action>): Observable<boolean> =>
+    dispatcher$.map<boolean>(action => action instanceof CancelAction);

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { Store } from './store';
-import { IncrementState } from './types';
+import { AppState, IncrementState } from './types';
 import { promisify, resolvedObservableBySwitchMap } from './common';
 
 
@@ -12,14 +12,18 @@ import { promisify, resolvedObservableBySwitchMap } from './common';
 */
 @Injectable()
 export class State {
+  private appState$: Observable<AppState>;
+
   constructor(
     private store: Store
-  ) { }
+  ) {
+    this.appState$ = this.store.provider$;
+  }
 
 
   // Observable<Promise<IncrementState>> -> Observable<IncrementState>
   get incrementStateByMergeMap$(): Observable<IncrementState> {
-    return this.store.provider$
+    return this.appState$
       // .map<Promise<IncrementState>>(appState => promisify(appState.increment))
       // .mergeMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise));
       .mergeMap<IncrementState>(state => Observable.fromPromise(promisify(state.increment)));
@@ -27,7 +31,7 @@ export class State {
 
   // Observable<Promise<IncrementState>> -> Observable<IncrementState>
   get incrementStateBySwitchMap$(): Observable<IncrementState> {
-    return this.store.provider$
+    return this.appState$
       //   .map<Promise<IncrementState>>(appState => promisify(appState.increment))
       //   .switchMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise));
       .switchMap<IncrementState>(state => Observable.fromPromise(promisify(state.increment)));

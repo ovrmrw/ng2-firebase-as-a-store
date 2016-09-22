@@ -21,5 +21,9 @@ export class ErrorAction {
   constructor() { }
 }
 
+export class CancelAction {
+  constructor() { }
+}
 
-export type Action = IncrementAction | DecrementAction | ResetAction | RestoreAction | ErrorAction;
+
+export type Action = IncrementAction | DecrementAction | ResetAction | RestoreAction | ErrorAction | CancelAction;

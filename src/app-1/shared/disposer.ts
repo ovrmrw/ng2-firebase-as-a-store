@@ -10,5 +10,10 @@ export abstract class Disposer {
 
   protected disposeSubscriptions(): void {
     this.subs.forEach(sub => sub.unsubscribe());
+    this.subs = [];
+  }
+
+  protected get subscriptionsCount(): number {
+    return this.subs.length;
   }
 }
