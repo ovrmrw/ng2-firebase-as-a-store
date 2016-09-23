@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs/Rx';
 
-import { Dispatcher, StateReducer, promisify } from './common';
+import { Dispatcher, StateReducer, NonStateReducer, promisify } from './common';
 import { Action, IncrementAction, DecrementAction, ResetAction, RestoreAction, ErrorAction, CancelAction } from './actions';
 import { IncrementState } from './types';
 
@@ -45,19 +45,19 @@ export const restoreReducer: StateReducer<boolean> =
     }, initState);
 
 
-export const invokeErrorReducer: StateReducer<null> =
-  (initState: null, dispatcher$: Dispatcher<Action>): Observable<null> =>
-    dispatcher$.scan<null>((state, action) => {
+export const invokeErrorReducer: NonStateReducer<void | never> =
+  (dispatcher$: Dispatcher<Action>): Observable<void | never> =>
+    dispatcher$.map<void | never>(action => {
       if (action instanceof ErrorAction) {
         const message = 'ErrorAction is dispatched.';
         alert(message);
         throw new Error(message);
       } else {
-        return null;
+        return;
       }
-    }, initState);
+    });
 
 
-export const cancelReducer =
+export const cancelReducer: NonStateReducer<boolean> =
   (dispatcher$: Dispatcher<Action>): Observable<boolean> =>
     dispatcher$.map<boolean>(action => action instanceof CancelAction);

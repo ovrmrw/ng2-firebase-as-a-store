@@ -21,7 +21,7 @@ import { FirebaseEffector } from './firebase';
 @Injectable()
 export class Store extends Disposer {
   readonly provider$: Provider<AppState>;
-  private canceler$ = new Subject<undefined>();
+  private canceller$ = new Subject<undefined>();
 
   constructor(
     private dispatcher$: Dispatcher<Action>,
@@ -45,13 +45,13 @@ export class Store extends Disposer {
         incrementReducer(this.initialState.increment, this.dispatcher$), // as Observable<Promise<IncrementState>>
         restoreReducer(this.initialState.restore, this.dispatcher$), // as Observable<boolean>
         cancelReducer(this.dispatcher$), // as Observable<boolean>
-        invokeErrorReducer(null, this.dispatcher$),
+        invokeErrorReducer(this.dispatcher$), // as Observable<void | never>
         (increment, restore, cancel): AppState => {
           this.cancelReducers(cancel);
           return Object.assign<{}, AppState, {}>({}, this.initialState, { increment, restore }); // 型を曖昧にしているのでテストでカバーする。
         }
       ])
-      .takeUntil(this.canceler$)
+      .takeUntil(this.canceller$)
       .subscribe(newState => {
         console.log('newState:', newState);
         this.provider$.next(newState); // ProviderをnextしてStateクラスにストリームを流す。
@@ -63,7 +63,7 @@ export class Store extends Disposer {
 
   effectAfterReduced(newState: AppState): void {
     promisify(newState, true)
-      .then(resolvedState => { // このとき全てのPromiseは解決している。
+      .then(resolvedState => { // このとき全てのPromise,Observableは解決している。
         // console.log('resolvedState:', resolvedState);
         if (this.firebase && !resolvedState.restore) { // RestoreActionではない場合のみFirebaseに書き込みする。
           this.firebase.saveCurrentState('firebase/ref/path', resolvedState);
@@ -76,7 +76,7 @@ export class Store extends Disposer {
   applyEffectors(): this {
     if (this.firebase) {
       this.disposable = this.firebase.connect$<AppState>('firebase/ref/path')
-        .takeUntil(this.canceler$)
+        .takeUntil(this.canceller$)
         .subscribe(cloudState => {
           if (cloudState && cloudState.uuid !== this.initialState.uuid) { // 自分以外の誰かがFirebaseを更新した場合は、その値をDispatcherにnextする。
             this.dispatcher$.next(new RestoreAction(cloudState));
@@ -89,7 +89,7 @@ export class Store extends Disposer {
 
   cancelReducers(isCancel: boolean): void {
     if (isCancel && this.subscriptionsCount) {
-      this.canceler$.next();
+      this.canceller$.next();
       const message = 'CancelAction is dispatched.';
       console.warn(message);
       alert(message);
