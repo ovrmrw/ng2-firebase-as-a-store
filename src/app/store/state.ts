@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs/Rx';
 
 import { promisify, toObservableBySwitchMap } from '../redux-like';
 import { Store } from './store';

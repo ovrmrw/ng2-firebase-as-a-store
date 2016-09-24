@@ -20,3 +20,20 @@ export const incrementReducer: StateReducer<IncrementState | Promise<IncrementSt
         return state;
       }
     }, promisify(initState));
+
+
+// export const incrementReducer =
+//   (initState, dispatcher$) =>
+//     dispatcher$.scan((state, action) => {
+//       if (action instanceof IncrementAction) {
+//         return new Promise(resolve => {
+//           setTimeout(() => state.then(s => resolve({ counter: s.counter + 1 })), 500);
+//         });
+//       } else if (action instanceof DecrementAction) {
+//         return new Promise(resolve => {
+//           setTimeout(() => state.then(s => resolve({ counter: s.counter - 1 })), 500);
+//         });
+//       } else {
+//         return state;
+//       }
+//     }, promisify(initState));

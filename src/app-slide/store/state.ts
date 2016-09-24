@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs/Rx';
 
 import { promisify } from '../redux-like';
 import { Store } from './store';
@@ -27,8 +27,8 @@ export class State {
   // Observable<Promise<IncrementState>> -> Observable<IncrementState>
   get incrementStateBySwitchMap$(): Observable<IncrementState> {
     return this.appState$
-        .map<Promise<IncrementState>>(appState => promisify(appState.increment))
-        .switchMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise)); // cancellation
+      .map<Promise<IncrementState>>(appState => promisify(appState.increment))
+      .switchMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise)); // cancellation
   }
 
 }

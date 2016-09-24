@@ -1,6 +1,6 @@
 import { Injectable, Inject, Optional } from '@angular/core';
-import { Observable, Subject, BehaviorSubject, Subscription } from 'rxjs/Rx';
-import lodash from 'lodash';
+import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
+// import lodash from 'lodash';
 
 import { Dispatcher, Provider, ReducerContainer, InitialState } from '../redux-like';
 import { Action } from './actions';

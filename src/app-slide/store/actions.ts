@@ -1,6 +1,3 @@
-import { AppState } from './types';
-
-
 export class IncrementAction {
   constructor() { }
 }

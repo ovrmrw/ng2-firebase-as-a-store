@@ -1,4 +1,4 @@
-export * from './app-1/specs/page1.component.spec';
+export * from './app/specs/page1.component.spec';
 
-export * from './app-1/specs/state.spec';
-export * from './app-1/specs/store.spec';
+export * from './app/specs/state.spec';
+export * from './app/specs/store.spec';
