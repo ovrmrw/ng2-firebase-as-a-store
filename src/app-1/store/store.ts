@@ -66,7 +66,7 @@ export class Store {
   }
 
 
-  applyEffectors(): this {
+  applyEffectors(): void {
     if (this.firebaseEffector) {
       // Firebase Inbound
       this.firebaseEffector.connect$<AppState>('firebase/ref/path')
@@ -91,7 +91,6 @@ export class Store {
           console.error('Error from Outbound of FirebaseEffector:', err);
         });
     }
-    return this;
   }
 
 
