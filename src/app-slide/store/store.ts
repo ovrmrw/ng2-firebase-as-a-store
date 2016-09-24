@@ -17,16 +17,16 @@ export class Store {
     @Inject(InitialState)
     private initialState: AppState,
   ) {
-    (function createStore() {
-      this.provider$ = new BehaviorSubject(initialState);
-      this.combineReducers();
-      this.applyEffectors();
-    })();
+    /* function createStore() { */
+    this.provider$ = new BehaviorSubject(initialState);
+    this.combineReducers();
+    this.applyEffectors();
+    /* } */
   }
 
 
   combineReducers(): void {
-    ReducerContainer
+    ReducerContainer // = Observable
       .zip<AppState>(...[
         incrementReducer(this.initialState.increment, this.dispatcher$), // as Observable<Promise<IncrementState>>
         (increment): AppState => { // projection
@@ -44,12 +44,12 @@ export class Store {
 
 
   effectAfterReduced(newState: AppState): void {
-    // Do something.
+    // Do something after reduced.
   }
 
 
   applyEffectors(): void {
-    // Do something.
+    // Do something with Side-Effectors.
   }
 
 }

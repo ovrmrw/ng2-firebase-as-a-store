@@ -33,4 +33,5 @@ export class Page1Component {
 
   get counterMergeMap() { return this.state.incrementStateByMergeMap$.map(s => s.counter); }
   get counterSwitchMap() { return this.state.incrementStateBySwitchMap$.map(s => s.counter); }
+  
 }

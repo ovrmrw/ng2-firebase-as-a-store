@@ -18,4 +18,5 @@ export class Page1Service {
   decrement(): void {
     this.dispatcher$.next(new DecrementAction());
   }
+  
 }

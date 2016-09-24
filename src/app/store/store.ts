@@ -30,16 +30,16 @@ export class Store {
     @Inject(FirebaseEffector) @Optional()
     private firebaseEffector: FirebaseEffector | null, // DIできない場合はnullになる。テスト時はnullにする。
   ) {
-    (function createStore() {
-      this.provider$ = new BehaviorSubject(initialState);
-      this.combineReducers();
-      this.applyEffectors();
-    })();
+    /* function createStore() { */
+    this.provider$ = new BehaviorSubject(initialState);
+    this.combineReducers();
+    this.applyEffectors();
+    /* } */
   }
 
 
   combineReducers(): void {
-    ReducerContainer
+    ReducerContainer // = Observable
       .zip<AppState>(...[ // わざわざ配列にした上でSpreadしているのは、VSCodeのオートインデントが有効になるから。
         incrementReducer(this.initialState.increment, this.dispatcher$), // as Observable<Promise<IncrementState>>
         restoreReducer(this.initialState.restore, this.dispatcher$), // as Observable<boolean>
