@@ -1,4 +1,4 @@
-import { generateUuid } from './common';
+import { generateUuid } from '../redux-like';
 import { AppState } from './types';
 
 

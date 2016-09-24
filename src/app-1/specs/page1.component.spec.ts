@@ -8,9 +8,10 @@ import { setTimeoutPromise, elements, elementText, elementValue } from '../../..
 
 ////////////////////////////////////////////////////////////////////////
 // modules
-import { Page1Component } from './page1.component';
-import { Page1Service } from './page1.service';
-import { State, IncrementState, Store, Dispatcher, Action, IncrementAction, DecrementAction, AsyncStatePipe, InitialState, defaultAppState } from '../redux-like';
+import { Page1Component } from '../page1/page1.component';
+import { Page1Service } from '../page1/page1.service';
+import { Dispatcher, AsyncStatePipe, InitialState } from '../redux-like';
+import { State, IncrementState, Store, Action, IncrementAction, DecrementAction, defaultAppState } from '../store';
 import { Observable } from 'rxjs/Rx';
 import { FormsModule } from '@angular/forms';
 
@@ -57,7 +58,7 @@ describe('TEST: Page1 Component Isolated Test', () => {
     let counter: number | undefined;
     component.counterMergeMap
       .subscribe(s => counter = s);
-      
+
     assert(counter === 100);
   }));
 
@@ -103,7 +104,7 @@ describe('TEST: (Page1 Component -> Service -> Dispatcher -> Store -> State -> C
     tick(500);
     assert(counter === 3);
     decrementButton.click(); // 3 -> 2
-    tick(500);
+    tick(1000);
     assert(counter === 2);
     fixture.detectChanges();
     resetButton.click(); // 2 -> 0

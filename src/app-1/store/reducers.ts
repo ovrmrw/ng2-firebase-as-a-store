@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs/Rx';
 
-import { Dispatcher, StateReducer, NonStateReducer, promisify } from './common';
+import { Dispatcher, StateReducer, NonStateReducer, promisify } from '../redux-like';
 import { Action, IncrementAction, DecrementAction, ResetAction, RestoreAction, ErrorAction, CancelAction } from './actions';
 import { IncrementState } from './types';
 
@@ -15,10 +15,11 @@ export const incrementReducer: StateReducer<IncrementState | Promise<IncrementSt
           }, 500);
         });
       } else if (action instanceof DecrementAction) {
-        return Observable.of(state)
-          .delay(500)
-          .mergeMap<IncrementState>(() => Observable.fromPromise(state.then(s => ({ counter: s.counter - 1 }))))
-          .toPromise();
+        return new Promise<IncrementState>(resolve => {
+          setTimeout(() => {
+            state.then(s => resolve({ counter: s.counter - 1 }))
+          }, 500);
+        });
       } else if (action instanceof RestoreAction) {
         if (action.stateFromOuterWorld && action.stateFromOuterWorld.increment) { // Validation
           return promisify(action.stateFromOuterWorld.increment);

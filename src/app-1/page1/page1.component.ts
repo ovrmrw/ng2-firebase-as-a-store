@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 
 import { Page1Service } from './page1.service';
-import { State } from '../redux-like';
+import { State, resolved } from '../store';
 
 
 @Component({

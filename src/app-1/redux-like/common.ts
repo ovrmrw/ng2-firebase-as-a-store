@@ -43,7 +43,7 @@ export interface NonStateReducer<T> {
 
 
 // オブジェクトが含む全てのPromiseの解決を待った上でオブジェクトを返す。ネストが深くてもOK。ObservableはPromiseに変換される。
-async function resolveNestedAsyncs<T>(obj: T | Promise<T> | Observable<T>): Promise<T> {
+async function resolveNestedAsyncStates<T>(obj: T | Promise<T> | Observable<T>): Promise<T> {
   let temp = obj;
   const rejectMessage = 'Resolving Promise or Observable is rejected in "resolveNestedAsyncs" function.';
   if (temp instanceof Promise || temp instanceof Observable) {
@@ -53,7 +53,7 @@ async function resolveNestedAsyncs<T>(obj: T | Promise<T> | Observable<T>): Prom
       alert(rejectMessage);
       throw new Error(rejectMessage);
     }
-    temp = await resolveNestedAsyncs(temp);
+    temp = await resolveNestedAsyncStates(temp);
   } else if (temp instanceof Object) {
     for (let key in temp) {
       if (temp[key] instanceof Promise || temp[key] instanceof Observable) {
@@ -64,7 +64,7 @@ async function resolveNestedAsyncs<T>(obj: T | Promise<T> | Observable<T>): Prom
           throw new Error(rejectMessage);
         }
       }
-      temp[key] = await resolveNestedAsyncs(temp[key]);
+      temp[key] = await resolveNestedAsyncStates(temp[key]);
     }
   }
   return temp as T;
@@ -73,7 +73,7 @@ async function resolveNestedAsyncs<T>(obj: T | Promise<T> | Observable<T>): Prom
 
 // 非同期(Promise,Observable)かどうかはっきりしないStateを強制的にPromiseにする。
 export function promisify<T>(state: T | Promise<T> | Observable<T>, withInnerResolve: boolean = false): Promise<T> {
-  const _state = withInnerResolve ? resolveNestedAsyncs<T>(state) : state;
+  const _state = withInnerResolve ? resolveNestedAsyncStates<T>(state) : state;
   if (_state instanceof Observable) {
     return _state.take(1).toPromise();
   } else if (_state instanceof Promise) {
@@ -85,11 +85,11 @@ export function promisify<T>(state: T | Promise<T> | Observable<T>, withInnerRes
 
 
 // 非同期(Promise,Observable)かどうかはっきりしないStateの型を同期的であると断定する。
-export function sync<T>(state: T | Promise<T> | Observable<T>): T {
+export function resolved<T>(state: T | Promise<T> | Observable<T>): T {
   if (state instanceof Observable) {
-    throw new Error('"state" should be synchronous is actually instanceof Observable!');
+    throw new Error('"state" should be synchronous(resolved) is actually instanceof Observable!');
   } else if (state instanceof Promise) {
-    throw new Error('"state" should be synchronous is actually instanceof Promise!');
+    throw new Error('"state" should be synchronous(resolved) is actually instanceof Promise!');
   } else {
     return state;
   }
@@ -135,16 +135,16 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
 
 
 // Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
-export function toObservableByMergeMap<T>(observableIncludesAsync: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
-  return observableIncludesAsync
+export function toObservableByMergeMap<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
+  return observableIncludesAsyncStates
     .map<Promise<T>>(state => promisify<T>(state, withInnerResolve))
     .mergeMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise));
 }
 
 
 // Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
-export function toObservableBySwitchMap<T>(observableIncludesAsync: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
-  return observableIncludesAsync
+export function toObservableBySwitchMap<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
+  return observableIncludesAsyncStates
     .map<Promise<T>>(state => promisify<T>(state, withInnerResolve))
     .switchMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise));
 }

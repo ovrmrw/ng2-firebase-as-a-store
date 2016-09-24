@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
-import { Dispatcher, Action, IncrementAction, DecrementAction, ResetAction, ErrorAction, CancelAction } from '../redux-like';
+import { Dispatcher, Action } from '../store';
+import { IncrementAction, DecrementAction, ResetAction, ErrorAction, CancelAction } from '../store';
 
 
 /*

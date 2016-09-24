@@ -8,12 +8,8 @@ import { setTimeoutPromise, elements, elementText, elementValue } from '../../..
 
 ////////////////////////////////////////////////////////////////////////
 // modules
-import { State } from './state';
-import { Store } from './store';
-import { Dispatcher, Provider, InitialState } from './common';
-import { defaultAppState } from './initial-state';
-import { AppState, IncrementState } from './types';
-import { Action, IncrementAction, DecrementAction, ResetAction } from './actions';
+import { Dispatcher, Provider, InitialState } from '../redux-like';
+import { Store, State, defaultAppState, AppState, IncrementState, Action, IncrementAction, DecrementAction, ResetAction } from '../store';
 import { Observable } from 'rxjs/Rx';
 
 

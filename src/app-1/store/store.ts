@@ -2,11 +2,11 @@ import { Injectable, Inject, Optional } from '@angular/core';
 import { Observable, Subject, BehaviorSubject, Subscription } from 'rxjs/Rx';
 import lodash from 'lodash';
 
-import { Dispatcher, Provider, ReducerContainer, InitialState, promisify } from './common';
+import { Dispatcher, Provider, ReducerContainer, InitialState, promisify } from '../redux-like';
 import { Action, RestoreAction } from './actions';
 import { IncrementState, AppState } from './types';
 import { incrementReducer, restoreReducer, invokeErrorReducer, cancelReducer } from './reducers';
-import { FirebaseEffector } from './firebase';
+import { FirebaseEffector } from './firebase-effector';
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -21,14 +21,14 @@ import { FirebaseEffector } from './firebase';
 export class Store {
   readonly provider$: Provider<AppState>;
   private canceller$ = new Subject<undefined>();
-  private firebaseEffectTrigger$ = new Subject<AppState>();
+  private firebaseEffectorTrigger$ = new Subject<AppState>();
 
   constructor(
     private dispatcher$: Dispatcher<Action>,
     @Inject(InitialState)
     private initialState: AppState,
     @Inject(FirebaseEffector) @Optional()
-    private firebase: FirebaseEffector | null, // DIできない場合はnullになる。テスト時はnullにする。
+    private firebaseEffector: FirebaseEffector | null, // DIできない場合はnullになる。テスト時はnullにする。
   ) {
     /* >>> createStore */
     this.provider$ = new BehaviorSubject(initialState);
@@ -60,14 +60,14 @@ export class Store {
 
 
   effectAfterReduced(newState: AppState): void {
-    this.firebaseEffectTrigger$.next(newState);
+    this.firebaseEffectorTrigger$.next(newState);
   }
 
 
   applyEffectors(): this {
-    if (this.firebase) {
+    if (this.firebaseEffector) {
       // Firebase Inbound
-      this.firebase.connect$<AppState>('firebase/ref/path')
+      this.firebaseEffector.connect$<AppState>('firebase/ref/path')
         .takeUntil(this.canceller$)
         .subscribe(cloudState => {
           if (cloudState && cloudState.uuid !== this.initialState.uuid) { // 自分以外の誰かがFirebaseを更新した場合は、その値をDispatcherにnextする。
@@ -76,12 +76,12 @@ export class Store {
         });
 
       // Firebase Outbound
-      this.firebaseEffectTrigger$
-        .switchMap<AppState>(state => Observable.fromPromise(promisify(state, true))) // cancellation
+      this.firebaseEffectorTrigger$
+        .switchMap<AppState>(appState => Observable.fromPromise(promisify(appState, true))) // cancellation
         .takeUntil(this.canceller$)
         .subscribe(resolvedState => {
-          if (this.firebase && !resolvedState.restore) { // RestoreActionではない場合のみFirebaseに書き込みする。
-            this.firebase.saveCurrentState('firebase/ref/path', resolvedState);
+          if (this.firebaseEffector && !resolvedState.restore) { // RestoreActionではない場合のみFirebaseに書き込みする。
+            this.firebaseEffector.saveCurrentState('firebase/ref/path', resolvedState);
           }
         });
     }

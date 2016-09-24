@@ -12,7 +12,7 @@ Writing Redux-like store from scratch using Angular's DI & RxJS with Firebase ba
 |OS|Windows 10 Pro 64bit or 7 Pro 32bit|
 |Editor|VSCode (stable)|
 |node --version|v6.3.1|
-|@angular/core|2.0.0|
+|@angular/core|2.1.0-beta.0|
 
 ###Setup
 ```
