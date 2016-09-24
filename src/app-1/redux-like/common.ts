@@ -125,7 +125,7 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
           this.cd.markForCheck();
           if (debugMode) { console.log('AsyncStatePipe: markForCheck() is called.'); }
         }, err => {
-          console.error(err);
+          console.error('Error from AsyncStatePipe:', err);
         });
       if (debugMode) { console.log('AsyncStatePipe: Subscription is created.', observable); }
     }

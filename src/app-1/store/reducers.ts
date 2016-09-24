@@ -10,15 +10,15 @@ export const incrementReducer: StateReducer<IncrementState | Promise<IncrementSt
     dispatcher$.scan<Promise<IncrementState>>((state, action) => {
       if (action instanceof IncrementAction) {
         return new Promise<IncrementState>(resolve => {
-          setTimeout(() => {
-            state.then(s => resolve({ counter: s.counter + 1 }));
-          }, 500);
+          setTimeout(() => state.then(s => resolve({ counter: s.counter + 1 })), 500);
         });
       } else if (action instanceof DecrementAction) {
+        // return Observable.of(state)
+        //   .delay(500)
+        //   .mergeMap<IncrementState>(() => Observable.fromPromise(state.then(s => ({ counter: s.counter - 1 }))))
+        //   .toPromise();
         return new Promise<IncrementState>(resolve => {
-          setTimeout(() => {
-            state.then(s => resolve({ counter: s.counter - 1 }))
-          }, 500);
+          setTimeout(() => state.then(s => resolve({ counter: s.counter - 1 })), 500);
         });
       } else if (action instanceof RestoreAction) {
         if (action.stateFromOuterWorld && action.stateFromOuterWorld.increment) { // Validation

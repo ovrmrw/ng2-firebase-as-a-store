@@ -54,6 +54,8 @@ export class Store {
         console.log('newState:', newState);
         this.provider$.next(newState); // ProviderをnextしてStateクラスにストリームを流す。
         this.effectAfterReduced(newState);
+      }, err => {
+        console.error('Error from ReducerContainer:', err);
       });
     return this;
   }
@@ -73,6 +75,8 @@ export class Store {
           if (cloudState && cloudState.uuid !== this.initialState.uuid) { // 自分以外の誰かがFirebaseを更新した場合は、その値をDispatcherにnextする。
             this.dispatcher$.next(new RestoreAction(cloudState));
           }
+        }, err => {
+          console.error('Error from Inbound of FirebaseEffector:', err);
         });
 
       // Firebase Outbound
@@ -83,6 +87,8 @@ export class Store {
           if (this.firebaseEffector && !resolvedState.restore) { // RestoreActionではない場合のみFirebaseに書き込みする。
             this.firebaseEffector.saveCurrentState('firebase/ref/path', resolvedState);
           }
+        }, err => {
+          console.error('Error from Outbound of FirebaseEffector:', err);
         });
     }
     return this;
