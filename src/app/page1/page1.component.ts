@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Observable } from 'rxjs/Rx';
 
 import { Page1Service } from './page1.service';
 import { State, resolved } from '../store';
@@ -48,7 +49,7 @@ export class Page1Component {
     this.service.cancel();
   }
 
-  get counterMergeMap() { return this.state.incrementStateByMergeMap$.map(s => s.counter); }
-  get counterSwitchMap() { return this.state.incrementStateBySwitchMap$.map(s => s.counter); }
-  get timeSerial() { return this.state.timeStateBySwitchMap$.map(s => s.serial); }
+  get counterMergeMap(): Observable<number> { return this.state.incrementStateByMergeMap$.map(s => s.counter); }
+  get counterSwitchMap(): Observable<number> { return this.state.incrementStateBySwitchMap$.map(s => s.counter); }
+  get timeSerial(): Observable<number> { return this.state.timeStateBySwitchMap$.map(s => s.serial); }
 }
