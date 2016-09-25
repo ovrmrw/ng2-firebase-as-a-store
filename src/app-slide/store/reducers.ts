@@ -5,8 +5,8 @@ import { Action, IncrementAction, DecrementAction } from './actions';
 import { IncrementState } from './types';
 
 
-export const incrementReducer: StateReducer<IncrementState | Promise<IncrementState>> =
-  (initState: IncrementState | Promise<IncrementState>, dispatcher$: Dispatcher<Action>): Observable<Promise<IncrementState>> =>
+export const incrementReducer: StateReducer<Promise<IncrementState>> =
+  (initState: Promise<IncrementState>, dispatcher$: Dispatcher<Action>): Observable<Promise<IncrementState>> =>
     dispatcher$.scan<Promise<IncrementState>>((state, action) => {
       if (action instanceof IncrementAction) {
         return new Promise<IncrementState>(resolve => {
@@ -19,7 +19,7 @@ export const incrementReducer: StateReducer<IncrementState | Promise<IncrementSt
       } else {
         return state;
       }
-    }, promisify(initState));
+    }, initState);
 
 
 // export const incrementReducer =
@@ -36,4 +36,4 @@ export const incrementReducer: StateReducer<IncrementState | Promise<IncrementSt
 //       } else {
 //         return state;
 //       }
-//     }, promisify(initState));
+//     }, initState);

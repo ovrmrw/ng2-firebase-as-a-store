@@ -104,9 +104,8 @@ describe('TEST: (Page1 Component -> Service -> Dispatcher -> Store -> State -> C
     tick(500);
     assert(counter === 3);
     decrementButton.click(); // 3 -> 2
-    tick(1000);
+    tick(500);
     assert(counter === 2);
-    fixture.detectChanges();
     resetButton.click(); // 2 -> 0
     tick();
     assert(counter === 0);

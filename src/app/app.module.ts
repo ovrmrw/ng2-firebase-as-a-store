@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { Routes, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './root/app.component';
 import { Page1Component } from './page1/page1.component';
@@ -23,7 +24,7 @@ const appRoutes: Routes = [
 
 
 @NgModule({
-  imports: [BrowserModule, RouterModule.forRoot(appRoutes), FormsModule],
+  imports: [BrowserModule, RouterModule.forRoot(appRoutes), FormsModule, HttpModule],
   declarations: [AppComponent, Page1Component, AsyncStatePipe],
   providers: [
     Dispatcher, Store, State, Page1Service,

@@ -2,7 +2,7 @@ import { Injectable, Inject, Optional } from '@angular/core';
 import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
 // import lodash from 'lodash';
 
-import { Dispatcher, Provider, ReducerContainer, InitialState } from '../redux-like';
+import { Dispatcher, Provider, ReducerContainer, InitialState, promisify } from '../redux-like';
 import { Action } from './actions';
 import { IncrementState, AppState } from './types';
 import { incrementReducer } from './reducers';
@@ -28,7 +28,7 @@ export class Store {
   combineReducers(): void {
     ReducerContainer // = Observable
       .zip<AppState>(...[
-        incrementReducer(this.initialState.increment, this.dispatcher$), // as Observable<Promise<IncrementState>>
+        incrementReducer(promisify(this.initialState.increment), this.dispatcher$), // as Observable<Promise<IncrementState>>
         (increment): AppState => { // projection
           return Object.assign<{}, AppState, {}>({}, this.initialState, { increment });
         }

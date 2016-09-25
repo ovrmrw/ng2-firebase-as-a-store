@@ -16,6 +16,8 @@ import { State, resolved } from '../store';
     <button (click)="reset()" class="btn btn-warning" id="reset-btn">RESET</button>
     <button (click)="invokeError()" class="btn btn-danger" id="error-btn">invoke error</button>
     <button (click)="cancel()" class="btn btn-warning" id="cancel-btn">cancel</button>
+    <h4>Time (switchMap)</h4>
+    <h5>{{timeSerial | asyncState | date:"medium"}}</h5>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -48,4 +50,5 @@ export class Page1Component {
 
   get counterMergeMap() { return this.state.incrementStateByMergeMap$.map(s => s.counter); }
   get counterSwitchMap() { return this.state.incrementStateBySwitchMap$.map(s => s.counter); }
+  get timeSerial() { return this.state.timeStateBySwitchMap$.map(s => s.serial); }
 }

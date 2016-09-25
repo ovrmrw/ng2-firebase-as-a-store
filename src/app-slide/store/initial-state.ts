@@ -1,8 +1,8 @@
-import { AppState } from './types';
+import { AppState, IncrementState } from './types';
 
 
 export const defaultAppState: AppState = {
   increment: Promise.resolve({
     counter: 0
-  })
+  } as IncrementState)
 };

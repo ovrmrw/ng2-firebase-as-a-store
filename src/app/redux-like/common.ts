@@ -4,48 +4,65 @@ import uuid from 'node-uuid';
 import lodash from 'lodash';
 
 
-// Storeの初期Stateをデフォルト値以外で作りたいときはこのTokenを使ってDIする。
+/**
+ * 状態(state)の初期値をDIするときのTokenとして使う。
+ */
 export const InitialState = new OpaqueToken('InitialState');
 
 
-// 主にServiceクラスからActionをnextし、Storeクラス内のReducersを発火させるために用いられる。
-// 簡潔に言うと往路のSubject。
+/**
+ * 主にServiceクラスからActionをnextし、Storeクラス内のReducersを発火させるために用いられる。
+ * 簡潔に言うと往路のSubject。
+ */
 @Injectable()
 export class Dispatcher<T> extends Subject<T> {
   constructor() { super(); }
+  next(action: T) { super.next(action); } // Override
 }
 
 
-// Storeクラス内のReducers処理後に新しい状態をnextし、ComponentクラスのViewを更新するために用いられる。
-// 簡潔に言うと復路のSubject。
+/**
+ * Storeクラス内のReducers処理後に新しい状態をnextし、ComponentクラスのViewを更新するために用いられる。
+ * 簡潔に言うと復路のSubject。
+ */
 export class Provider<T> extends Subject<T> {
   constructor() { super(); }
+  next(newState: T) { super.next(newState); } // Override
 }
 
 
-// Storeクラス内でReducerを束ねて状態を管理し続けるObservable。
-// ただのObservableだけど役割を区別できるよう名前を付けた。
+/**
+ * Storeクラス内でReducerを束ねて状態(state)を管理し続けるObservable。
+ * ただのObservableだけど役割を区別できるよう名前を付けた。
+ */
 export class ReducerContainer<T> extends Observable<T> {
   constructor() { super(); }
 }
 
 
-// Reducerを作るときに型として使う。引数にstateを取る場合。
+/**
+ * Reducerを作るときに型として使う。引数にstateを取る場合。
+ */
 export interface StateReducer<T> {
-  (state: T, dispatcher: Dispatcher<any>, ...args: any[]): Observable<T>;
+  (initState: T, dispatcher: Dispatcher<any>, ...args: any[]): Observable<T>;
 }
 
 
-// Reducerを作るときに型として使う。引数にstateを取らない場合。
+/**
+ * Reducerを作るときに型として使う。引数にstateを取らない場合。
+ */
 export interface NonStateReducer<T> {
   (dispatcher: Dispatcher<any>, ...args: any[]): Observable<T>;
 }
 
 
-// オブジェクトが含む全てのPromiseの解決を待った上でオブジェクトを返す。ネストが深くてもOK。ObservableはPromiseに変換される。
+/**
+ * オブジェクトが含む全てのPromiseの解決を待った上でオブジェクトを返す。ネストが深くてもOK。
+ * Observableは .take(1).toPromise() でPromiseに変換される。
+ */
 async function resolveNestedAsyncStates<T>(obj: T | Promise<T> | Observable<T>): Promise<T> {
   let temp = obj;
-  const rejectMessage = 'Resolving Promise or Observable is rejected in "resolveNestedAsyncs" function.';
+  const rejectMessage = 'Resolving a Promise or Observable is rejected in "resolveNestedAsyncStates" function.';
   if (temp instanceof Promise || temp instanceof Observable) {
     try {
       temp = temp instanceof Observable ? await temp.take(1).toPromise() : await temp;
@@ -71,7 +88,11 @@ async function resolveNestedAsyncStates<T>(obj: T | Promise<T> | Observable<T>):
 }
 
 
-// 非同期(Promise,Observable)かどうかはっきりしないStateを強制的にPromiseにする。
+/**
+ * 非同期(Promise,Observable)かどうかはっきりしない状態(state)を強制的にPromiseにする。
+ * 引数withInnerResolveがtrueのときはオブジェクト内の全ての非同期を解決した上で返す。
+ * Observableは .take(1).toPromise() でPromiseに変換される。
+ */
 export function promisify<T>(state: T | Promise<T> | Observable<T>, withInnerResolve: boolean = false): Promise<T> {
   const _state = withInnerResolve ? resolveNestedAsyncStates<T>(state) : state;
   if (_state instanceof Observable) {
@@ -84,7 +105,10 @@ export function promisify<T>(state: T | Promise<T> | Observable<T>, withInnerRes
 }
 
 
-// 非同期(Promise,Observable)かどうかはっきりしないStateの型を同期的であると断定する。
+/**
+ * 非同期(Promise,Observable)かどうかはっきりしない状態(state)の型を同期的であると断定する。
+ * 主にComponentで状態(satate)を受けるときに使う。
+ */
 export function resolved<T>(state: T | Promise<T> | Observable<T>): T {
   if (state instanceof Observable) {
     throw new Error('"state" should be synchronous(resolved) is actually instanceof Observable!');
@@ -96,7 +120,9 @@ export function resolved<T>(state: T | Promise<T> | Observable<T>): T {
 }
 
 
-// StateをViewに表示するためのPipe。markForCheckをPipeの中で実行するとなぜかブラウザがフリーズするので"workaround"として使う。
+/**
+ * StateをViewに表示するためのPipe。markForCheckをPipeの中で実行するとなぜかブラウザがフリーズするので"workaround"として使う。
+ */
 @Pipe({
   name: 'asyncState',
   pure: false
@@ -133,23 +159,31 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
 }
 
 
-// Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
-export function toObservableByMergeMap<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
+/**
+ * Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
+ * 最終的にmergeMapオペレーターで返される。
+ */
+export function toStateObservableByMergeMap<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
   return observableIncludesAsyncStates
     .map<Promise<T>>(state => promisify<T>(state, withInnerResolve))
     .mergeMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise));
 }
 
 
-// Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
-export function toObservableBySwitchMap<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
+/**
+ * Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
+ * 最終的にswitchMapオペレーターで返される。
+ */
+export function toStateObservableBySwitchMap<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
   return observableIncludesAsyncStates
     .map<Promise<T>>(state => promisify<T>(state, withInnerResolve))
     .switchMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise));
 }
 
 
-// 主にユーザー固有のIDを生成する目的で使う。
+/**
+ * 主にユーザー固有のIDを生成する目的で使う。
+ */
 export function generateUuid(): string {
   return uuid.v4();
 }

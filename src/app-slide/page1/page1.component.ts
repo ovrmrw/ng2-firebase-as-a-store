@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Observable } from 'rxjs/Rx';
 
 import { Page1Service } from './page1.service';
 import { State } from '../store';
@@ -31,7 +32,7 @@ export class Page1Component {
     this.service.decrement();
   }
 
-  get counterMergeMap() { return this.state.incrementStateByMergeMap$.map(s => s.counter); }
-  get counterSwitchMap() { return this.state.incrementStateBySwitchMap$.map(s => s.counter); }
-  
+  get counterMergeMap(): Observable<number> { return this.state.incrementStateByMergeMap$.map(s => s.counter); }
+  get counterSwitchMap(): Observable<number> { return this.state.incrementStateBySwitchMap$.map(s => s.counter); }
+
 }

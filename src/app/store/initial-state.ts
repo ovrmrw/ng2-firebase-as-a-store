@@ -1,5 +1,5 @@
 import { generateUuid } from '../redux-like';
-import { AppState } from './types';
+import { AppState, IncrementState, TimeState } from './types';
 
 
 /*
@@ -8,7 +8,7 @@ import { AppState } from './types';
 export const defaultAppState: AppState = {
   increment: Promise.resolve({
     counter: 0
-  }),
+  } as IncrementState),
   restore: false,
   uuid: generateUuid(),
   nest: {
@@ -17,5 +17,8 @@ export const defaultAppState: AppState = {
         c: true
       })
     })
-  }
+  },
+  time: Promise.resolve({
+    serial: 0
+  } as TimeState)
 };

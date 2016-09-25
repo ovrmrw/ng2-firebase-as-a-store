@@ -14,7 +14,7 @@ export class ResetAction {
 }
 
 export class RestoreAction {
-  constructor(public stateFromOuterWorld: AppState | null) { }
+  constructor(public restoreState: AppState | null) { }
 }
 
 export class ErrorAction {
@@ -25,5 +25,17 @@ export class CancelAction {
   constructor() { }
 }
 
+export class TimeUpdateAction {
+  constructor() { }
+}
 
-export type Action = IncrementAction | DecrementAction | ResetAction | RestoreAction | ErrorAction | CancelAction;
+
+export type Action =
+  IncrementAction |
+  DecrementAction |
+  ResetAction |
+  RestoreAction |
+  ErrorAction |
+  CancelAction |
+  TimeUpdateAction
+  ;

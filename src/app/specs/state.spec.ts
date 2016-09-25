@@ -67,7 +67,7 @@ describe('TEST: (Dispatcher -> Store -> State) Half Integration Test', () => {
     tick(500);
     assert.deepEqual(incrementState, { counter: 3 });
     dispatcher$.next(new DecrementAction()); // 3 -> 2
-    tick(600);
+    tick(500);
     assert.deepEqual(incrementState, { counter: 2 });
     dispatcher$.next(new ResetAction()); // 2 -> 0
     tick();
