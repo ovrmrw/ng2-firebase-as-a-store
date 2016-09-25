@@ -83,6 +83,8 @@ export const timeUpdateReducer: StateReducer<Promise<TimeState>> =
         } else {
           return state;
         }
+      } else if (action instanceof ResetAction) {
+        return initState;
       } else {
         return state;
       }
