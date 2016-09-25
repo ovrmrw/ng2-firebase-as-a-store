@@ -12,6 +12,7 @@ export interface AppState {
   restore: boolean;
   uuid: string;
   time: TimeState | Promise<TimeState>;
+  actionName: string;
   nest?: {};
 }
 
@@ -20,5 +21,6 @@ export interface ResolvedAppState {
   restore: boolean;
   uuid: string;
   time: TimeState;
+  actionName: string;
   nest?: {};
 }

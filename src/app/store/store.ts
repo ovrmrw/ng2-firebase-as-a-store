@@ -6,7 +6,7 @@ import { Observable, Subject, BehaviorSubject, Subscription } from 'rxjs/Rx';
 import { Dispatcher, Provider, ReducerContainer, InitialState, promisify } from '../redux-like';
 import { Action, RestoreAction } from './actions';
 import { IncrementState, AppState } from './types';
-import { incrementReducer, restoreReducer, invokeErrorReducer, cancelReducer, timeUpdateReducer } from './reducers';
+import { incrementReducer, restoreReducer, invokeErrorReducer, cancelReducer, timeUpdateReducer, actionNameReducer } from './reducers';
 import { FirebaseEffector } from './firebase-effector';
 
 
@@ -25,7 +25,7 @@ export class Store {
   private firebaseEffectorTrigger$ = new Subject<AppState>();
 
   constructor(
-    private dispatcher$: Dispatcher<Action>,    
+    private dispatcher$: Dispatcher<Action>,
     @Inject(InitialState)
     private initialState: AppState,
     @Inject(Http) @Optional()
@@ -48,11 +48,12 @@ export class Store {
         timeUpdateReducer(promisify(this.initialState.time), this.dispatcher$, this.http$), // as Observable<Promise<TimeState>>
         restoreReducer(this.initialState.restore, this.dispatcher$), // as Observable<boolean>
         cancelReducer(this.dispatcher$), // as Observable<boolean>
+        actionNameReducer(this.dispatcher$), // as Observable<string>
         invokeErrorReducer(this.dispatcher$), // as Observable<void | never>
 
-        (increment, time, restore, cancel): AppState => { // projection
+        (increment, time, restore, cancel, actionName): AppState => { // projection
           this.cancelReducersAndEffectors(cancel);
-          return Object.assign<{}, AppState, {}>({}, this.initialState, { increment, time, restore }); // 型を曖昧にしているのでテストでカバーする。
+          return Object.assign<{}, AppState, {}>({}, this.initialState, { increment, time, restore, actionName }); // 型を曖昧にしているのでテストでカバーする。
         }
       ])
       .takeUntil(this.canceller$)

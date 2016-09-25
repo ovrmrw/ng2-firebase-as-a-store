@@ -14,7 +14,7 @@ export const incrementReducer: StateReducer<Promise<IncrementState>> =
           setTimeout(() => state.then(s => resolve({ counter: s.counter + 1 })), 500);
         });
       } else if (action instanceof DecrementAction) {
-        dispatcher$.next(new TimeUpdateAction()); // DecrementActionのときだけTimeUpdateActionをキックする。
+        setTimeout(() => dispatcher$.next(new TimeUpdateAction()), 0); // DecrementActionのときだけTimeUpdateActionをキックする。  
         return new Promise<IncrementState>(resolve => {
           setTimeout(() => state.then(s => resolve({ counter: s.counter - 1 })), 500);
         });
@@ -89,3 +89,8 @@ export const timeUpdateReducer: StateReducer<Promise<TimeState>> =
         return state;
       }
     }, initState);
+
+
+export const actionNameReducer: NonStateReducer<string> =
+  (dispatcher$: Dispatcher<Action>): Observable<string> =>
+    dispatcher$.map<string>(action => action.constructor.name);

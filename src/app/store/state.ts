@@ -12,32 +12,32 @@ import { AppState, ResolvedAppState, IncrementState, TimeState } from './types';
 */
 @Injectable()
 export class State {
-  private appState$: Observable<AppState>;
+  private _appState$: Observable<AppState>;
 
   constructor(
     private store: Store
   ) {
-    this.appState$ = this.store.provider$;
+    this._appState$ = this.store.provider$;
   }
 
 
   get incrementStateByMergeMap$(): Observable<IncrementState> {
-    return toStateObservableByMergeMap(this.appState$.map(s => s.increment));
+    return toStateObservableByMergeMap(this._appState$.map(s => s.increment));
   }
 
 
   get incrementStateBySwitchMap$(): Observable<IncrementState> {
-    return toStateObservableBySwitchMap(this.appState$.map(s => s.increment));
+    return toStateObservableBySwitchMap(this._appState$.map(s => s.increment));
   }
 
 
-  get timeStateBySwitchMap$(): Observable<TimeState> {
-    return toStateObservableBySwitchMap(this.appState$.map(s => s.time));
+  get timeState$(): Observable<TimeState> {
+    return toStateObservableBySwitchMap(this._appState$.map(s => s.time));
   }
 
 
-  get appStateBySwitchMap$(): Observable<ResolvedAppState> {
-    return toStateObservableBySwitchMap(this.appState$, true) as Observable<ResolvedAppState>;
+  get appState$(): Observable<ResolvedAppState> {
+    return toStateObservableByMergeMap(this._appState$, true) as Observable<ResolvedAppState>;
   }
 
 }

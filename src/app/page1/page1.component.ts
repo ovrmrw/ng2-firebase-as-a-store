@@ -19,6 +19,7 @@ import { State, resolved } from '../store';
     <button (click)="cancel()" class="btn btn-warning" id="cancel-btn">cancel</button>
     <h4>Time (switchMap)</h4>
     <h5>{{timeSerial | asyncState | date:"medium"}}</h5>
+    <div>{{actionName | asyncState}}</div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -51,5 +52,6 @@ export class Page1Component {
 
   get counterMergeMap(): Observable<number> { return this.state.incrementStateByMergeMap$.map(s => s.counter); }
   get counterSwitchMap(): Observable<number> { return this.state.incrementStateBySwitchMap$.map(s => s.counter); }
-  get timeSerial(): Observable<number> { return this.state.timeStateBySwitchMap$.map(s => s.serial); }
+  get timeSerial(): Observable<number> { return this.state.timeState$.map(s => s.serial); }
+  get actionName(): Observable<string> { return this.state.appState$.map(s => s.actionName); }
 }

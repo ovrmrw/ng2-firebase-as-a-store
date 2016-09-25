@@ -6,11 +6,15 @@ import { AppState, IncrementState, TimeState } from './types';
   StateはPromiseを持つことができる。
 */
 export const defaultAppState: AppState = {
-  increment: Promise.resolve({
+  increment: Promise.resolve<IncrementState>({
     counter: 0
-  } as IncrementState),
+  }),
   restore: false,
   uuid: generateUuid(),
+  time: Promise.resolve<TimeState>({
+    serial: 0
+  }),
+  actionName: '',
   nest: {
     a: Promise.resolve({
       b: Promise.resolve({
@@ -18,7 +22,4 @@ export const defaultAppState: AppState = {
       })
     })
   },
-  time: Promise.resolve({
-    serial: 0
-  } as TimeState)
 };
