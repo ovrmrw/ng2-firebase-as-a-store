@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 import lodash from 'lodash';
 
-import { promisify } from '../../../src-rxjs-redux';
+import { promisify, stateBySwitchMap, connect } from '../../../src-rxjs-redux';
 import { Store } from './store';
 import { AppState, IncrementState } from './types';
 
@@ -15,6 +15,11 @@ export class State {
     private store: Store
   ) {
     this.appState$ = this.store.provider$;
+  }
+
+
+  getState(): Observable<AppState> {
+    return connect(stateBySwitchMap(this.appState$, true));
   }
 
 

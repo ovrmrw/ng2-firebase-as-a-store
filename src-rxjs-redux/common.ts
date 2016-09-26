@@ -161,24 +161,37 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
 
 /**
  * Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に流す。
- * 最終的にimmutableな値がmergeMapオペレーターで返される。
+ * Observable.fromPromise()後の状態(state)をmergeMapオペレーターで返す。
  */
-export function stateObservableByMergeMap<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
+export function stateByMergeMap<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
   return observableIncludesAsyncStates
     .map<Promise<T>>(state => promisify<T>(state, withInnerResolve))
-    .mergeMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise))
-    .map<T>(state => lodash.cloneDeep(state)); // make states immutable.
+    .mergeMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise));
 }
 
 
 /**
  * Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に流す。
- * 最終的にimmutableな値がswitchMapオペレーターで返される。
+ * Observable.fromPromise()後の状態(state)をswitchMapオペレーターで返す。
  */
-export function stateObservableBySwitchMap<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
+export function stateBySwitchMap<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
   return observableIncludesAsyncStates
     .map<Promise<T>>(state => promisify<T>(state, withInnerResolve))
-    .switchMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise))
+    .switchMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise));
+}
+
+
+/**
+ * Stateクラスで使う。Componentに渡す直前に必ずこの関数を通すこと。
+ * lodash.cloneDeep()した値を返す。
+ */
+export function connect<T>(stateObservable: Observable<T>): Observable<T> {
+  return stateObservable
+    .do(state => {
+      if (state instanceof Promise || state instanceof Observable) {
+        throw new Error('Async states(Promise, Observable) are not allowed to pass "connect" function.');
+      }
+    })
     .map<T>(state => lodash.cloneDeep(state)); // make states immutable.
 }
 
