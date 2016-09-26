@@ -12,14 +12,14 @@ import { State, resolved } from '../store';
     <h5>{{counterMergeMap | asyncState}}</h5>
     <h4>Counter (switchMap)</h4>
     <h5>{{counterSwitchMap | asyncState}}</h5>
+    <h4>Time (switchMap)</h4>
+    <h5>{{timeSerial | asyncState | date:"medium"}}</h5>
     <button (click)="increment()" class="btn btn-primary" id="increment-btn">+</button>
     <button (click)="decrement()" class="btn btn-primary" id="decrement-btn">-</button>
     <button (click)="reset()" class="btn btn-warning" id="reset-btn">RESET</button>
     <button (click)="invokeError()" class="btn btn-danger" id="error-btn">invoke error</button>
-    <button (click)="cancel()" class="btn btn-warning" id="cancel-btn">cancel</button>
-    <h4>Time (switchMap)</h4>
-    <h5>{{timeSerial | asyncState | date:"medium"}}</h5>
-    <div>{{actionName | asyncState}}</div>
+    <button (click)="cancel()" class="btn btn-warning" id="cancel-btn">cancel</button>    
+    <div>Latest Action: {{actionName | asyncState}}</div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
