@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 
-import { promisify, toStateObservableByMergeMap, toStateObservableBySwitchMap } from '../redux-like';
+import { promisify, stateObservableByMergeMap, stateObservableBySwitchMap } from '../../../src-rxjs-redux';
 import { Store } from './store';
 import { AppState, ResolvedAppState, IncrementState, TimeState } from './types';
 
@@ -22,22 +22,22 @@ export class State {
 
 
   getState(): Observable<ResolvedAppState> {
-    return toStateObservableBySwitchMap(this.appState$, true) as Observable<ResolvedAppState>;
+    return stateObservableBySwitchMap(this.appState$, true) as Observable<ResolvedAppState>;
   }
 
 
   get incrementStateByMergeMap$(): Observable<IncrementState> {
-    return toStateObservableByMergeMap(this.appState$.map(s => s.increment));
+    return stateObservableByMergeMap(this.appState$.map(s => s.increment));
   }
 
 
   get incrementStateBySwitchMap$(): Observable<IncrementState> {
-    return toStateObservableBySwitchMap(this.appState$.map(s => s.increment));
+    return stateObservableBySwitchMap(this.appState$.map(s => s.increment));
   }
 
 
   get timeState$(): Observable<TimeState> {
-    return toStateObservableBySwitchMap(this.appState$.map(s => s.time));
+    return stateObservableBySwitchMap(this.appState$.map(s => s.time));
   }
 
 }

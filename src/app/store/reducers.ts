@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs/Rx';
 import { Http } from '@angular/http';
 
-import { Dispatcher, StateReducer, NonStateReducer, promisify } from '../redux-like';
+import { Dispatcher, StateReducer, NonStateReducer, promisify } from '../../../src-rxjs-redux';
 import { Action, IncrementAction, DecrementAction, ResetAction, RestoreAction, ErrorAction, CancelAction, TimeUpdateAction } from './actions';
 import { IncrementState, TimeState } from './types';
 

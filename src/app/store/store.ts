@@ -3,7 +3,7 @@ import { Http } from '@angular/http';
 import { Observable, Subject, BehaviorSubject, Subscription } from 'rxjs/Rx';
 // import lodash from 'lodash';
 
-import { Dispatcher, Provider, ReducerContainer, InitialState, promisify } from '../redux-like';
+import { Dispatcher, Provider, ReducerContainer, InitialState, promisify } from '../../../src-rxjs-redux';
 import { Action, RestoreAction } from './actions';
 import { IncrementState, AppState } from './types';
 import { incrementReducer, restoreReducer, invokeErrorReducer, cancelReducer, timeUpdateReducer, actionNameReducer } from './reducers';

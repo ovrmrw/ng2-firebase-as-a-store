@@ -9,7 +9,7 @@ import { Page1Component } from './page1/page1.component';
 
 import { Page1Service } from './page1/page1.service';
 
-import { Dispatcher, AsyncStatePipe, InitialState } from './redux-like';
+import { Dispatcher, AsyncStatePipe, InitialState } from '../../src-rxjs-redux';
 import { Store, State, FirebaseEffector, defaultAppState } from './store';
 
 

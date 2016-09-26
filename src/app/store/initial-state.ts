@@ -1,4 +1,4 @@
-import { generateUuid } from '../redux-like';
+import { generateUuid } from '../../../src-rxjs-redux';
 import { AppState, IncrementState, TimeState } from './types';
 
 

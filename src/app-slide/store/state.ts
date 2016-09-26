@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 import lodash from 'lodash';
 
-import { promisify } from '../redux-like';
+import { promisify } from '../../../src-rxjs-redux';
 import { Store } from './store';
 import { AppState, IncrementState } from './types';
 

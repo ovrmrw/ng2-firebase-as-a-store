@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs/Rx';
 
-import { Dispatcher, StateReducer, NonStateReducer, promisify } from '../redux-like';
+import { Dispatcher, StateReducer, NonStateReducer, promisify } from '../../../src-rxjs-redux';
 import { Action, IncrementAction, DecrementAction } from './actions';
 import { IncrementState } from './types';
 

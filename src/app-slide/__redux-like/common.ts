@@ -160,26 +160,26 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
 
 
 /**
- * Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
+ * Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に流す。
  * 最終的にimmutableな値がmergeMapオペレーターで返される。
  */
-export function toStateObservableByMergeMap<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
+export function stateObservableByMergeMap<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
   return observableIncludesAsyncStates
     .map<Promise<T>>(state => promisify<T>(state, withInnerResolve))
     .mergeMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise))
-    .map<T>(state => lodash.cloneDeep(state));
+    .map<T>(state => lodash.cloneDeep(state)); // make states immutable.
 }
 
 
 /**
- * Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
+ * Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に流す。
  * 最終的にimmutableな値がswitchMapオペレーターで返される。
  */
-export function toStateObservableBySwitchMap<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
+export function stateObservableBySwitchMap<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
   return observableIncludesAsyncStates
     .map<Promise<T>>(state => promisify<T>(state, withInnerResolve))
     .switchMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise))
-    .map<T>(state => lodash.cloneDeep(state));
+    .map<T>(state => lodash.cloneDeep(state)); // make states immutable.
 }
 
 
