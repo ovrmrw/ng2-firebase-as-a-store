@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
+import lodash from 'lodash';
 
 import { promisify } from '../redux-like';
 import { Store } from './store';
@@ -21,7 +22,8 @@ export class State {
   get incrementStateByMergeMap$(): Observable<IncrementState> {
     return this.appState$
       .map<Promise<IncrementState>>(appState => promisify(appState.increment))
-      .mergeMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise));
+      .mergeMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise))
+      .map<IncrementState>(state => lodash.cloneDeep(state));
   }
 
 
@@ -29,7 +31,8 @@ export class State {
   get incrementStateBySwitchMap$(): Observable<IncrementState> {
     return this.appState$
       .map<Promise<IncrementState>>(appState => promisify(appState.increment))
-      .switchMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise)); // cancellation
+      .switchMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise)) // cancellation
+      .map<IncrementState>(state => lodash.cloneDeep(state));
   }
 
 }

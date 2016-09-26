@@ -53,5 +53,5 @@ export class Page1Component {
   get counterMergeMap(): Observable<number> { return this.state.incrementStateByMergeMap$.map(s => s.counter); }
   get counterSwitchMap(): Observable<number> { return this.state.incrementStateBySwitchMap$.map(s => s.counter); }
   get timeSerial(): Observable<number> { return this.state.timeState$.map(s => s.serial); }
-  get actionName(): Observable<string> { return this.state.appState$.map(s => s.actionName); }
+  get actionName(): Observable<string> { return this.state.getState().map(s => s.actionName); }
 }

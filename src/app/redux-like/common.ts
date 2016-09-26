@@ -161,23 +161,25 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
 
 /**
  * Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
- * 最終的にmergeMapオペレーターで返される。
+ * 最終的にimmutableな値がmergeMapオペレーターで返される。
  */
 export function toStateObservableByMergeMap<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
   return observableIncludesAsyncStates
     .map<Promise<T>>(state => promisify<T>(state, withInnerResolve))
-    .mergeMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise));
+    .mergeMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise))
+    .map<T>(state => lodash.cloneDeep(state));
 }
 
 
 /**
  * Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に渡す。
- * 最終的にswitchMapオペレーターで返される。
+ * 最終的にimmutableな値がswitchMapオペレーターで返される。
  */
 export function toStateObservableBySwitchMap<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
   return observableIncludesAsyncStates
     .map<Promise<T>>(state => promisify<T>(state, withInnerResolve))
-    .switchMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise));
+    .switchMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise))
+    .map<T>(state => lodash.cloneDeep(state));
 }
 
 
