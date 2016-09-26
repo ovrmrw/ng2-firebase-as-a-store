@@ -10,7 +10,7 @@ import { Page1Component } from './page1/page1.component';
 import { Page1Service } from './page1/page1.service';
 
 import { Dispatcher, AsyncStatePipe, InitialState } from '../../src-rxjs-redux';
-import { Store, State, FirebaseEffector, defaultAppState } from './store';
+import { Store, StateCreator, FirebaseEffector, defaultAppState } from './store';
 
 
 const appRoutes: Routes = [
@@ -27,7 +27,7 @@ const appRoutes: Routes = [
   imports: [BrowserModule, RouterModule.forRoot(appRoutes), FormsModule, HttpModule],
   declarations: [AppComponent, Page1Component, AsyncStatePipe],
   providers: [
-    Dispatcher, Store, State, Page1Service,
+    Dispatcher, Store, StateCreator, Page1Service,
     FirebaseEffector,
     { provide: InitialState, useValue: defaultAppState },
   ],

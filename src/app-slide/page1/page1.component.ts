@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 
 import { Page1Service } from './page1.service';
-import { State } from '../store';
+import { StateCreator } from '../store';
 
 
 @Component({
@@ -20,7 +20,7 @@ import { State } from '../store';
 export class Page1Component {
   constructor(
     private service: Page1Service,
-    private state: State,
+    private state: StateCreator,
   ) { }
 
 

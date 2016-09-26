@@ -160,7 +160,7 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
 
 
 /**
- * Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に流す。
+ * StateCreatorで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に流す。
  * Observable.fromPromise()後の状態(state)をmergeMapオペレーターで返す。
  */
 export function takeEvery<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
@@ -171,7 +171,7 @@ export function takeEvery<T>(observableIncludesAsyncStates: Observable<T | Promi
 
 
 /**
- * Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に流す。
+ * StateCreatorで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に流す。
  * Observable.fromPromise()後の状態(state)をswitchMapオペレーターで返す。
  */
 export function takeLatest<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
@@ -182,7 +182,7 @@ export function takeLatest<T>(observableIncludesAsyncStates: Observable<T | Prom
 
 
 /**
- * Stateクラスで使う。Componentに渡す直前に必ずこの関数を通すこと。
+ * StateCreatorで使う。Componentに渡す直前に必ずこの関数を通すこと。
  * lodash.cloneDeep()した値を返す。
  */
 export function connect<T>(stateObservable: Observable<T>): Observable<T> {

@@ -11,7 +11,7 @@ import { AppState, ResolvedAppState, IncrementState, TimeState } from './types';
   Componentクラスを綺麗に保つため、全てのStateはObservable<T>の形に統一して返すこと。
 */
 @Injectable()
-export class State {
+export class StateCreator {
   private appState$: Observable<AppState>;
 
   constructor(

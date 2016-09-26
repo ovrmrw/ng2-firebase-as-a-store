@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRe
 import { Observable } from 'rxjs/Rx';
 
 import { Page1Service } from './page1.service';
-import { State, resolved } from '../store';
+import { StateCreator } from '../store';
 
 
 @Component({
@@ -26,7 +26,7 @@ import { State, resolved } from '../store';
 export class Page1Component {
   constructor(
     private service: Page1Service,
-    private state: State,
+    private state: StateCreator,
   ) { }
 
 
@@ -54,4 +54,5 @@ export class Page1Component {
   get counterSwitchMap(): Observable<number> { return this.state.incrementStateLatest$.map(s => s.counter); }
   get timeSerial(): Observable<number> { return this.state.timeState$.map(s => s.serial); }
   get actionName(): Observable<string> { return this.state.getState().map(s => s.actionName); }
+  
 }
