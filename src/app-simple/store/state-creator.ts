@@ -8,7 +8,7 @@ import { AppState, ResolvedAppState, IncrementState } from './types';
 
 
 @Injectable()
-export class StateCreator {
+export class State {
   private appState$: Observable<AppState>;
 
   constructor(

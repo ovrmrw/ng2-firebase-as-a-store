@@ -9,7 +9,7 @@ import { setTimeoutPromise, elements, elementText, elementValue } from '../../..
 ////////////////////////////////////////////////////////////////////////
 // modules
 import { Dispatcher, Provider, InitialState } from '../../../src-rxjs-redux';
-import { Store, StateCreator, defaultAppState, AppState, IncrementState, Action, IncrementAction, DecrementAction, ResetAction } from '../store';
+import { Store, State, defaultAppState, AppState, IncrementState, Action, IncrementAction, DecrementAction, ResetAction } from '../store';
 import { Observable } from 'rxjs/Rx';
 
 
@@ -23,12 +23,12 @@ class Mock { }
 describe('TEST: State Class Isolated Test', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [StateCreator, { provide: Store, useClass: Mock }]
+      providers: [State, { provide: Store, useClass: Mock }]
     });
   });
 
 
-  it('can create', inject([StateCreator], (state: StateCreator) => {
+  it('can create', inject([State], (state: State) => {
     assert(!!state);
   }));
 
@@ -39,14 +39,14 @@ describe('TEST: (Dispatcher -> Store -> State) Half Integration Test', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        StateCreator, Store, Dispatcher,
+        State, Store, Dispatcher,
         { provide: InitialState, useValue: defaultAppState }
       ]
     });
   });
 
 
-  it('can increment and decrement', fakeAsync(inject([StateCreator, Dispatcher], (state: StateCreator, dispatcher$: Dispatcher<Action>) => {
+  it('can increment and decrement', fakeAsync(inject([State, Dispatcher], (state: State, dispatcher$: Dispatcher<Action>) => {
     let incrementState: IncrementState | undefined;
     state.incrementStateEvery$
       .subscribe(s => {

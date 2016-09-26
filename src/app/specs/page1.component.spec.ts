@@ -11,7 +11,7 @@ import { setTimeoutPromise, elements, elementText, elementValue } from '../../..
 import { Page1Component } from '../page1/page1.component';
 import { Page1Service } from '../page1/page1.service';
 import { Dispatcher, AsyncStatePipe, InitialState } from '../../../src-rxjs-redux';
-import { StateCreator, IncrementState, Store, Action, IncrementAction, DecrementAction, defaultAppState } from '../store';
+import { State, IncrementState, Store, Action, IncrementAction, DecrementAction, defaultAppState } from '../store';
 import { Observable } from 'rxjs/Rx';
 import { FormsModule } from '@angular/forms';
 
@@ -36,7 +36,7 @@ describe('TEST: Page1 Component Isolated Test', () => {
       declarations: [Page1Component, AsyncStatePipe],
       providers: [
         { provide: Page1Service, useClass: Mock },
-        { provide: StateCreator, useClass: MockState },
+        { provide: State, useClass: MockState },
       ]
     });
     TestBed.compileComponents();
@@ -56,7 +56,7 @@ describe('TEST: Page1 Component Isolated Test', () => {
     const component = fixture.componentRef.instance;
 
     let counter: number | undefined;
-    component.counterMergeMap
+    component.counterEvery
       .subscribe(s => counter = s);
 
     assert(counter === 100);
@@ -71,7 +71,7 @@ describe('TEST: (Page1 Component -> Service -> Dispatcher -> Store -> State -> C
       imports: [FormsModule],
       declarations: [Page1Component, AsyncStatePipe],
       providers: [
-        Page1Service, Store, StateCreator, Dispatcher,
+        Page1Service, Store, State, Dispatcher,
         { provide: InitialState, useValue: defaultAppState },
       ]
     });
@@ -89,7 +89,7 @@ describe('TEST: (Page1 Component -> Service -> Dispatcher -> Store -> State -> C
     const resetButton = el.querySelector('#reset-btn') as HTMLButtonElement;
 
     let counter: number | undefined;
-    component.counterMergeMap
+    component.counterEvery
       .subscribe(s => counter = s);
 
     tick();

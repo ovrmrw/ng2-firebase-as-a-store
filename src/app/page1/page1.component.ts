@@ -2,16 +2,16 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRe
 import { Observable } from 'rxjs/Rx';
 
 import { Page1Service } from './page1.service';
-import { StateCreator } from '../store';
+import { State } from '../store';
 
 
 @Component({
   selector: 'my-page1',
   template: `
     <h4>Counter (mergeMap)</h4>
-    <h5>{{counterMergeMap | asyncState}}</h5>
+    <h5>{{counterEvery | asyncState}}</h5>
     <h4>Counter (switchMap)</h4>
-    <h5>{{counterSwitchMap | asyncState}}</h5>
+    <h5>{{counterLatest | asyncState}}</h5>
     <h4>Time (switchMap)</h4>
     <h5>{{timeSerial | asyncState | date:"medium"}}</h5>
     <button (click)="increment()" class="btn btn-primary" id="increment-btn">+</button>
@@ -26,7 +26,7 @@ import { StateCreator } from '../store';
 export class Page1Component {
   constructor(
     private service: Page1Service,
-    private state: StateCreator,
+    private state: State,
   ) { }
 
 
@@ -50,8 +50,8 @@ export class Page1Component {
     this.service.cancel();
   }
 
-  get counterMergeMap(): Observable<number> { return this.state.incrementStateEvery$.map(s => s.counter); }
-  get counterSwitchMap(): Observable<number> { return this.state.incrementStateLatest$.map(s => s.counter); }
+  get counterEvery(): Observable<number> { return this.state.incrementStateEvery$.map(s => s.counter); }
+  get counterLatest(): Observable<number> { return this.state.incrementStateLatest$.map(s => s.counter); }
   get timeSerial(): Observable<number> { return this.state.timeStateLatest$.map(s => s.serial); }
   get actionName(): Observable<string> { return this.state.getState().map(s => s.actionName); }
   

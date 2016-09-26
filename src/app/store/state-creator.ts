@@ -10,7 +10,7 @@ import { AppState, ResolvedAppState, IncrementState, TimeState } from './types';
   Componentクラスを綺麗に保つため、全てのStateは非同期を解決した上でObservable<T>の型に統一して返すこと。
 */
 @Injectable()
-export class StateCreator {
+export class State {
   private appState$: Observable<AppState>;
 
   constructor(
