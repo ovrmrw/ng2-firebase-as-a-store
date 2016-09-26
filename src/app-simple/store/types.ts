@@ -6,3 +6,8 @@ export interface IncrementState {
 export interface AppState {
   increment: IncrementState | Promise<IncrementState>;
 }
+
+
+export interface ResolvedAppState {
+  increment: IncrementState;
+}

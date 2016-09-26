@@ -52,7 +52,7 @@ export class Page1Component {
 
   get counterMergeMap(): Observable<number> { return this.state.incrementStateEvery$.map(s => s.counter); }
   get counterSwitchMap(): Observable<number> { return this.state.incrementStateLatest$.map(s => s.counter); }
-  get timeSerial(): Observable<number> { return this.state.timeState$.map(s => s.serial); }
+  get timeSerial(): Observable<number> { return this.state.timeStateLatest$.map(s => s.serial); }
   get actionName(): Observable<string> { return this.state.getState().map(s => s.actionName); }
   
 }

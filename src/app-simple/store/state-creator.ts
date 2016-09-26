@@ -1,14 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
+import lodash from 'lodash';
 
-import { promisify, takeEvery, takeLatest, connect } from '../../../src-rxjs-redux';
+import { promisify, takeLatest, takeEvery, connect } from '../../../src-rxjs-redux';
 import { Store } from './store';
-import { AppState, ResolvedAppState, IncrementState, TimeState } from './types';
+import { AppState, ResolvedAppState, IncrementState } from './types';
 
 
-/*
-  Componentクラスを綺麗に保つため、全てのStateは非同期を解決した上でObservable<T>の型に統一して返すこと。
-*/
 @Injectable()
 export class StateCreator {
   private appState$: Observable<AppState>;
@@ -20,23 +18,21 @@ export class StateCreator {
   }
 
 
+  // Observable<AppState> -> Observable<ResolvedAppState>
   getState(): Observable<ResolvedAppState> {
     return connect(takeLatest(this.appState$, true)) as Observable<ResolvedAppState>;
   }
 
 
+  // Observable<Promise<IncrementState>> -> Observable<IncrementState>
   get incrementStateEvery$(): Observable<IncrementState> {
     return connect(takeEvery(this.appState$.map(s => s.increment)));
   }
 
 
+  // Observable<Promise<IncrementState>> -> Observable<IncrementState>
   get incrementStateLatest$(): Observable<IncrementState> {
     return connect(takeLatest(this.appState$.map(s => s.increment)));
-  }
-
-
-  get timeStateLatest$(): Observable<TimeState> {
-    return connect(takeLatest(this.appState$.map(s => s.time)));
   }
 
 }

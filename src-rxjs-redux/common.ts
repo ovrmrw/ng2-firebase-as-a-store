@@ -93,7 +93,7 @@ async function resolveNestedAsyncStates<T>(obj: T | Promise<T> | Observable<T>):
  * 引数withInnerResolveがtrueのときはオブジェクト内の全ての非同期を解決した上で返す。
  * Observableは .take(1).toPromise() でPromiseに変換される。
  */
-export function promisify<T>(state: T | Promise<T> | Observable<T>, withInnerResolve: boolean = false): Promise<T> {
+export function promisify<T>(state: T | Promise<T> | Observable<T>, withInnerResolve?: boolean): Promise<T> {
   const _state = withInnerResolve ? resolveNestedAsyncStates<T>(state) : state;
   if (_state instanceof Observable) {
     return _state.take(1).toPromise();
@@ -163,7 +163,7 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
  * StateCreatorで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に流す。
  * Observable.fromPromise()後の状態(state)をmergeMapオペレーターで返す。
  */
-export function takeEvery<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
+export function takeEvery<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve?: boolean): Observable<T> {
   return observableIncludesAsyncStates
     .map<Promise<T>>(state => promisify<T>(state, withInnerResolve))
     .mergeMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise));
@@ -174,7 +174,7 @@ export function takeEvery<T>(observableIncludesAsyncStates: Observable<T | Promi
  * StateCreatorで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に流す。
  * Observable.fromPromise()後の状態(state)をswitchMapオペレーターで返す。
  */
-export function takeLatest<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
+export function takeLatest<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve?: boolean): Observable<T> {
   return observableIncludesAsyncStates
     .map<Promise<T>>(state => promisify<T>(state, withInnerResolve))
     .switchMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise));
