@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 import lodash from 'lodash';
 
-import { promisify, stateBySwitchMap, connect } from '../../../src-rxjs-redux';
+import { promisify, takeLatest, connect } from '../../../src-rxjs-redux';
 import { Store } from './store';
 import { AppState, IncrementState } from './types';
 
@@ -19,12 +19,12 @@ export class State {
 
 
   getState(): Observable<AppState> {
-    return connect(stateBySwitchMap(this.appState$, true));
+    return connect(takeLatest(this.appState$, true));
   }
 
 
   // Observable<Promise<IncrementState>> -> Observable<IncrementState>
-  get incrementStateByMergeMap$(): Observable<IncrementState> {
+  get incrementStateEvery$(): Observable<IncrementState> {
     return this.appState$
       .map<Promise<IncrementState>>(appState => promisify(appState.increment))
       .mergeMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise))
@@ -33,7 +33,7 @@ export class State {
 
 
   // Observable<Promise<IncrementState>> -> Observable<IncrementState>
-  get incrementStateBySwitchMap$(): Observable<IncrementState> {
+  get incrementStateLatest$(): Observable<IncrementState> {
     return this.appState$
       .map<Promise<IncrementState>>(appState => promisify(appState.increment))
       .switchMap<IncrementState>(stateAsPromise => Observable.fromPromise(stateAsPromise)) // cancellation

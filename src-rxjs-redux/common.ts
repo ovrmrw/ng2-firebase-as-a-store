@@ -163,7 +163,7 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
  * Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に流す。
  * Observable.fromPromise()後の状態(state)をmergeMapオペレーターで返す。
  */
-export function stateByMergeMap<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
+export function takeEvery<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
   return observableIncludesAsyncStates
     .map<Promise<T>>(state => promisify<T>(state, withInnerResolve))
     .mergeMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise));
@@ -174,7 +174,7 @@ export function stateByMergeMap<T>(observableIncludesAsyncStates: Observable<T |
  * Stateクラスで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に流す。
  * Observable.fromPromise()後の状態(state)をswitchMapオペレーターで返す。
  */
-export function stateBySwitchMap<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
+export function takeLatest<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve: boolean = false): Observable<T> {
   return observableIncludesAsyncStates
     .map<Promise<T>>(state => promisify<T>(state, withInnerResolve))
     .switchMap<T>(stateAsPromise => Observable.fromPromise(stateAsPromise));
