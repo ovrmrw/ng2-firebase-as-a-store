@@ -26,13 +26,13 @@ export class State {
 
   // Observable<Promise<IncrementState>> -> Observable<IncrementState>
   get incrementStateEvery$(): Observable<IncrementState> {
-    return connect(takeEvery(this.appState$.map(s => s.increment)));
+    return connect(takeEvery<IncrementState>(this.appState$.map(s => s.increment)));
   }
 
 
   // Observable<Promise<IncrementState>> -> Observable<IncrementState>
   get incrementStateLatest$(): Observable<IncrementState> {
-    return connect(takeLatest(this.appState$.map(s => s.increment)));
+    return connect(takeLatest<IncrementState>(this.appState$.map(s => s.increment)));
   }
 
 }

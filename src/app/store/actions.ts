@@ -1,4 +1,5 @@
 import { AppState } from './types';
+import { Observable } from 'rxjs/Rx';
 
 
 export class IncrementAction {
@@ -25,8 +26,9 @@ export class CancelAction {
   constructor() { }
 }
 
+// Actionの引数に非同期型(Promise,Observable)を与えることもできる。
 export class TimeUpdateAction {
-  constructor() { }
+  constructor(public timestampAsObservable$: Observable<number>) { }
 }
 
 

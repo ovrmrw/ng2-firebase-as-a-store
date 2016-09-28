@@ -50,9 +50,17 @@ export class Page1Component {
     this.service.cancel();
   }
 
+  
+  /* 下記のように状態取得の記述を全て.getState()で書くと、View更新が"一番解決の遅いPromiseに引きずられる"ことになる。 */
+  // get counterEvery(): Observable<number> { return this.state.getState().map(s => s.increment.counter); }
+  // get counterLatest(): Observable<number> { return this.state.getState().map(s => s.increment.counter); }
+  // get timeSerial(): Observable<number> { return this.state.getState().map(s => s.time.serial); }
+  // get actionName(): Observable<string> { return this.state.getState().map(s => s.actionName); }
+
+  /* 下記のように書くと、counterとtimeSerialは"それぞれのPromiseが解決したタイミングで"Viewが更新される。 */
   get counterEvery(): Observable<number> { return this.state.incrementStateEvery$.map(s => s.counter); }
   get counterLatest(): Observable<number> { return this.state.incrementStateLatest$.map(s => s.counter); }
   get timeSerial(): Observable<number> { return this.state.timeStateLatest$.map(s => s.serial); }
   get actionName(): Observable<string> { return this.state.getState().map(s => s.actionName); }
-  
+
 }

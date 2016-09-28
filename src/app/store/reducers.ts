@@ -1,5 +1,4 @@
 import { Observable } from 'rxjs/Rx';
-import { Http } from '@angular/http';
 
 import { Dispatcher, StateReducer, NonStateReducer, promisify } from '../../../src-rxjs-redux';
 import { Action, IncrementAction, DecrementAction, ResetAction, RestoreAction, ErrorAction, CancelAction, TimeUpdateAction } from './actions';
@@ -14,14 +13,9 @@ export const incrementReducer: StateReducer<Promise<IncrementState>> =
           setTimeout(() => state.then(s => resolve({ counter: s.counter + 1 })), 500);
         });
       } else if (action instanceof DecrementAction) {
-        setTimeout(() => dispatcher$.next(new TimeUpdateAction()), 0); // DecrementActionのときだけTimeUpdateActionをキックする。  
         return new Promise<IncrementState>(resolve => {
           setTimeout(() => state.then(s => resolve({ counter: s.counter - 1 })), 500);
         });
-        // return Observable.of(state)
-        //   .delay(500)
-        //   .mergeMap<IncrementState>(() => Observable.fromPromise(state.then(s => ({ counter: s.counter - 1 }))))
-        //   .toPromise();        
       } else if (action instanceof RestoreAction) {
         if (action.restoreState && action.restoreState.increment) { // Validation
           return promisify(action.restoreState.increment);
@@ -66,17 +60,14 @@ export const cancelReducer: NonStateReducer<boolean> =
 
 
 export const timeUpdateReducer: StateReducer<Promise<TimeState>> =
-  (initState: Promise<TimeState>, dispatcher$: Dispatcher<Action>, http$: Http | null): Observable<Promise<TimeState>> =>
+  (initState: Promise<TimeState>, dispatcher$: Dispatcher<Action>): Observable<Promise<TimeState>> =>
     dispatcher$.scan<Promise<TimeState>>((state, action) => {
       if (action instanceof TimeUpdateAction) {
-        if (http$) {
-          return http$.get('https://ntp-a1.nict.go.jp/cgi-bin/json')
-            .map<number>(res => res.json().st)
-            .map<TimeState>(st => ({ serial: st * 1000 }))
-            .toPromise();
-        } else {
-          return state;
-        }
+        // action.timestampAsObservable$ の型はObservable<number>。
+        // Observable<number>からPromise<TimeState>を生成して返す。
+        return action.timestampAsObservable$
+          .map<TimeState>(timestamp => ({ serial: timestamp }))
+          .toPromise();
       } else if (action instanceof RestoreAction) {
         if (action.restoreState && action.restoreState.time) { // Validation
           return promisify(action.restoreState.time);

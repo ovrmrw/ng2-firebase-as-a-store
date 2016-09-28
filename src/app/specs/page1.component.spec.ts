@@ -21,7 +21,7 @@ import { FormsModule } from '@angular/forms';
 class Mock { }
 
 class MockState {
-  get incrementStateByMergeMap$(): Observable<IncrementState> {
+  get incrementStateEvery$(): Observable<IncrementState> {
     return Observable.of({ counter: 100 });
   }
 }

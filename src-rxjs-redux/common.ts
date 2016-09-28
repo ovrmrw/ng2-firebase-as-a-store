@@ -59,10 +59,26 @@ export interface NonStateReducer<T> {
 /**
  * オブジェクトが含む全てのPromiseの解決を待った上でオブジェクトを返す。ネストが深くてもOK。
  * Observableは .take(1).toPromise() でPromiseに変換される。
+ * (example)
+ * {
+ *   a: Promise.resolve({
+ *     b: Promise.resolve({
+ *       c: true
+ *     })
+ *   })
+ * }
+ * ↑このようなオブジェクトが ↓このように返される。
+ * {
+ *   a: {
+ *     b: {
+ *       c: true
+ *     }
+ *   }
+ * }
  */
-async function resolveNestedAsyncStates<T>(obj: T | Promise<T> | Observable<T>): Promise<T> {
+async function resolveInnerAsyncStates<T>(obj: T | Promise<T> | Observable<T>): Promise<T> {
   let temp = obj;
-  const rejectMessage = 'Resolving a Promise or Observable is rejected in "resolveNestedAsyncStates" function.';
+  const rejectMessage = 'Resolving a Promise or Observable is rejected in "resolveInnerAsyncStates" function.';
   if (temp instanceof Promise || temp instanceof Observable) {
     try {
       temp = temp instanceof Observable ? await temp.take(1).toPromise() : await temp;
@@ -70,7 +86,7 @@ async function resolveNestedAsyncStates<T>(obj: T | Promise<T> | Observable<T>):
       alert(rejectMessage);
       throw new Error(rejectMessage);
     }
-    temp = await resolveNestedAsyncStates(temp);
+    temp = await resolveInnerAsyncStates(temp);
   } else if (temp instanceof Object) {
     for (let key in temp) {
       if (temp[key] instanceof Promise || temp[key] instanceof Observable) {
@@ -81,7 +97,7 @@ async function resolveNestedAsyncStates<T>(obj: T | Promise<T> | Observable<T>):
           throw new Error(rejectMessage);
         }
       }
-      temp[key] = await resolveNestedAsyncStates(temp[key]);
+      temp[key] = await resolveInnerAsyncStates(temp[key]);
     }
   }
   return temp as T;
@@ -94,7 +110,7 @@ async function resolveNestedAsyncStates<T>(obj: T | Promise<T> | Observable<T>):
  * Observableは .take(1).toPromise() でPromiseに変換される。
  */
 export function promisify<T>(state: T | Promise<T> | Observable<T>, withInnerResolve?: boolean): Promise<T> {
-  const _state = withInnerResolve ? resolveNestedAsyncStates<T>(state) : state;
+  const _state = withInnerResolve ? resolveInnerAsyncStates<T>(state) : state;
   if (_state instanceof Observable) {
     return _state.take(1).toPromise();
   } else if (_state instanceof Promise) {
@@ -189,7 +205,7 @@ export function connect<T>(stateObservable: Observable<T>): Observable<T> {
   return stateObservable
     .do(state => {
       if (state instanceof Promise || state instanceof Observable) {
-        throw new Error('Async states(Promise, Observable) are not allowed to pass "connect" function.');
+        throw new Error('Async states(Promise, Observable) are not allowed to pass througth "connect" function.');
       }
     })
     .map<T>(state => lodash.cloneDeep(state)); // make states immutable.

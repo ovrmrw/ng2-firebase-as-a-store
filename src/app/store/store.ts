@@ -1,5 +1,4 @@
 import { Injectable, Inject, Optional } from '@angular/core';
-import { Http } from '@angular/http';
 import { Observable, Subject, BehaviorSubject, Subscription } from 'rxjs/Rx';
 // import lodash from 'lodash';
 
@@ -28,8 +27,6 @@ export class Store {
     private dispatcher$: Dispatcher<Action>,
     @Inject(InitialState)
     private initialState: AppState,
-    @Inject(Http) @Optional()
-    private http$: Http | null,
     @Inject(FirebaseEffector) @Optional()
     private firebaseEffector: FirebaseEffector | null, // DIできない場合はnullになる。テスト時はnullにする。
   ) {
@@ -45,7 +42,7 @@ export class Store {
     ReducerContainer // = Observable
       .zip<AppState>(...[ // わざわざ配列にした上でSpreadしているのは、VSCodeのオートインデントが有効になるから。
         incrementReducer(promisify(this.initialState.increment), this.dispatcher$), // as Observable<Promise<IncrementState>>
-        timeUpdateReducer(promisify(this.initialState.time), this.dispatcher$, this.http$), // as Observable<Promise<TimeState>>
+        timeUpdateReducer(promisify(this.initialState.time), this.dispatcher$), // as Observable<Promise<TimeState>>
         restoreReducer(this.initialState.restore, this.dispatcher$), // as Observable<boolean>
         cancelReducer(this.dispatcher$), // as Observable<boolean>
         actionNameReducer(this.dispatcher$), // as Observable<string>
