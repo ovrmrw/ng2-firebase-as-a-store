@@ -20,7 +20,7 @@ export class State {
 
   // Observable<AppState> -> Observable<ResolvedAppState>
   getState(): Observable<ResolvedAppState> {
-    return connect(takeLatest(this.appState$, true)) as Observable<ResolvedAppState>;
+    return connect(takeLatest<AppState>(this.appState$, true)) as Observable<ResolvedAppState>;
   }
 
 

@@ -63,8 +63,10 @@ export const timeUpdateReducer: StateReducer<Promise<TimeState>> =
   (initState: Promise<TimeState>, dispatcher$: Dispatcher<Action>): Observable<Promise<TimeState>> =>
     dispatcher$.scan<Promise<TimeState>>((state, action) => {
       if (action instanceof TimeUpdateAction) {
-        // action.timestampAsObservable$ の型はObservable<number>。
-        // Observable<number>からPromise<TimeState>を生成して返す。
+        /*
+          action.timestampAsObservable$ の型はObservable<number>。
+          Observable<number>からPromise<TimeState>を生成して返す。
+        */
         return action.timestampAsObservable$
           .map<TimeState>(timestamp => ({ serial: timestamp }))
           .toPromise();

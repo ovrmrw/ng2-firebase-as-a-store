@@ -21,7 +21,7 @@ export class State {
 
 
   getState(): Observable<ResolvedAppState> {
-    return connect(takeLatest(this.appState$, true)) as Observable<ResolvedAppState>;
+    return connect(takeLatest<AppState>(this.appState$, true)) as Observable<ResolvedAppState>;
   }
 
 
@@ -31,7 +31,7 @@ export class State {
 
 
   get incrementStateLatest$(): Observable<IncrementState> {
-    return connect(takeLatest<IncrementState>(this.appState$.map<IncrementState | Promise<IncrementState>>(s => s.increment)));
+    return connect(takeLatest<IncrementState>(this.appState$.map(s => s.increment)));
   }
 
 
