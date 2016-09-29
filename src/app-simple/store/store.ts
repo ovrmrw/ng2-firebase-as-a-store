@@ -4,7 +4,7 @@ import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
 
 import { Dispatcher, Provider, ReducerContainer, InitialState, promisify } from '../../../src-rxjs-redux';
 import { Action } from './actions';
-import { IncrementState, AppState } from './types';
+import { IncrementState, AppState, ResolvedAppState } from './types';
 import { incrementReducer } from './reducers';
 
 
@@ -23,7 +23,7 @@ export class Store {
     this.applyEffectors();
     /* } */
   }
-
+ 
 
   combineReducers(): void {
     ReducerContainer /* = Observable */
@@ -46,7 +46,7 @@ export class Store {
   effectAfterReduced(newState: AppState): void {
     /* Do something after reduced. */
     console.log('newState:', newState);
-    promisify(newState, true).then(resolvedState => console.log('resolvedState:', resolvedState));
+    promisify(newState, true).then((resolvedState: ResolvedAppState) => console.log('resolvedState:', resolvedState));
   }
 
 

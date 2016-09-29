@@ -4,7 +4,7 @@ import { Observable, Subject, BehaviorSubject, Subscription } from 'rxjs/Rx';
 
 import { Dispatcher, Provider, ReducerContainer, InitialState, promisify } from '../../../src-rxjs-redux';
 import { Action, RestoreAction } from './actions';
-import { IncrementState, AppState } from './types';
+import { IncrementState, AppState, ResolvedAppState } from './types';
 import { incrementReducer, restoreReducer, invokeErrorReducer, cancelReducer, timeUpdateReducer, actionNameReducer } from './reducers';
 import { FirebaseEffector } from './firebase-effector';
 
@@ -52,7 +52,7 @@ export class Store {
         }
       ])
       .takeUntil(this.canceller$)
-      .subscribe(newState => {        
+      .subscribe(newState => {
         this.provider$.next(newState); /* ProviderをnextしてStateクラスにストリームを流す。 */
         this.effectAfterReduced(newState);
       }, err => {
@@ -63,8 +63,8 @@ export class Store {
 
   effectAfterReduced(newState: AppState): void {
     console.log('newState:', newState);
-    promisify(newState, true).then(resolvedState => console.log('resolvedState:', resolvedState));
-    
+    promisify(newState, true).then((resolvedState: ResolvedAppState) => console.log('resolvedState:', resolvedState));
+
     this.firebaseEffectorTrigger$.next(newState);
   }
 
@@ -84,7 +84,7 @@ export class Store {
 
       /* Firebase Outbound */
       this.firebaseEffectorTrigger$
-        .switchMap<AppState>(appState => Observable.fromPromise(promisify(appState, true))) /* cancellation */
+        .switchMap<ResolvedAppState>(appState => Observable.fromPromise(promisify(appState, true))) /* cancellation */
         .takeUntil(this.canceller$)
         .subscribe(resolvedState => {
           if (this.firebaseEffector && !resolvedState.restore) { /* RestoreActionではない場合のみFirebaseに書き込みする。 */
