@@ -46,7 +46,7 @@ export class Store {
   effectAfterReduced(newState: AppState): void {
     /* Do something after reduced. */
     console.log('newState:', newState);
-    promisify(newState, true).then((resolvedState: ResolvedAppState) => console.log('resolvedState:', resolvedState));
+    // promisify(newState, true).then((resolvedState: ResolvedAppState) => console.log('resolvedState:', resolvedState));
   }
 
 

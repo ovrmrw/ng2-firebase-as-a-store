@@ -63,7 +63,7 @@ export class Store {
 
   effectAfterReduced(newState: AppState): void {
     console.log('newState:', newState);
-    promisify(newState, true).then((resolvedState: ResolvedAppState) => console.log('resolvedState:', resolvedState));
+    // promisify(newState, true).then((resolvedState: ResolvedAppState) => console.log('resolvedState:', resolvedState));
 
     this.firebaseEffectorTrigger$.next(newState);
   }

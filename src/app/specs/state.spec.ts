@@ -17,13 +17,17 @@ import { Observable } from 'rxjs/Rx';
 // mocks
 class Mock { }
 
+class MockStore {
+  provider$ = Observable.empty();
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 // tests
 describe('TEST: State Class Isolated Test', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [State, { provide: Store, useClass: Mock }]
+      providers: [State, { provide: Store, useClass: MockStore }]
     });
   });
 
