@@ -24,7 +24,7 @@ export class FirebaseEffector {
     console.time(timeStr);
     firebase.database().ref(refPath).update(firebaseWritableObject, err => {
       if (err) { console.error(err); }
-      console.timeEnd(timeStr); // Watching passed time to write data to Firebase.
+      console.timeEnd(timeStr); /* Watching passed time to write data to Firebase. */
     });
   }
 
@@ -41,7 +41,7 @@ export class FirebaseEffector {
   }
 
 
-  // オブジェクトに含まれるプリミティブではない値を落とす。(Function等)
+  /* オブジェクトに含まれるプリミティブではない値を落とす。(Function等) */
   private getFirebaseWritableObject(state: {}, deletePropNames: string[]): {} {
     deletePropNames.forEach(propName => {
       delete state[propName];

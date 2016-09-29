@@ -17,7 +17,7 @@ export const InitialState = new OpaqueToken('InitialState');
 @Injectable()
 export class Dispatcher<T> extends Subject<T> {
   constructor() { super(); }
-  next(action: T) { super.next(action); } // Override
+  next(action: T) { super.next(action); } /* OverRide */
 }
 
 
@@ -27,7 +27,7 @@ export class Dispatcher<T> extends Subject<T> {
  */
 export class Provider<T> extends Subject<T> {
   constructor() { super(); }
-  next(newState: T) { super.next(newState); } // Override
+  next(newState: T) { super.next(newState); } /* OverRide */
 }
 
 
@@ -158,7 +158,7 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
   transform(observable: Observable<T>, debugMode: boolean = false): T | null {
     if (debugMode) { console.log('AsyncStatePipe: transform() is called.'); }
     if (!this.subscription) {
-      // 1回目の実行時にここを通る。      
+      /* should pass here only for the first-time. */
       this.subscription = observable
         .distinctUntilChanged((oldValue, newValue) => lodash.isEqual(oldValue, newValue))
         .subscribe(state => {
@@ -208,7 +208,7 @@ export function connect<T>(stateObservable: Observable<T>): Observable<T> {
         throw new Error('Async states(Promise, Observable) are not allowed to pass througth "connect" function.');
       }
     })
-    .map<T>(state => lodash.cloneDeep(state)); // make states immutable.
+    .map<T>(state => lodash.cloneDeep(state)); /* make states immutable. */
 }
 
 

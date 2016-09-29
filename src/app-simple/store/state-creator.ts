@@ -18,19 +18,19 @@ export class State {
   }
 
 
-  // Observable<AppState> -> Observable<ResolvedAppState>
+  /* Observable<AppState> -> Observable<ResolvedAppState> */
   getState(): Observable<ResolvedAppState> {
     return connect(takeLatest<AppState>(this.appState$, true)) as Observable<ResolvedAppState>;
   }
 
 
-  // Observable<Promise<IncrementState>> -> Observable<IncrementState>
+  /* Observable<Promise<IncrementState>> -> Observable<IncrementState> */
   get incrementStateEvery$(): Observable<IncrementState> {
     return connect(takeEvery<IncrementState>(this.appState$.map(s => s.increment)));
   }
 
 
-  // Observable<Promise<IncrementState>> -> Observable<IncrementState>
+  /* Observable<Promise<IncrementState>> -> Observable<IncrementState> */
   get incrementStateLatest$(): Observable<IncrementState> {
     return connect(takeLatest<IncrementState>(this.appState$.map(s => s.increment)));
   }

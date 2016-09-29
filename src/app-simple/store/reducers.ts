@@ -22,6 +22,7 @@ export const incrementReducer: StateReducer<Promise<IncrementState>> =
     }, initState);
 
 
+/* 型が書いてあると読みにくいかもしれないので、型を全て消したのがこちら↓ */
 // export const incrementReducer =
 //   (initState, dispatcher$) =>
 //     dispatcher$.scan((state, action) => {

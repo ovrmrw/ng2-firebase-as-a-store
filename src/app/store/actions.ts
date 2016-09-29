@@ -26,7 +26,7 @@ export class CancelAction {
   constructor() { }
 }
 
-// Actionの引数に非同期型(Promise,Observable)を与えることもできる。
+/* Actionの引数に非同期型(Promise,Observable)を与えることもできる。 */
 export class TimeUpdateAction {
   constructor(public timestampAsObservable$: Observable<number>) { }
 }

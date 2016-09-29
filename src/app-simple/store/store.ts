@@ -26,16 +26,16 @@ export class Store {
 
 
   combineReducers(): void {
-    ReducerContainer // = Observable
+    ReducerContainer /* = Observable */
       .zip<AppState>(...[
-        incrementReducer(promisify(this.initialState.increment), this.dispatcher$), // as Observable<Promise<IncrementState>>
-        (increment): AppState => { // projection
+        incrementReducer(promisify(this.initialState.increment), this.dispatcher$), /* as Observable<Promise<IncrementState>> */
+        (increment): AppState => { /* projection */
           return Object.assign<{}, AppState, {}>({}, this.initialState, { increment });
         }
       ])
       .subscribe(newState => {
         console.log('newState:', newState);
-        this.provider$.next(newState); // ProviderをnextしてStateクラスにストリームを流す。
+        this.provider$.next(newState); /* ProviderをnextしてStateクラスにストリームを流す。 */
         this.effectAfterReduced(newState);
       }, err => {
         console.error('Error from ReducerContainer:', err);
@@ -44,12 +44,12 @@ export class Store {
 
 
   effectAfterReduced(newState: AppState): void {
-    // Do something after reduced.
+    /* Do something after reduced. */
   }
 
 
   applyEffectors(): void {
-    // Do something with Side-Effectors.
+    /* Do something with Side-Effectors. */
   }
 
 }

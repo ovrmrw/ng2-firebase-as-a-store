@@ -12,8 +12,8 @@ import { State } from '../store';
     <h5>{{counterEvery | asyncState}}</h5>
     <h4>Counter (switchMap)</h4>
     <h5>{{counterLatest | asyncState}}</h5>
-    <button (click)="increment()" class="btn btn-primary" id="increment-btn">+</button>
-    <button (click)="decrement()" class="btn btn-primary" id="decrement-btn">-</button>
+    <button (click)="increment()" class="btn btn-primary">+</button>
+    <button (click)="decrement()" class="btn btn-primary">-</button>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })

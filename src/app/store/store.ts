@@ -9,8 +9,6 @@ import { incrementReducer, restoreReducer, invokeErrorReducer, cancelReducer, ti
 import { FirebaseEffector } from './firebase-effector';
 
 
-/////////////////////////////////////////////////////////////////////////////////////////
-// Store
 /*
   ServiceクラスでDispatcherにActionをセットしてnextすると、
   applyReducers関数内で定義されている各Reducer関数に前以て埋め込まれているDispatcherが発火し、
@@ -28,7 +26,7 @@ export class Store {
     @Inject(InitialState)
     private initialState: AppState,
     @Inject(FirebaseEffector) @Optional()
-    private firebaseEffector: FirebaseEffector | null, // DIできない場合はnullになる。テスト時はnullにする。
+    private firebaseEffector: FirebaseEffector | null, /* DIできない場合はnullになる。テスト時はnullにする。 */
   ) {
     /* function createStore() { */
     this.provider$ = new BehaviorSubject(initialState);
@@ -39,24 +37,24 @@ export class Store {
 
 
   combineReducers(): void {
-    ReducerContainer // = Observable
-      .zip<AppState>(...[ // わざわざ配列にした上でSpreadしているのは、VSCodeのオートインデントが有効になるから。
-        incrementReducer(promisify(this.initialState.increment), this.dispatcher$), // as Observable<Promise<IncrementState>>
-        timeUpdateReducer(promisify(this.initialState.time), this.dispatcher$), // as Observable<Promise<TimeState>>
-        restoreReducer(this.initialState.restore, this.dispatcher$), // as Observable<boolean>
-        cancelReducer(this.dispatcher$), // as Observable<boolean>
-        actionNameReducer(this.dispatcher$), // as Observable<string>
-        invokeErrorReducer(this.dispatcher$), // as Observable<void | never>
+    ReducerContainer /* = Observable */
+      .zip<AppState>(...[ /* わざわざ配列にした上でSpreadしているのは、VSCodeのオートインデントが有効になるから。 */
+        incrementReducer(promisify(this.initialState.increment), this.dispatcher$), /* as Observable<Promise<IncrementState>> */
+        timeUpdateReducer(promisify(this.initialState.time), this.dispatcher$), /* as Observable<Promise<TimeState>> */
+        restoreReducer(this.initialState.restore, this.dispatcher$), /* as Observable<boolean> */
+        cancelReducer(this.dispatcher$), /* as Observable<boolean> */
+        actionNameReducer(this.dispatcher$), /* as Observable<string> */
+        invokeErrorReducer(this.dispatcher$), /* as Observable<void | never> */
 
-        (increment, time, restore, cancel, actionName): AppState => { // projection
+        (increment, time, restore, cancel, actionName): AppState => { /* projection */
           this.cancelReducersAndEffectors(cancel);
-          return Object.assign<{}, AppState, {}>({}, this.initialState, { increment, time, restore, actionName }); // 型を曖昧にしているのでテストでカバーする。
+          return Object.assign<{}, AppState, {}>({}, this.initialState, { increment, time, restore, actionName }); /* 型を曖昧にしているのでテストでカバーする。 */
         }
       ])
       .takeUntil(this.canceller$)
       .subscribe(newState => {
         console.log('newState:', newState);
-        this.provider$.next(newState); // ProviderをnextしてStateクラスにストリームを流す。
+        this.provider$.next(newState); /* ProviderをnextしてStateクラスにストリームを流す。 */
         this.effectAfterReduced(newState);
       }, err => {
         console.error('Error from ReducerContainer:', err);
@@ -71,23 +69,23 @@ export class Store {
 
   applyEffectors(): void {
     if (this.firebaseEffector) {
-      // Firebase Inbound
+      /* Firebase Inbound */
       this.firebaseEffector.connect$<AppState>('firebase/ref/path')
         .takeUntil(this.canceller$)
         .subscribe(cloudState => {
-          if (cloudState && cloudState.uuid !== this.initialState.uuid) { // 自分以外の誰かがFirebaseを更新した場合は、その値をDispatcherにnextする。
+          if (cloudState && cloudState.uuid !== this.initialState.uuid) { /* 自分以外の誰かがFirebaseを更新した場合は、その値をDispatcherにnextする。 */
             this.dispatcher$.next(new RestoreAction(cloudState));
           }
         }, err => {
           console.error('Error from Inbound of FirebaseEffector:', err);
         });
 
-      // Firebase Outbound
+      /* Firebase Outbound */
       this.firebaseEffectorTrigger$
-        .switchMap<AppState>(appState => Observable.fromPromise(promisify(appState, true))) // cancellation
+        .switchMap<AppState>(appState => Observable.fromPromise(promisify(appState, true))) /* cancellation */
         .takeUntil(this.canceller$)
         .subscribe(resolvedState => {
-          if (this.firebaseEffector && !resolvedState.restore) { // RestoreActionではない場合のみFirebaseに書き込みする。
+          if (this.firebaseEffector && !resolvedState.restore) { /* RestoreActionではない場合のみFirebaseに書き込みする。 */
             this.firebaseEffector.saveCurrentState('firebase/ref/path', resolvedState);
           }
         }, err => {
