@@ -44,7 +44,7 @@ export class ReducerContainer<T> extends Observable<T> {
  * Reducerを作るときに型として使う。引数にstateを取る場合。
  */
 export interface StateReducer<T> {
-  (initState: T, dispatcher: Dispatcher<any>, ...args: any[]): Observable<T>;
+  (initState: T, dispatcher: Dispatcher<any>): Observable<T>;
 }
 
 
@@ -52,7 +52,7 @@ export interface StateReducer<T> {
  * Reducerを作るときに型として使う。引数にstateを取らない場合。
  */
 export interface NonStateReducer<T> {
-  (dispatcher: Dispatcher<any>, ...args: any[]): Observable<T>;
+  (dispatcher: Dispatcher<any>): Observable<T>;
 }
 
 
@@ -83,7 +83,7 @@ async function resolveInnerAsyncStates<T>(obj: T | Promise<T> | Observable<T>): 
     try {
       temp = temp instanceof Observable ? await temp.take(1).toPromise() : await temp;
     } catch (err) {
-      alert(rejectMessage);
+      console.error(err);
       throw new Error(rejectMessage);
     }
     temp = await resolveInnerAsyncStates(temp);
@@ -93,7 +93,7 @@ async function resolveInnerAsyncStates<T>(obj: T | Promise<T> | Observable<T>): 
         try {
           temp[key] = temp[key] instanceof Observable ? await temp[key].take(1).toPromise() : await temp[key];
         } catch (err) {
-          alert(rejectMessage);
+          console.error(err);
           throw new Error(rejectMessage);
         }
       }
