@@ -2,9 +2,6 @@ import { generateUuid } from '../../../src-rxjs-redux';
 import { AppState, IncrementState, TimeState } from './types';
 
 
-/*
-  StateはPromiseを持つことができる。
-*/
 export const defaultAppState: AppState = {
   increment: Promise.resolve<IncrementState>({
     counter: 0

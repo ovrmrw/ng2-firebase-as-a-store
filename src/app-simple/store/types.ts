@@ -3,11 +3,12 @@ export interface IncrementState {
 }
 
 
+/* StoreではPromiseとして扱う。 */
 export interface AppState {
   increment: IncrementState | Promise<IncrementState>;
 }
 
-
+/* ComponentではStableとして扱う。 */
 export interface ResolvedAppState {
   increment: IncrementState;
 }

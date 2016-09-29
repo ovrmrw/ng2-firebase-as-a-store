@@ -44,8 +44,9 @@ export class Page1Service {
   timeUpdate(): void {
     if (this.http) {
       const timestampAsObservable$: Observable<number> = this.http
-        .get('https://ntp-a1.nict.go.jp/cgi-bin/json')
+        .get('https://ntp-a1.nict.go.jp/cgi-bin/json') /* 現在のtimestampを取得するAPI */
         .map<number>(res => +(res.json().st) * 1000); /* 1475038877.688 のような値が得られるのでx1000する。 */
+
       this.dispatcher$.next(new TimeUpdateAction(timestampAsObservable$));
     }
   }

@@ -7,6 +7,7 @@ export interface TimeState {
 }
 
 
+/* StoreではincrementとtimeをPromiseとして扱う。 */
 export interface AppState {
   increment: IncrementState | Promise<IncrementState>;
   restore: boolean;
@@ -16,6 +17,7 @@ export interface AppState {
   nest?: {};
 }
 
+/* ComponentではincrementとtimeをStableとして扱う。 */
 export interface ResolvedAppState {
   increment: IncrementState;
   restore: boolean;
