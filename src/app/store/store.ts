@@ -52,8 +52,7 @@ export class Store {
         }
       ])
       .takeUntil(this.canceller$)
-      .subscribe(newState => {
-        console.log('newState:', newState);
+      .subscribe(newState => {        
         this.provider$.next(newState); /* ProviderをnextしてStateクラスにストリームを流す。 */
         this.effectAfterReduced(newState);
       }, err => {
@@ -63,6 +62,9 @@ export class Store {
 
 
   effectAfterReduced(newState: AppState): void {
+    console.log('newState:', newState);
+    promisify(newState, true).then(resolvedState => console.log('resolvedState:', resolvedState));
+    
     this.firebaseEffectorTrigger$.next(newState);
   }
 

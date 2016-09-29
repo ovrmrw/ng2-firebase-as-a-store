@@ -29,12 +29,12 @@ export class Store {
     ReducerContainer /* = Observable */
       .zip<AppState>(...[
         incrementReducer(promisify(this.initialState.increment), this.dispatcher$), /* as Observable<Promise<IncrementState>> */
+
         (increment): AppState => { /* projection */
           return Object.assign<{}, AppState, {}>({}, this.initialState, { increment });
         }
       ])
       .subscribe(newState => {
-        console.log('newState:', newState);
         this.provider$.next(newState); /* ProviderをnextしてStateクラスにストリームを流す。 */
         this.effectAfterReduced(newState);
       }, err => {
@@ -45,6 +45,8 @@ export class Store {
 
   effectAfterReduced(newState: AppState): void {
     /* Do something after reduced. */
+    console.log('newState:', newState);
+    promisify(newState, true).then(resolvedState => console.log('resolvedState:', resolvedState));
   }
 
 

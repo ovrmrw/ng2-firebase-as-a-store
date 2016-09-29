@@ -18,8 +18,8 @@ export class FirebaseEffector {
   }
 
 
-  saveCurrentState<T>(refPath: string, stateHasResolvedPromises: T, deletePropNames: string[] = []): void {
-    const firebaseWritableObject = this.getFirebaseWritableObject(stateHasResolvedPromises, deletePropNames);
+  saveCurrentState<T>(refPath: string, resolvedState: T, deletePropNames: string[] = []): void {
+    const firebaseWritableObject = this.getFirebaseWritableObject(resolvedState, deletePropNames);
     const timeStr = '(' + new Date().valueOf() + ') Firebase Write Response';
     console.time(timeStr);
     firebase.database().ref(refPath).update(firebaseWritableObject, err => {
@@ -51,4 +51,5 @@ export class FirebaseEffector {
     // console.log('shapedObject:', shapedObject);
     return shapedObject;
   }
+
 }
