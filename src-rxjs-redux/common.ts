@@ -78,7 +78,7 @@ export interface NonStateReducer<T> {
  */
 async function resolveInnerAsyncStates<T>(obj: T | Promise<T> | Observable<T>): Promise<T> {
   let temp = obj;
-  const rejectMessage = 'Resolving a Promise or Observable is rejected in "resolveInnerAsyncStates" function.';
+  const rejectMessage = 'Resolving a Promise or Observable is rejected in the "resolveInnerAsyncStates" function.';
   if (temp instanceof Promise || temp instanceof Observable) {
     try {
       temp = temp instanceof Observable ? await temp.take(1).toPromise() : await temp;
@@ -127,9 +127,9 @@ export function promisify<T>(state: T | Promise<T> | Observable<T>, withInnerRes
  */
 export function resolved<T>(state: T | Promise<T> | Observable<T>): T {
   if (state instanceof Observable) {
-    throw new Error('"state" should be synchronous(resolved) is actually instanceof Observable!');
+    throw new Error('STATE should be synchronous(resolved) is actually instanceof Observable!');
   } else if (state instanceof Promise) {
-    throw new Error('"state" should be synchronous(resolved) is actually instanceof Promise!');
+    throw new Error('STATE should be synchronous(resolved) is actually instanceof Promise!');
   } else {
     return state;
   }
@@ -160,7 +160,6 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
     if (!this.subscription) {
       /* should pass here only for the first-time. */
       this.subscription = observable
-        .distinctUntilChanged((oldValue, newValue) => lodash.isEqual(oldValue, newValue))
         .subscribe(state => {
           this.latestValue = state;
           this.cd.markForCheck();
@@ -199,16 +198,21 @@ export function takeLatest<T>(observableIncludesAsyncStates: Observable<T | Prom
 
 /**
  * StateCreatorで使う。Componentに渡す直前に必ずこの関数を通すこと。
- * lodash.cloneDeep()した値を返す。
+ * lodash.cloneDeep()してComponentからStoreの値を変更できないようにする。
+ * distinctUntilChanged()で重複する値を流さないようにする。
  */
 export function connect<T>(stateObservable: Observable<T>): Observable<T> {
   return stateObservable
     .do(state => {
       if (state instanceof Promise || state instanceof Observable) {
-        throw new Error('Async states(Promise, Observable) are not allowed to pass througth "connect" function.');
+        throw new Error('Async states(Promise, Observable) are not allowed to pass througth the "connect" function.');
       }
     })
-    .map<T>(state => lodash.cloneDeep(state)); /* make states immutable. */
+    .map<T>(state => lodash.cloneDeep(state)) /* make states immutable. */
+    .distinctUntilChanged((oldValue, newValue) => lodash.isEqual(oldValue, newValue)) /* restrict duplicated states. */
+    .do(state => { /* for debugging */
+      // console.log('state after connect:', state);
+    });
 }
 
 
