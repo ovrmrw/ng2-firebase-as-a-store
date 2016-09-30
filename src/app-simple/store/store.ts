@@ -5,7 +5,7 @@ import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
 import { Dispatcher, Provider, ReducerContainer, InitialState, promisify } from '../../../src-rxjs-redux';
 import { Action } from './actions';
 import { IncrementState, AppState, ResolvedAppState } from './types';
-import { incrementReducer } from './reducers';
+import { incrementStateReducer } from './reducers';
 
 
 @Injectable()
@@ -28,7 +28,7 @@ export class Store {
   combineReducers(): void {
     ReducerContainer /* = Observable */
       .zip<AppState>(...[
-        incrementReducer(promisify(this.initialState.increment), this.dispatcher$), /* as Observable<Promise<IncrementState>> */
+        incrementStateReducer(promisify(this.initialState.increment), this.dispatcher$), /* as Observable<Promise<IncrementState>> */
 
         (increment): AppState => { /* projection */
           return Object.assign<{}, AppState, {}>({}, this.initialState, { increment });

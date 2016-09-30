@@ -41,6 +41,7 @@ export class Page1Service {
     this.dispatcher$.next(new CancelAction());
   }
 
+
   timeUpdate(): void {
     if (this.http) {
       const timestampAsObservable$: Observable<number> = this.http

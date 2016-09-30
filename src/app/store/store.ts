@@ -5,7 +5,7 @@ import { Observable, Subject, BehaviorSubject, Subscription } from 'rxjs/Rx';
 import { Dispatcher, Provider, ReducerContainer, InitialState, promisify } from '../../../src-rxjs-redux';
 import { Action, RestoreAction } from './actions';
 import { IncrementState, AppState, ResolvedAppState } from './types';
-import { incrementReducer, restoreReducer, invokeErrorReducer, cancelReducer, timeUpdateReducer, actionNameReducer } from './reducers';
+import { incrementStateReducer, restoreReducer, invokeErrorReducer, cancelReducer, timeStateReducer, actionNameReducer } from './reducers';
 import { FirebaseEffector } from './firebase-effector';
 
 
@@ -39,15 +39,15 @@ export class Store {
   combineReducers(): void {
     ReducerContainer /* = Observable */
       .zip<AppState>(...[ /* わざわざ配列にした上でSpreadしているのは、VSCodeのオートインデントが有効になるから。 */
-        incrementReducer(promisify(this.initialState.increment), this.dispatcher$), /* as Observable<Promise<IncrementState>> */
-        timeUpdateReducer(promisify(this.initialState.time), this.dispatcher$), /* as Observable<Promise<TimeState>> */
+        incrementStateReducer(promisify(this.initialState.increment), this.dispatcher$), /* as Observable<Promise<IncrementState>> */
+        timeStateReducer(promisify(this.initialState.time), this.dispatcher$), /* as Observable<Promise<TimeState>> */
         restoreReducer(this.initialState.restore, this.dispatcher$), /* as Observable<boolean> */
         cancelReducer(this.dispatcher$), /* as Observable<boolean> */
         actionNameReducer(this.dispatcher$), /* as Observable<string> */
         invokeErrorReducer(this.dispatcher$), /* as Observable<void | never> */
 
         (increment, time, restore, cancel, actionName): AppState => { /* projection */
-          this.cancelReducersAndEffectors(cancel);
+          this.cancelStateLoop(cancel);
           return Object.assign<{}, AppState, {}>({}, this.initialState, { increment, time, restore, actionName }); /* 型を曖昧にしているのでテストでカバーする。 */
         }
       ])
@@ -97,7 +97,7 @@ export class Store {
   }
 
 
-  cancelReducersAndEffectors(doCancel: boolean): void {
+  cancelStateLoop(doCancel: boolean): void {
     if (doCancel) {
       this.canceller$.next();
       const message = 'CancelAction is dispatched.';

@@ -5,7 +5,7 @@ import { Action, IncrementAction, DecrementAction } from './actions';
 import { IncrementState } from './types';
 
 
-export const incrementReducer: StateReducer<Promise<IncrementState>> =
+export const incrementStateReducer: StateReducer<Promise<IncrementState>> =
   (initState: Promise<IncrementState>, dispatcher$: Dispatcher<Action>): Observable<Promise<IncrementState>> =>
     dispatcher$.scan<Promise<IncrementState>>((state, action) => {
       if (action instanceof IncrementAction) {

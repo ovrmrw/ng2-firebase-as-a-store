@@ -5,7 +5,7 @@ import { Action, IncrementAction, DecrementAction, ResetAction, RestoreAction, E
 import { IncrementState, TimeState } from './types';
 
 
-export const incrementReducer: StateReducer<Promise<IncrementState>> =
+export const incrementStateReducer: StateReducer<Promise<IncrementState>> =
   (initState: Promise<IncrementState>, dispatcher$: Dispatcher<Action>): Observable<Promise<IncrementState>> =>
     dispatcher$.scan<Promise<IncrementState>>((state, action) => {
       if (action instanceof IncrementAction) {
@@ -59,7 +59,7 @@ export const cancelReducer: NonStateReducer<boolean> =
     dispatcher$.map<boolean>(action => action instanceof CancelAction);
 
 
-export const timeUpdateReducer: StateReducer<Promise<TimeState>> =
+export const timeStateReducer: StateReducer<Promise<TimeState>> =
   (initState: Promise<TimeState>, dispatcher$: Dispatcher<Action>): Observable<Promise<TimeState>> =>
     dispatcher$.scan<Promise<TimeState>>((state, action) => {
       if (action instanceof TimeUpdateAction) {
