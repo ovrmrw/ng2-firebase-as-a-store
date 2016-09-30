@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Rx';
 
 import { Dispatcher, Action } from '../store';
 import { IncrementAction, DecrementAction, ResetAction, ErrorAction, CancelAction, TimeUpdateAction } from '../store';
+import { AddAction, SubtractAction, MultiplyAction } from '../store';
 
 
 /*
@@ -20,6 +21,11 @@ export class Page1Service {
 
   increment(): void {
     this.dispatcher$.next(new IncrementAction());
+
+    /* IncrementActionのときだけMathStateを更新する。 */
+    this.dispatcher$.next(new AddAction(2));
+    this.dispatcher$.next(new SubtractAction(2));
+    this.dispatcher$.next(new MultiplyAction(2));
   }
 
   decrement(): void {

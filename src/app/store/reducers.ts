@@ -1,8 +1,9 @@
 import { Observable } from 'rxjs/Rx';
 
-import { Dispatcher, StateReducer, NonStateReducer, promisify } from '../../../src-rxjs-redux';
+import { Dispatcher, ReducerContainer, StateReducer, NonStateReducer, promisify } from '../../../src-rxjs-redux';
 import { Action, IncrementAction, DecrementAction, ResetAction, RestoreAction, ErrorAction, CancelAction, TimeUpdateAction } from './actions';
-import { IncrementState, TimeState } from './types';
+import { IncrementState, TimeState, MathState } from './types';
+import { additionReducer, subtractionReducer, multiplicationReducer } from './reducers.math';
 
 
 export const incrementStateReducer: StateReducer<Promise<IncrementState>> =
@@ -41,7 +42,7 @@ export const restoreReducer: StateReducer<boolean> =
     }, initState);
 
 
-export const invokeErrorReducer: NonStateReducer<void | never> =
+export const invokeErrorMapper: NonStateReducer<void | never> =
   (dispatcher$: Dispatcher<Action>): Observable<void | never> =>
     dispatcher$.map<void | never>(action => {
       if (action instanceof ErrorAction) {
@@ -54,7 +55,7 @@ export const invokeErrorReducer: NonStateReducer<void | never> =
     });
 
 
-export const cancelReducer: NonStateReducer<boolean> =
+export const cancelMapper: NonStateReducer<boolean> =
   (dispatcher$: Dispatcher<Action>): Observable<boolean> =>
     dispatcher$.map<boolean>(action => action instanceof CancelAction);
 
@@ -84,6 +85,22 @@ export const timeStateReducer: StateReducer<Promise<TimeState>> =
     }, initState);
 
 
-export const actionNameReducer: NonStateReducer<string> =
+export const actionNameMapper: NonStateReducer<string> =
   (dispatcher$: Dispatcher<Action>): Observable<string> =>
     dispatcher$.map<string>(action => action.constructor.name);
+
+
+
+/* この程度でここまでするのは冗長だけど、Reducerの中にReducerContainerを持つ例を書きたかった。 */
+export const mathStateZipper: StateReducer<MathState> =
+  (initState: MathState, dispatcher$: Dispatcher<Action>): Observable<MathState> =>
+    ReducerContainer
+      .zip<MathState>(...[
+        additionReducer(promisify(initState.addition), dispatcher$),
+        subtractionReducer(promisify(initState.subtraction), dispatcher$),
+        multiplicationReducer(promisify(initState.multiplication), dispatcher$),
+
+        (addition, subtraction, multiplication) => {
+          return Object.assign<{}, MathState, MathState>({}, initState, { addition, subtraction, multiplication });
+        }
+      ]);

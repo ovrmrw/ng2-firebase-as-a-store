@@ -12,6 +12,11 @@ export const defaultAppState: AppState = {
     serial: 0
   }),
   actionName: '',
+  math: {
+    addition: Promise.resolve<number>(0),
+    subtraction: Promise.resolve<number>(100),
+    multiplication: Promise.resolve<number>(2)
+  },
   nest: {
     a: Promise.resolve({
       b: Promise.resolve({

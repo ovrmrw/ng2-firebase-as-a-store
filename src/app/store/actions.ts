@@ -31,6 +31,18 @@ export class TimeUpdateAction {
   constructor(public timestampAsObservable$: Observable<number>) { }
 }
 
+export class AddAction {
+  constructor(public num: number) { }
+}
+
+export class SubtractAction {
+  constructor(public num: number) { }
+}
+
+export class MultiplyAction {
+  constructor(public num: number) { }
+}
+
 
 export type Action =
   IncrementAction |
@@ -39,5 +51,6 @@ export type Action =
   RestoreAction |
   ErrorAction |
   CancelAction |
-  TimeUpdateAction
+  TimeUpdateAction |
+  AddAction | SubtractAction | MultiplyAction
   ;
