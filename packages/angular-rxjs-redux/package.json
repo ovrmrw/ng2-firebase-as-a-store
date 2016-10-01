@@ -9,6 +9,10 @@
   "keywords": [],
   "author": "Tomohiro Noguchi",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ovrmrw/ng2-firebase-as-a-store/tree/master/packages/angular-rxjs-redux.git"
+  },
   "peerDependencies": {
     "@angular/core": "^2.0.0",
     "rxjs": "^5.0.0-beta.12"
