@@ -123,7 +123,7 @@ export function promisify<T>(state: T | Promise<T> | Observable<T>, withInnerRes
 
 /**
  * 非同期(Promise,Observable)かどうかはっきりしない状態(state)の型を同期的であると断定する。
- * 主にComponentで状態(satate)を受けるときに使う。
+ * 主にComponentで状態(state)を受けるときに使う。
  */
 export function resolved<T>(state: T | Promise<T> | Observable<T>): T {
   if (state instanceof Observable) {

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 import lodash from 'lodash';
 
-import { promisify, takeLatest, takeEvery, connect } from '../../../src-rxjs-redux';
+import { promisify, takeLatest, takeEvery, connect } from '../../../packages/angular-rxjs-redux';
 import { Store } from './store';
 import { AppState, ResolvedAppState, IncrementState } from './types';
 

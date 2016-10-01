@@ -8,7 +8,7 @@ import { Page1Component } from './page1/page1.component';
 
 import { Page1Service } from './page1/page1.service';
 
-import { Dispatcher, AsyncStatePipe, InitialState } from '../../src-rxjs-redux';
+import { Dispatcher, AsyncStatePipe, InitialState } from '../../packages/angular-rxjs-redux';
 import { Store, State, defaultAppState } from './store';
 
 

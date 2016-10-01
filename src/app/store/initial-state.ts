@@ -1,4 +1,4 @@
-import { generateUuid } from '../../../src-rxjs-redux';
+import { generateUuid } from '../../../packages/angular-rxjs-redux';
 import { AppState, ResolvedAppState, IncrementState, TimeState } from './types';
 
 

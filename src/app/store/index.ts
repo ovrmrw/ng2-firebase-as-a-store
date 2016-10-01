@@ -1,7 +1,7 @@
 /* For Component, Service */
 export * from './actions';
 export * from './types';
-export { Dispatcher, resolved } from '../../../src-rxjs-redux';
+export { Dispatcher, resolved } from '../../../packages/angular-rxjs-redux';
 export { State } from './state-creator';
 
 /* For NgModule */

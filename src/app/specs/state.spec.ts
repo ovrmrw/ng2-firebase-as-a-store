@@ -8,7 +8,7 @@ import { setTimeoutPromise, elements, elementText, elementValue } from '../../..
 
 ////////////////////////////////////////////////////////////////////////
 // modules
-import { Dispatcher, Provider, InitialState } from '../../../src-rxjs-redux';
+import { Dispatcher, Provider, InitialState } from '../../../packages/angular-rxjs-redux';
 import { Store, State, defaultAppState, AppState, IncrementState, Action, IncrementAction, DecrementAction, ResetAction } from '../store';
 import { Observable } from 'rxjs/Rx';
 

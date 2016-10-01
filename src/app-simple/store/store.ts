@@ -2,7 +2,7 @@ import { Injectable, Inject, Optional } from '@angular/core';
 import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
 // import lodash from 'lodash';
 
-import { Dispatcher, Provider, ReducerContainer, InitialState, promisify } from '../../../src-rxjs-redux';
+import { Dispatcher, Provider, ReducerContainer, InitialState, promisify } from '../../../packages/angular-rxjs-redux';
 import { Action } from './actions';
 import { IncrementState, AppState, ResolvedAppState } from './types';
 import { incrementStateReducer } from './reducers';
