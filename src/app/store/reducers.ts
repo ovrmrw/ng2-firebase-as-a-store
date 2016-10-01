@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs/Rx';
 
-import { Dispatcher, ReducerContainer, StateReducer, NonStateReducer, promisify } from '../../../packages/angular-rxjs-redux';
+import { Dispatcher, ReducerContainer, StateReducer, NonStateReducer, promisify } from '../../../angular-rxjs-redux';
 import { Action, IncrementAction, DecrementAction, ResetAction, RestoreAction, ErrorAction, CancelAction, TimeUpdateAction } from './actions';
 import { IncrementState, TimeState, MathState } from './types';
 import { additionReducer, subtractionReducer, multiplicationReducer } from './reducers.math';

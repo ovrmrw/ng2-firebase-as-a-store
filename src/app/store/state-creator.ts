@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 
-import { promisify, takeEvery, takeLatest, connect } from '../../../packages/angular-rxjs-redux';
+import { promisify, takeEvery, takeLatest, connect } from '../../../angular-rxjs-redux';
 import { Store } from './store';
 import { AppState, ResolvedAppState, IncrementState, TimeState, MathState, ResolvedMathState } from './types';
 
