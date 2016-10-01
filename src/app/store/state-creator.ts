@@ -23,7 +23,7 @@ export class State {
   /* Observable<AppState> --(mutation)--> Observable<ResolvedAppState> */
   /* AppStateからResolvedAppStateへの変換はtype-errorにならない。 */
   getState(): Observable<ResolvedAppState> {
-    return connect(takeEvery<AppState>(this.appState$, true)) as Observable<ResolvedAppState>;
+    return connect(takeLatest<AppState>(this.appState$, true)) as Observable<ResolvedAppState>;
   }
 
 

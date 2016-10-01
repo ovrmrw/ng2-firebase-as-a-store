@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRe
 import { Observable } from 'rxjs/Rx';
 
 import { Page1Service } from './page1.service';
-import { State, MathState } from '../store';
+import { State } from '../store';
 
 
 @Component({

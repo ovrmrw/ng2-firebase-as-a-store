@@ -1,5 +1,5 @@
 import { generateUuid } from '../../../src-rxjs-redux';
-import { AppState, IncrementState, TimeState } from './types';
+import { AppState, ResolvedAppState, IncrementState, TimeState } from './types';
 
 
 export const defaultAppState: AppState = {
@@ -23,5 +23,32 @@ export const defaultAppState: AppState = {
         c: true
       })
     })
+  },
+};
+
+
+
+/* Component到達時にはこのようになる。 */
+const resolvedAppState: ResolvedAppState = {
+  increment: {
+    counter: 0
+  },
+  restore: false,
+  uuid: '1234-5678',
+  time: {
+    serial: 0
+  },
+  actionName: 'SomeAction',
+  math: {
+    addition: 0,
+    subtraction: 100,
+    multiplication: 2
+  },
+  nest: {
+    a: {
+      b: {
+        c: true
+      }
+    }
   },
 };
