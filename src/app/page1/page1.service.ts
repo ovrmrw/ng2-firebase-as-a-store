@@ -7,9 +7,6 @@ import { IncrementAction, DecrementAction, ResetAction, ErrorAction, CancelActio
 import { AddAction, SubtractAction, MultiplyAction } from '../store';
 
 
-/*
-  ComponentクラスにDispatcherとかActionとかを露出させたくないのでServiceクラスに切り出す。
-*/
 @Injectable()
 export class Page1Service {
   constructor(

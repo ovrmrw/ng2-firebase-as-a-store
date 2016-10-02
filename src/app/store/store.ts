@@ -9,12 +9,6 @@ import { incrementStateReducer, restoreReducer, invokeErrorMapper, cancelMapper,
 import { FirebaseEffector } from './firebase-effector';
 
 
-/*
-  ServiceクラスでDispatcherにActionをセットしてnextすると、
-  applyReducers関数内で定義されている各Reducer関数に前以て埋め込まれているDispatcherが発火し、
-  scanオペレーターが走る。そしてzipオペレーターで纏めてsubscribeして、その中で
-  Providerをnextして最終的にComponentクラスにStateが届く。
-*/
 @Injectable()
 export class Store {
   readonly provider$: Provider<AppState>;

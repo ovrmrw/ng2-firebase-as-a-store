@@ -6,9 +6,6 @@ import { Store } from './store';
 import { AppState, ResolvedAppState, IncrementState, TimeState, MathState, ResolvedMathState } from './types';
 
 
-/*
-  Componentクラスを綺麗に保つため、全てのStateは非同期を解決した上でObservable<T>の型に統一して返すこと。
-*/
 @Injectable()
 export class State {
   private appState$: Observable<AppState>;
