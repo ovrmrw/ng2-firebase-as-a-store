@@ -22,7 +22,7 @@ export class Dispatcher<T> extends Subject<T> {
 
 
 /**
- * Storeクラス内のReducers処理後に新しい状態をnextし、ComponentクラスのViewを更新するために用いられる。
+ * Storeクラス内のReducers処理後に新しい状態をnextし、StateCreatorで型をmutationする。
  * 簡潔に言うと復路のSubject。
  */
 export class Provider<T> extends Subject<T> {
@@ -137,7 +137,8 @@ export function resolved<T>(state: T | Promise<T> | Observable<T>): T {
 
 
 /**
- * StateをViewに表示するためのPipe。markForCheckをPipeの中で実行するとなぜかブラウザがフリーズするので"workaround"として使う。
+ * StateをViewに表示するためのPipe。
+ * 標準のAsyncPipeを使うとなぜかブラウザが無限ループに入ってフリーズするので代わりにこれを使う。
  */
 @Pipe({
   name: 'asyncState',
@@ -177,6 +178,7 @@ export class AsyncStatePipe<T> implements PipeTransform, OnDestroy {
 /**
  * StateCreatorで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に流す。
  * Observable.fromPromise()後の状態(state)をmergeMapオペレーターで返す。
+ * 引数withInnerResolveがtrueのときはオブジェクト内の全ての非同期を解決した上で返す。
  */
 export function takeEvery<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve?: boolean): Observable<T> {
   return observableIncludesAsyncStates
@@ -188,6 +190,7 @@ export function takeEvery<T>(observableIncludesAsyncStates: Observable<T | Promi
 /**
  * StateCreatorで使う。Storeから入ってくるPromiseかどうかわからないObservableをObservable<T>の形に整えて次に流す。
  * Observable.fromPromise()後の状態(state)をswitchMapオペレーターで返す。
+ * 引数withInnerResolveがtrueのときはオブジェクト内の全ての非同期を解決した上で返す。
  */
 export function takeLatest<T>(observableIncludesAsyncStates: Observable<T | Promise<T> | Observable<T>>, withInnerResolve?: boolean): Observable<T> {
   return observableIncludesAsyncStates
