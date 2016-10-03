@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
-import lodash from 'lodash';
 
-import { promisify, takeLatest, takeEvery, connect } from '../../../angular-rxjs-redux';
+import { connect, takeLatest, takeEvery } from '../../../angular-rxjs-redux';
 import { Store } from './store';
-import { AppState, ResolvedAppState, IncrementState } from './types';
+import { AppState, ResolvedAppState } from './types';
 
 
 @Injectable()
@@ -22,18 +21,6 @@ export class State {
   /* AppStateからResolvedAppStateへの変換はtype-errorにならない。 */
   getState(): Observable<ResolvedAppState> {
     return connect(takeLatest<AppState>(this.appState$, true)) as Observable<ResolvedAppState>;
-  }
-
-
-  /* Observable<Promise<IncrementState>> --(mutation)--> Observable<IncrementState> */
-  get incrementStateEvery$(): Observable<IncrementState> {
-    return connect(takeEvery<IncrementState>(this.appState$.map(s => s.increment)));
-  }
-
-
-  /* Observable<Promise<IncrementState>> --(mutation)--> Observable<IncrementState> */
-  get incrementStateLatest$(): Observable<IncrementState> {
-    return connect(takeLatest<IncrementState>(this.appState$.map(s => s.increment)));
   }
 
 }
