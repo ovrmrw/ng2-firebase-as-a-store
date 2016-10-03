@@ -20,9 +20,10 @@ export class Page1Service {
     this.dispatcher$.next(new IncrementAction());
 
     /* IncrementActionのときだけMathStateを更新する。 */
-    this.dispatcher$.next(new AddAction(2));
-    this.dispatcher$.next(new SubtractAction(2));
-    this.dispatcher$.next(new MultiplyAction(2));
+    // this.dispatcher$.next(new AddAction(2));
+    // this.dispatcher$.next(new SubtractAction(2));
+    // this.dispatcher$.next(new MultiplyAction(2));
+    [new AddAction(2), new SubtractAction(2), new MultiplyAction(2)].forEach(action => this.dispatcher$.next(action));
   }
 
   decrement(): void {
