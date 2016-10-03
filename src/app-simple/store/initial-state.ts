@@ -1,10 +1,15 @@
 import { AppState, IncrementState, ResolvedAppState } from './types';
 
 
+// export const defaultAppState: AppState = {
+//   increment: Promise.resolve<IncrementState>({
+//     counter: 0
+//   })
+// };
 export const defaultAppState: AppState = {
-  increment: Promise.resolve<IncrementState>({
+  increment: { // incrementプロパティはPromiseオブジェクトでも良い。
     counter: 0
-  })
+  }
 };
 
 
