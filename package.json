@@ -27,7 +27,9 @@
     "tsc:w": "tsc -w",
     "tslint": "tslint -c tslint.json src*/**/*.ts",
     "tscheck": "npm run tsc && npm run tslint",
-    "sass": "node-sass src --output .dest/src --recursive"
+    "sass": "node-sass src --output .dest/src --recursive",
+    "build:simple": "npm run clean && webpack --config webpack.config.simple.js",
+    "start:simple": "npm run build:simple && concurrently -k \"gulp copy:w\" \"npm run ls\" "
   },
   "repository": {
     "type": "git",

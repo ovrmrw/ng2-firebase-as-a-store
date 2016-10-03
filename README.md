@@ -19,9 +19,14 @@ Writing Redux-like store from scratch using Angular's DI & RxJS with Firebase ba
 $ npm install
 ```
 
-###Run
+###Run (src/app)
 ```
 $ npm start
+```
+
+###Run (src/app-simple)
+```
+$ npm run start:simple
 ```
 
 ### Check whether your TypeScript codes are correct
