@@ -13,7 +13,9 @@ export class State {
   constructor(
     private store: Store
   ) {
-    this.appState$ = this.store.provider$;
+    this.appState$ = this.store.provider$
+      // .do(() => console.log('provider'))
+      .share();
   }
 
 
